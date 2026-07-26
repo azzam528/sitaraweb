@@ -1,0 +1,89 @@
+:root {
+  /* Primary Colors - Teal/Cyan palette */
+  --color-primary: #006591;
+  --color-primary-light: #0080B5;
+  --color-primary-dark: #004D6E;
+  --color-secondary: #004D6E;
+  --color-accent: #6DF5E1;
+  --color-accent-light: #A0F9ED;
+  --color-gradient: linear-gradient(135deg, #006591 0%, #6DF5E1 100%);
+  --color-gradient-dark: linear-gradient(135deg, #004D6E 0%, #006591 100%);
+  
+  /* Status Colors */
+  --color-success: #22C55E;
+  --color-success-light: #4ADE80;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FBBF24;
+  --color-danger: #EF4444;
+  --color-danger-light: #F87171;
+  --color-info: #0EA5E9;
+  --color-info-light: #38BDF8;
+  
+  /* Neutral Colors */
+  --color-bg: #F8FAFC;
+  --color-bg-dark: #F1F5F9;
+  --color-white: #FFFFFF;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
+  
+  /* Sidebar Colors */
+  --sidebar-bg-start: #002B3F;
+  --sidebar-bg-end: #004D6E;
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(109, 245, 225, 0.12);
+  --sidebar-active-border: #6DF5E1;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 80px;
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+  --space-3xl: 48px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* Layout */
+  --navbar-height: 64px;
+  
+  /* Z-index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
