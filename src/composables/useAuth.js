@@ -5,10 +5,18 @@ export function useAuth() {
   const authStore = useAuthStore();
 
   const user = computed(() => authStore.user);
-  const isAuthenticated = computed(() => authStore.isAuthenticated);
-  const userFullName = computed(() => authStore.userFullName);
-  const userRole = computed(() => authStore.userRole);
-  const userInitials = computed(() => authStore.userInitials);
+  const isAuthenticated = computed(
+    () => authStore.isAuthenticated
+  );
+  const userFullName = computed(
+    () => authStore.userFullName
+  );
+  const userRole = computed(
+    () => authStore.userRole
+  );
+  const userInitials = computed(
+    () => authStore.userInitials
+  );
 
   const login = async (credentials) => {
     return await authStore.login(credentials);
@@ -19,7 +27,7 @@ export function useAuth() {
   };
 
   const checkAuth = () => {
-    authStore.initAuth();
+    return authStore.initAuth();
   };
 
   return {

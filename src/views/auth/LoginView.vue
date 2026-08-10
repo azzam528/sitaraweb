@@ -1,11 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
 
+const authStore = useAuthStore()
 const router = useRouter()
 
 // Form state
-const email = ref('')
+const username = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 const showPassword = ref(false)
@@ -16,10 +18,8 @@ const errors = ref({})
 const validateForm = () => {
   const newErrors = {}
 
-  if (!email.value.trim()) {
-    newErrors.email = 'Email wajib diisi'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    newErrors.email = 'Format email tidak valid'
+  if (!username.value.trim()) {
+    newErrors.username = 'Username wajib diisi'
   }
 
   if (!password.value) {
@@ -29,6 +29,7 @@ const validateForm = () => {
   }
 
   errors.value = newErrors
+
   return Object.keys(newErrors).length === 0
 }
 
@@ -37,24 +38,28 @@ const handleLogin = async () => {
   if (!validateForm()) return
 
   isLoading.value = true
+  errors.value = {}
 
-  setTimeout(() => {
-    localStorage.setItem('sitara_token', 'dummy-token-sitara-2024')
-    localStorage.setItem('sitara_user', JSON.stringify({
-      id: 1,
-      name: 'Admin Puskesmas',
-      email: email.value,
-      role: 'kepala_puskesmas',
-      puskesmas: 'Puskesmas Sukajadi'
-    }))
+  try {
+    await authStore.login({
+      username: username.value,
+      password: password.value
+    })
 
-    isLoading.value = false
     router.push('/dashboard')
-  }, 1200)
-}
 
-const togglePassword = () => {
-  showPassword.value = !showPassword.value
+  } catch (error) {
+    console.error('Login error:', error)
+
+    errors.value = {
+      general:
+        error.response?.data?.detail ||
+        'Username atau password salah'
+    }
+
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -64,7 +69,7 @@ const togglePassword = () => {
     <form @submit.prevent="handleLogin" class="auth-form" novalidate>
       <!-- Email -->
       <div class="form-group" :class="{ 'has-error': errors.email }">
-        <label for="login-email">Email</label>
+        <label for="login-username">Username</label>
         <div class="input-wrapper">
           <span class="input-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,12 +78,10 @@ const togglePassword = () => {
             </svg>
           </span>
           <input
-            id="login-email"
-            v-model="email"
-            type="email"
-            placeholder="Masukkan email institusi Anda"
-            :class="{ 'is-error': errors.email }"
-            @input="errors.email = ''"
+            id="login-username"
+            v-model="username"
+            type="text"
+            placeholder="Masukkan username Anda"
           />
         </div>
         <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
@@ -124,6 +127,10 @@ const togglePassword = () => {
         </label>
         <a href="#" class="forgot-link">Lupa Password?</a>
       </div>
+
+       <p v-if="errors.general" class="error-text">
+        {{ errors.general }}
+      </p>
 
       <!-- Submit Button -->
       <button type="submit" class="btn-login" :disabled="isLoading">
