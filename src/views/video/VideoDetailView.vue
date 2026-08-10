@@ -432,9 +432,6 @@ const videoId = route.params.id || '123'
 }
 
 /* --- Left Column: Timeline --- */
-.timeline-card {
-  /* Inherits card styles */
-}
 .card-header {
   display: flex;
   justify-content: space-between;
