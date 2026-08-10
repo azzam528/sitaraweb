@@ -41,7 +41,7 @@
       <div class="profile-bottom">
         <div class="data-field">
           <div class="field-label">TANGGAL MULAI</div>
-          <div class="field-value text-primary">12 Jan 2024</div>
+          <div class="field-value text-primary">12 Jan 2026</div>
         </div>
         <div class="data-field">
           <div class="field-label">TIPE TB</div>
@@ -107,11 +107,11 @@
           </div>
           <div class="key-value">
             <span class="key">Tanggal Diagnosis</span>
-            <span class="value">02 Jan 2024</span>
+            <span class="value">02 Jan 2026</span>
           </div>
           <div class="key-value">
             <span class="key">Mulai Terapi</span>
-            <span class="value">12 Jan 2024</span>
+            <span class="value">12 Jan 2026</span>
           </div>
           <div class="key-value">
             <span class="key">Pemeriksaan Awal</span>
@@ -187,21 +187,21 @@
             </thead>
             <tbody>
               <tr>
-                <td>19 Apr 2024</td>
+                <td>19 Jul 2026</td>
                 <td>Kategori 1 4FDC</td>
                 <td>28 Tab</td>
                 <td>Ns. Hendra</td>
                 <td><span class="badge badge-success">Sudah Diambil</span></td>
               </tr>
               <tr>
-                <td>13 Mar 2024</td>
+                <td>13 Jun 2026</td>
                 <td>Kategori 1 4FDC</td>
                 <td>28 Tab</td>
                 <td>Ns. Siti</td>
                 <td><span class="badge badge-success">Sudah Diambil</span></td>
               </tr>
               <tr>
-                <td>14 Feb 2024</td>
+                <td>14 Mei 2026</td>
                 <td>Kategori 1 4FDC</td>
                 <td>28 Tab</td>
                 <td>Ns. Hendra</td>
@@ -225,7 +225,7 @@
             <div class="timeline-item">
               <div class="timeline-dot dot-primary"></div>
               <div class="timeline-content">
-                <div class="timeline-date">12 Jan 2024</div>
+                <div class="timeline-date">12 Jan 2026</div>
                 <div class="timeline-title">Mulai Terapi (OAT)</div>
                 <div class="timeline-desc">Fase Intensif Dimulai</div>
               </div>
@@ -233,7 +233,7 @@
             <div class="timeline-item">
               <div class="timeline-dot dot-primary"></div>
               <div class="timeline-content">
-                <div class="timeline-date">12 Mar 2024</div>
+                <div class="timeline-date">12 Mar 2026</div>
                 <div class="timeline-title">Perubahan Fase</div>
                 <div class="timeline-desc">Masuk Fase Lanjutan</div>
               </div>
@@ -241,7 +241,7 @@
             <div class="timeline-item">
               <div class="timeline-dot dot-success"></div>
               <div class="timeline-content">
-                <div class="timeline-date">10 Apr 2024</div>
+                <div class="timeline-date">10 Jul 2026</div>
                 <div class="timeline-title">Pemeriksaan Lab Terakhir</div>
                 <div class="timeline-desc"><span class="badge badge-success-outline">Tes Sputum - Negatif</span></div>
               </div>
@@ -249,7 +249,7 @@
             <div class="timeline-item">
               <div class="timeline-dot dot-gray"></div>
               <div class="timeline-content">
-                <div class="timeline-date">15 Mei 2024</div>
+                <div class="timeline-date">15 Agu 2026</div>
                 <div class="timeline-title text-muted">Jadwal Kontrol Berikutnya</div>
               </div>
             </div>
@@ -275,7 +275,7 @@
               <div class="note-content-wrapper">
                 <div class="note-header">
                   <span class="note-author">Dr. Heru Prasetyo</span>
-                  <span class="note-time">10 Apr 2024, 09:30</span>
+                  <span class="note-time">10 Jul 2026, 09:30</span>
                 </div>
                 <div class="note-text">
                   Hasil BTA negatif (follow up bulan ke-3). Kondisi pasien stabil, keluhan batuk sudah berkurang signifikan. Lanjutkan OAT fase lanjutan.
@@ -289,7 +289,7 @@
               <div class="note-content-wrapper">
                 <div class="note-header">
                   <span class="note-author">Ns. Hendra</span>
-                  <span class="note-time">12 Mar 2024, 14:15</span>
+                  <span class="note-time">12 Jun 2026, 14:15</span>
                 </div>
                 <div class="note-text">
                   Pasien datang mengambil obat tepat waktu. Berat badan naik 1.5kg dari bulan sebelumnya. Edukasi PMO terkait kepatuhan tetap dilakukan.
@@ -306,7 +306,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           <span>Jadwal Kontrol Berikutnya</span>
         </div>
-        <div class="schedule-date">15 Mei 2024</div>
+        <div class="schedule-date">15 Agu 2026</div>
         <div class="schedule-location">Pukul 09:00 WIB • Poli TB (Lantai 2)</div>
         
         <div class="doctor-info">
@@ -455,12 +455,18 @@ h3 {
   background: #006591;
   color: white;
 }
+.btn-filled:hover {
+  background: #005378;
+}
 .btn-filled-small {
   background: #006591;
   color: white;
   padding: 8px 12px;
   font-size: 0.75rem;
   border-radius: 6px;
+}
+.btn-filled-small:hover {
+  background: #005378;
 }
 .btn-white {
   background: white;

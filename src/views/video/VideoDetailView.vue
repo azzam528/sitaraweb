@@ -37,7 +37,7 @@
             </div>
           </div>
           <div class="video-footer">
-            <span class="recording-time">Recording: 25 Oct 2024, 08:15 AM</span>
+            <span class="recording-time">Recording: 28 Jul 2026, 08:15 AM</span>
             <a href="#" class="download-link">Unduh Video ↓</a>
           </div>
         </div>
@@ -735,7 +735,7 @@ const videoId = route.params.id || '123'
   height: 18px;
 }
 .btn-approve {
-  background: linear-gradient(135deg, var(--primary) 0%, #004D70 100%);
+  background-color: #006591;
   color: white;
   width: 100%;
   padding: 16px;
@@ -743,6 +743,7 @@ const videoId = route.params.id || '123'
   box-shadow: 0 4px 12px rgba(0, 101, 145, 0.2);
 }
 .btn-approve:hover {
+  background-color: #005378;
   box-shadow: 0 6px 16px rgba(0, 101, 145, 0.3);
   transform: translateY(-1px);
 }

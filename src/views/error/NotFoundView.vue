@@ -24,7 +24,7 @@ import { RouterLink } from 'vue-router'
 .error-code {
   font-size: 6rem;
   font-weight: bold;
-  color: var(--color-primary, #2563EB);
+  color: var(--color-primary, #006591);
   margin-bottom: 8px;
 }
 
@@ -37,7 +37,7 @@ import { RouterLink } from 'vue-router'
 .back-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: var(--color-primary, #2563EB);
+  background-color: var(--color-primary, #006591);
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -46,6 +46,6 @@ import { RouterLink } from 'vue-router'
 }
 
 .back-button:hover {
-  background-color: var(--color-secondary, #1E40AF);
+  background-color: var(--color-primary-dark, #005378);
 }
 </style>

@@ -5,15 +5,15 @@ const printReport = () => {
   window.print()
 }
 
-const currentMonth = ref('Oktober 2024')
+const currentMonth = ref('Juli 2026')
 const facilityName = ref('Puskesmas Sukajadi')
 
 const reportData = ref([
-  { id: 'TB-2023-089', name: 'Bpk. Ahmad Subarjo', type: 'TB Paru SO', startDate: '12 Jan 2024', status: 'Selesai (Sembuh)', compliance: '98%' },
-  { id: 'TB-2023-112', name: 'Ratna Sari', type: 'TB Paru SO', startDate: '05 Feb 2024', status: 'Aktif Pengobatan', compliance: '95%' },
-  { id: 'TB-2023-045', name: 'Dedi Kurniawan', type: 'TB Ekstra Paru', startDate: '20 Mar 2024', status: 'Aktif Pengobatan', compliance: '88%' },
-  { id: 'TB-2023-156', name: 'Ahmad Faisal', type: 'Anak', startDate: '15 Apr 2024', status: 'Putus Berobat', compliance: '45%' },
-  { id: 'TB-2023-201', name: 'Siti Aminah', type: 'TB Paru RO', startDate: '01 Mei 2024', status: 'Aktif Pengobatan', compliance: '92%' }
+  { id: 'TB-2026-089', name: 'Bpk. Ahmad Subarjo', type: 'TB Paru SO', startDate: '12 Jan 2026', status: 'Selesai (Sembuh)', compliance: '98%' },
+  { id: 'TB-2026-112', name: 'Ratna Sari', type: 'TB Paru SO', startDate: '05 Feb 2026', status: 'Aktif Pengobatan', compliance: '95%' },
+  { id: 'TB-2026-045', name: 'Dedi Kurniawan', type: 'TB Ekstra Paru', startDate: '20 Mar 2026', status: 'Aktif Pengobatan', compliance: '88%' },
+  { id: 'TB-2026-156', name: 'Ahmad Faisal', type: 'Anak', startDate: '15 Apr 2026', status: 'Putus Berobat', compliance: '45%' },
+  { id: 'TB-2026-201', name: 'Siti Ayu', type: 'TB Paru RO', startDate: '01 Mei 2026', status: 'Aktif Pengobatan', compliance: '92%' }
 ])
 </script>
 
@@ -32,16 +32,9 @@ const reportData = ref([
           <div class="form-group">
             <label>Periode Laporan</label>
             <select class="form-select" v-model="currentMonth">
-              <option value="Oktober 2024">Oktober 2024</option>
-              <option value="September 2024">September 2024</option>
-              <option value="Agustus 2024">Agustus 2024</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Fasilitas Kesehatan</label>
-            <select class="form-select" v-model="facilityName">
-              <option value="Puskesmas Sukajadi">Puskesmas Sukajadi</option>
-              <option value="RSUD Kota Bandung">RSUD Kota Bandung</option>
+              <option value="Juli 2026">Juli 2026</option>
+              <option value="Juni 2026">Juni 2026</option>
+              <option value="Mei 2026">Mei 2026</option>
             </select>
           </div>
         </div>
@@ -70,26 +63,6 @@ const reportData = ref([
       </div>
 
       <hr class="report-divider" />
-
-      <!-- Report Summary -->
-      <div class="report-summary">
-        <div class="summary-box">
-          <span class="summary-label">Total Pasien Aktif</span>
-          <span class="summary-value">45</span>
-        </div>
-        <div class="summary-box">
-          <span class="summary-label">Pasien Sembuh (Bulan Ini)</span>
-          <span class="summary-value text-success">8</span>
-        </div>
-        <div class="summary-box">
-          <span class="summary-label">Pasien Putus Obat</span>
-          <span class="summary-value text-danger">2</span>
-        </div>
-        <div class="summary-box">
-          <span class="summary-label">Rata-rata Kepatuhan</span>
-          <span class="summary-value text-primary">92%</span>
-        </div>
-      </div>
 
       <!-- Report Table -->
       <div class="report-table-container">
@@ -129,7 +102,7 @@ const reportData = ref([
           <p class="nip">NIP. 19700101 199903 1 002</p>
         </div>
         <div class="signature-box">
-          <p>Bandung, 31 Oktober 2024</p>
+          <p>Bandung, 31 Juli 2026</p>
           <p class="role">Petugas Program TB</p>
           <div class="signature-space"></div>
           <p class="name">Ns. Siti Fatimah, S.Kep</p>
@@ -235,7 +208,7 @@ const reportData = ref([
 }
 
 .btn-primary:hover {
-  background-color: #004d70;
+  background-color: #005378;
 }
 
 /* Printable Report Styles */

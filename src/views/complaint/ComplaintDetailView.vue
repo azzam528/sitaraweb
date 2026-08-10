@@ -3,27 +3,26 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const complaintId = route.params.id || 'KLH-2024-001'
+const complaintId = route.params.id || 'KLH-2026-001'
 
-// Dummy patient data
+// Patient data
 const patient = ref({
-  name: 'Bpk. Ahmad Subarjo',
-  nik: '3275010012459003',
-  age: 62,
-  avatar: null,
-  initials: 'AS',
-  tipeTb: 'TB-SO (Sensitif Obat)',
-  fasePengobatan: 'Intensif (Bulan 2)',
-  progres: 'Hari ke-42 dari 180',
-  pmo: 'Surya (Anak)',
-  kader: 'Ibu Ratna',
+  name: 'Budi Kusuma',
+  id: 'TB-2026-089',
+  nik: '3273102805620001',
+  usia: 42,
+  gender: 'Laki-laki',
+  fase: 'Fase Intensif (Bulan ke-1)',
+  pmo: 'Siti Ayu (Istri)',
+  noHp: '0812-3456-7890',
+  puskesmas: 'Puskesmas Sukajadi',
   dokterPj: 'Dr. Hendra W.'
 })
 
 // Complaint data
 const complaint = ref({
   tingkat: 'BERAT',
-  waktuLaporan: '24 Okt 2023, 08:15 WIB',
+  waktuLaporan: '28 Jul 2026, 08:15 WIB',
   kategori: 'Efek Samping Obat (ESO)',
   deskripsi: '"Dok, saya merasa sangat mual sejak pagi tadi. Mata saya juga terlihat agak kuning dan nafsu makan hilang total. Sudah 2 hari begini, tapi hari ini paling parah sampai lemas sekali."'
 })
@@ -38,8 +37,8 @@ const statusOptions = [
 
 // Previous complaints
 const previousComplaints = ref([
-  { date: '12 Okt 2023', text: 'Gatal-gatal ringan (Selesai)', color: '#006591' },
-  { date: '05 Okt 2023', text: 'Batuk berdahak (Selesai)', color: '#F59E0B' }
+  { date: '12 Jul 2026', text: 'Gatal-gatal ringan (Selesai)', color: '#006591' },
+  { date: '05 Jul 2026', text: 'Batuk berdahak (Selesai)', color: '#F59E0B' }
 ])
 
 const handleSaveStatus = () => {

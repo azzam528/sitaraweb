@@ -7,7 +7,7 @@
           Kembali
         </RouterLink>
         <h1 class="page-title">Syarat dan Ketentuan</h1>
-        <p class="last-updated">Terakhir diperbarui: 25 Oktober 2023</p>
+        <p class="last-updated">Terakhir diperbarui: 25 Juli 2026</p>
       </header>
 
       <div class="legal-content">
@@ -146,7 +146,7 @@
 }
 
 .btn-primary:hover {
-  background-color: #004d70;
+  background-color: #005378;
 }
 
 .btn-block {

@@ -509,7 +509,7 @@ textarea.form-control {
 }
 
 .btn-primary:hover {
-  background-color: #004d70;
+  background-color: #005378;
 }
 
 .btn-primary:disabled {

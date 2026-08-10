@@ -15,7 +15,7 @@
               </div>
               <div class="profile-details">
                 <h2>Bp. Ahmad Subarjo</h2>
-                <p class="patient-id">TB-2024-00892 • 64 Tahun</p>
+                <p class="patient-id">TB-2026-00892 • 64 Tahun</p>
                 <div class="badges">
                   <span class="badge badge-accent">Kategori I</span>
                   <span class="badge badge-primary-light">Fase Lanjutan</span>
@@ -42,7 +42,7 @@
             </div>
             <div class="stat-item">
               <p class="stat-label">KONTROL BERIKUTNYA</p>
-              <p class="stat-value">28 Okt 2024</p>
+              <p class="stat-value">28 Jul 2026</p>
             </div>
           </div>
 
@@ -118,7 +118,7 @@
               <div class="timeline-content">
                 <div class="timeline-header">
                   <h4>Pengambilan Tahap 2</h4>
-                  <span class="timeline-date">15 Sep 2024</span>
+                  <span class="timeline-date">15 Jun 2026</span>
                 </div>
                 <p class="timeline-subtext">28 Tablet (4FDC) - Berhasil diserahkan oleh Kader Agus Salim.</p>
               </div>
@@ -134,7 +134,7 @@
               <div class="timeline-content">
                 <div class="timeline-header">
                   <h4>Pengambilan Tahap 1</h4>
-                  <span class="timeline-date">18 Agu 2024</span>
+                  <span class="timeline-date">18 Mei 2026</span>
                 </div>
                 <p class="timeline-subtext">28 Tablet (4FDC) - Berhasil diserahkan di Puskesmas.</p>
               </div>
@@ -651,7 +651,7 @@ const rejectRequest = () => {
 }
 
 .btn-primary:hover {
-  background-color: #005073;
+  background-color: #005378;
 }
 
 .btn-outline-danger {

@@ -15,18 +15,18 @@
       
       <div class="page-buttons">
         <button 
-          class="page-btn nav-btn" 
+          class="btn-page nav-btn" 
           :disabled="currentPage === 1"
           @click="changePage(currentPage - 1)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Prev
         </button>
         
         <button 
           v-for="page in displayedPages" 
           :key="page"
-          class="page-btn"
-          :class="{ 'is-active': page === currentPage, 'is-ellipsis': page === '...' }"
+          class="btn-page"
+          :class="{ 'active': page === currentPage, 'page-ellipsis': page === '...' }"
           :disabled="page === '...'"
           @click="page !== '...' ? changePage(page) : null"
         >
@@ -34,11 +34,11 @@
         </button>
         
         <button 
-          class="page-btn nav-btn" 
+          class="btn-page nav-btn" 
           :disabled="currentPage === totalPages"
           @click="changePage(currentPage + 1)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          Next
         </button>
       </div>
     </div>
@@ -157,51 +157,53 @@ const handlePerPageChange = (e) => {
 
 .page-buttons {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 6px;
 }
 
-.page-btn {
+.btn-page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 0.5rem;
-  font-size: 0.875rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md, 12px);
-  background-color: transparent;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.page-btn:hover:not(:disabled):not(.is-active) {
-  background-color: #F1F5F9;
-}
-
-.page-btn.is-active {
-  background-color: var(--color-primary, #006591);
-  color: white;
-  font-weight: 500;
-}
-
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-btn.is-ellipsis {
-  cursor: default;
-  background: transparent;
-  opacity: 1;
-}
-
-.nav-btn {
-  border-color: var(--color-border-light, #E2E8F0);
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #E2E8F0;
   background-color: #FFFFFF;
+  color: #006591;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
-.nav-btn:hover:not(:disabled) {
+
+.btn-page:hover:not(:disabled):not(.active) {
+  background-color: #F8FAFC;
   border-color: #CBD5E1;
+}
+
+.btn-page:disabled {
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  background-color: #FFFFFF;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.btn-page.active {
+  background-color: #006591;
+  color: #FFFFFF;
+  border-color: #006591;
+  font-weight: 600;
+}
+
+.page-ellipsis {
+  color: #006591;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
 }
 </style>

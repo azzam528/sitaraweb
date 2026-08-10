@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const patientData = ref({
-  id: 'TB-2023-089',
+  id: 'TB-2026-089',
   nik: '3273619263040005',
   bpjs: '0001234567890',
   name: 'Bpk. Ahmad Subarjo',
@@ -18,7 +18,7 @@ const patientData = ref({
   tbType: 'TB Paru SO',
   category: 'Kategori 1',
   regimen: '2RHZE/4RH',
-  startDate: '2024-01-12',
+  startDate: '2026-01-12',
   status: 'active',
   
   faskes: 'Puskesmas Sukajadi',
@@ -364,7 +364,7 @@ textarea.form-control {
 }
 
 .btn-primary:hover {
-  background-color: #004d70;
+  background-color: #005378;
 }
 
 .btn-outline {

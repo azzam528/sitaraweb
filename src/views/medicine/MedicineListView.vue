@@ -8,26 +8,99 @@
     <!-- Statistic Cards Row -->
     <div class="stats-grid">
       <div class="stat-card">
-        <h3 class="stat-title">Total Stock OAT</h3>
-        <p class="stat-value">2,450 <span class="stat-unit">Tabs</span></p>
+        <div class="stat-icon-wrapper teal-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">TOTAL STOK OAT</span>
+          <span class="stat-value">2,450 <span class="stat-unit">Tabs</span></span>
+        </div>
       </div>
+
       <div class="stat-card">
-        <h3 class="stat-title">Today's Requests</h3>
-        <p class="stat-value">12</p>
+        <div class="stat-icon-wrapper teal-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">PERMINTAAN HARI INI</span>
+          <span class="stat-value">4</span>
+        </div>
       </div>
+
       <div class="stat-card">
-        <h3 class="stat-title">Pending Approval</h3>
-        <p class="stat-value text-warning">5</p>
+        <div class="stat-icon-wrapper orange-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">MENUNGGU SETUJU</span>
+          <span class="stat-value">1</span>
+        </div>
       </div>
+
       <div class="stat-card">
-        <h3 class="stat-title">Approved</h3>
-        <p class="stat-value text-success">7</p>
+        <div class="stat-icon-wrapper green-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">DISETUJUI</span>
+          <span class="stat-value">3</span>
+        </div>
       </div>
+
       <div class="stat-card">
-        <h3 class="stat-title">Rejected</h3>
-        <p class="stat-value text-danger">0</p>
+        <div class="stat-icon-wrapper red-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">DITOLAK</span>
+          <span class="stat-value">0</span>
+        </div>
       </div>
     </div>
+
+    <!-- Filter Section -->
+    <section class="filter-section card mb-6">
+      <div class="filter-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        <h2>Filter Permintaan Obat</h2>
+      </div>
+
+      <div class="filter-grid-simple">
+        <!-- 1. Search Name / NIK -->
+        <div class="form-group">
+          <label>Pencarian</label>
+          <input 
+            type="text" 
+            placeholder="Cari Nama / NIK Pasien..." 
+            class="form-control"
+          />
+        </div>
+
+        <!-- 2. Tipe Obat -->
+        <div class="form-group">
+          <label>Tipe Obat OAT</label>
+          <select class="form-control">
+            <option value="">Semua Tipe Obat</option>
+            <option value="Kategori I">Kategori I</option>
+            <option value="Kategori II">Kategori II</option>
+            <option value="Anak">Anak</option>
+          </select>
+        </div>
+
+        <!-- 3. Status Permintaan -->
+        <div class="form-group">
+          <label>Status Permintaan</label>
+          <select class="form-control">
+            <option value="">Semua Status</option>
+            <option value="Pending">Pending (Menunggu)</option>
+            <option value="Disetujui">Disetujui</option>
+            <option value="Ditolak">Ditolak</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
     <!-- Main Table Section -->
     <div class="card table-card">
@@ -67,14 +140,57 @@
                   {{ req.status }}
                 </span>
               </td>
-              <td class="actions">
-                <RouterLink to="/dashboard/refill-requests" class="btn-action" title="Lihat Detail">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </RouterLink>
+              <td class="actions relative text-center">
+                <div class="action-dropdown-wrapper">
+                  <button class="btn-more-actions" @click.stop="toggleDropdown(req.id)" title="Aksi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                  
+                  <div v-if="activeDropdown === req.id" class="dropdown-menu-floating" @click.stop>
+                    <button class="dropdown-item" @click="viewDetail(); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      <span>Lihat Detail</span>
+                    </button>
+
+                    <button class="dropdown-item" @click="sendNotify(req); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <span>Kirim Notifikasi</span>
+                    </button>
+
+                    <button class="dropdown-item text-danger" @click="deleteRequest(req); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <span class="pagination-info">Menampilkan 1-10 dari 20 entri</span>
+        <div class="pagination-controls">
+          <button class="btn-page" disabled>Prev</button>
+          <button class="btn-page active">1</button>
+          <button class="btn-page">2</button>
+          <button class="btn-page">Next</button>
+        </div>
       </div>
     </div>
 
@@ -131,54 +247,88 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter, RouterLink } from 'vue-router';
+
+const router = useRouter();
+const activeDropdown = ref(null);
+
+const toggleDropdown = (id) => {
+  activeDropdown.value = activeDropdown.value === id ? null : id;
+};
+
+const handleDocumentClick = () => {
+  activeDropdown.value = null;
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
+const viewDetail = () => {
+  router.push('/dashboard/refill-requests');
+};
+
+const sendNotify = (req) => {
+  alert(`Mengirim notifikasi pengingat stok ke ${req.pasien}`);
+};
+
+const deleteRequest = (req) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus permintaan OAT ${req.pasien}?`)) {
+    requests.value = requests.value.filter(r => r.id !== req.id);
+  }
+};
 
 const requests = ref([
   {
     id: 1,
     pasien: 'Budi Santoso',
-    pasienId: 'ID: TB-2023-089',
+    pasienId: 'ID: TB-2026-089',
     pmo: 'Surya',
     tipeObat: 'Kategori I',
     typeClass: 'type-cat-1',
     alasan: 'Stok Habis',
-    tglPermintaan: '12 Oct 2023',
+    tglPermintaan: '28 Jul 2026',
     status: 'Pending',
     statusClass: 'status-pending'
   },
   {
     id: 2,
     pasien: 'Ratna Sari',
-    pasienId: 'ID: TB-2023-112',
+    pasienId: 'ID: TB-2026-112',
     pmo: 'Andi Wijaya',
     tipeObat: 'Kategori II',
     typeClass: 'type-cat-2',
     alasan: 'Kontrol Rutin',
-    tglPermintaan: '12 Oct 2023',
+    tglPermintaan: '28 Jul 2026',
     status: 'Disetujui',
     statusClass: 'status-approved'
   },
   {
     id: 3,
     pasien: 'Dedi Kurniawan',
-    pasienId: 'ID: TB-2023-045',
+    pasienId: 'ID: TB-2026-045',
     pmo: 'Lina Marlina',
     tipeObat: 'Kategori I',
     typeClass: 'type-cat-1',
     alasan: 'Stok Habis',
-    tglPermintaan: '11 Oct 2023',
+    tglPermintaan: '27 Jul 2026',
     status: 'Disetujui',
     statusClass: 'status-approved'
   },
   {
     id: 4,
     pasien: 'Ahmad Faisal',
-    pasienId: 'ID: TB-2023-156',
+    pasienId: 'ID: TB-2026-156',
     pmo: 'Rudi Hermawan',
     tipeObat: 'Anak',
     typeClass: 'type-child',
     alasan: 'Kontrol Rutin',
-    tglPermintaan: '11 Oct 2023',
+    tglPermintaan: '27 Jul 2026',
     status: 'Ditolak',
     statusClass: 'status-rejected'
   }
@@ -212,10 +362,10 @@ const stocks = ref([
 ]);
 
 const histories = ref([
-  { id: 1, tanggal: '12 Oct, 10:15', pasien: 'Ratna Sari', tipeObat: 'Kategori II', jumlah: '28 Tablet', petugas: 'Ns. Hendra' },
-  { id: 2, tanggal: '11 Oct, 14:30', pasien: 'Dedi Kurniawan', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Ns. Hendra' },
-  { id: 3, tanggal: '11 Oct, 09:20', pasien: 'Slamet Riyadi', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Dr. Anisa' },
-  { id: 4, tanggal: '10 Oct, 16:45', pasien: 'Maya Putri', tipeObat: 'Anak', jumlah: '14 Tablet', petugas: 'Ns. Hendra' }
+  { id: 1, tanggal: '28 Jul, 10:15', pasien: 'Ratna Sari', tipeObat: 'Kategori II', jumlah: '28 Tablet', petugas: 'Ns. Hendra' },
+  { id: 2, tanggal: '27 Jul, 14:30', pasien: 'Dedi Kurniawan', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Ns. Hendra' },
+  { id: 3, tanggal: '27 Jul, 09:20', pasien: 'Slamet Riyadi', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Dr. Anisa' },
+  { id: 4, tanggal: '26 Jul, 16:45', pasien: 'Maya Putri', tipeObat: 'Anak', jumlah: '14 Tablet', petugas: 'Ns. Hendra' }
 ]);
 </script>
 
@@ -259,13 +409,86 @@ const histories = ref([
   padding: 1.25rem;
   border: 1px solid #E2E8F0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.stat-title {
-  font-size: 0.875rem;
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.teal-circle { background-color: #E0F2FE; color: #0284C7; }
+.green-circle { background-color: #DCFCE7; color: #16A34A; }
+.orange-circle { background-color: #FEF3C7; color: #D97706; }
+.red-circle { background-color: #FEE2E2; color: #DC2626; }
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Filters */
+.filter-section {
+  padding: 20px;
+}
+.filter-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #334155;
+}
+.filter-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+.filter-grid-simple {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .filter-grid-simple { grid-template-columns: 1fr; }
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  font-size: 13px;
   font-weight: 500;
+  color: #475569;
+}
+.form-control {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #fff;
+  color: #334155;
+}
+.form-control:focus {
+  border-color: #006591;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
   color: #64748B;
-  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .stat-value {
@@ -273,6 +496,7 @@ const histories = ref([
   font-weight: 700;
   color: #0F172A;
   margin: 0;
+  line-height: 1.1;
 }
 
 .stat-unit {
@@ -337,6 +561,132 @@ const histories = ref([
   background-color: #FFFFFF;
   color: #006591;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Table Dropdown Actions */
+.action-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-more-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #F1F5F9;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-more-actions:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+
+.dropdown-menu-floating {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  min-width: 180px;
+  background-color: #0F172A;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  z-index: 100;
+  text-align: left;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #F8FAFC;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.dropdown-item.text-danger {
+  color: #F87171;
+}
+
+/* Pagination */
+.pagination-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #E2E8F0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.pagination-info {
+  font-size: 0.875rem;
+  color: #64748B;
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #006591;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-page:hover:not(:disabled):not(.active) {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+.btn-page:disabled {
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  background-color: #FFFFFF;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+.btn-page.active {
+  background-color: #006591;
+  color: #FFFFFF;
+  border-color: #006591;
+  font-weight: 600;
+}
+.page-ellipsis {
+  color: #006591;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 6px;
 }
 
 /* Table */

@@ -9,10 +9,6 @@
     <div class="stats-row">
       <!-- Card 1 -->
       <div class="stat-card">
-        <div class="stat-content">
-          <span class="stat-label">Video Diunggah Hari Ini</span>
-          <span class="stat-value">128</span>
-        </div>
         <div class="stat-icon-wrapper teal">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -20,31 +16,28 @@
             <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
         </div>
+        <div class="stat-info">
+          <span class="stat-label">VIDEO DIUNGGAH HARI INI</span>
+          <span class="stat-value">18</span>
+        </div>
       </div>
 
       <!-- Card 2 -->
       <div class="stat-card">
-        <div class="stat-content">
-          <span class="stat-label">Berhasil Diverifikasi AI</span>
-          <div class="stat-value-group">
-            <span class="stat-value">94</span>
-            <span class="stat-subtext success">↗ +12% vs Kemarin</span>
-          </div>
-        </div>
         <div class="stat-icon-wrapper success">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
         </div>
+        <div class="stat-info">
+          <span class="stat-label">BERHASIL DIVERIFIKASI AI</span>
+          <span class="stat-value">15</span>
+        </div>
       </div>
 
       <!-- Card 3 -->
       <div class="stat-card">
-        <div class="stat-content">
-          <span class="stat-label">Review Manual</span>
-          <span class="stat-value">18</span>
-        </div>
         <div class="stat-icon-wrapper primary">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -52,14 +45,14 @@
             <line x1="12" y1="17" x2="12" y2="21"></line>
           </svg>
         </div>
+        <div class="stat-info">
+          <span class="stat-label">REVIEW MANUAL</span>
+          <span class="stat-value">2</span>
+        </div>
       </div>
 
       <!-- Card 4 -->
       <div class="stat-card">
-        <div class="stat-content">
-          <span class="stat-label">Gagal Verifikasi</span>
-          <span class="stat-value">16</span>
-        </div>
         <div class="stat-icon-wrapper danger">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -67,14 +60,14 @@
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </div>
+        <div class="stat-info">
+          <span class="stat-label">GAGAL VERIFIKASI</span>
+          <span class="stat-value">1</span>
+        </div>
       </div>
 
       <!-- Card 5 -->
       <div class="stat-card">
-        <div class="stat-content">
-          <span class="stat-label">Rata-rata Kepercayaan</span>
-          <span class="stat-value">92.5%</span>
-        </div>
         <div class="stat-icon-wrapper teal">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -82,38 +75,56 @@
             <line x1="6" y1="20" x2="6" y2="14"></line>
           </svg>
         </div>
+        <div class="stat-info">
+          <span class="stat-label">RATA-RATA KEPERCAYAAN</span>
+          <span class="stat-value">94.5%</span>
+        </div>
       </div>
     </div>
 
     <!-- 2. Filter Section -->
-    <div class="filter-section card">
-      <div class="filter-input-group search-group">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    <section class="filter-section card">
+      <div class="filter-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
         </svg>
-        <input type="text" placeholder="Cari pasien..." class="filter-input" />
+        <h2>Filter Verifikasi Video AI</h2>
       </div>
-      <div class="filter-input-group">
-        <select class="filter-select">
-          <option>Semua PMO</option>
-        </select>
+
+      <div class="filter-grid-simple">
+        <!-- 1. Search Name / NIK -->
+        <div class="form-group">
+          <label>Pencarian</label>
+          <input 
+            type="text" 
+            placeholder="Cari Nama / NIK Pasien..." 
+            class="form-control"
+          />
+        </div>
+
+        <!-- 2. Status Verifikasi AI -->
+        <div class="form-group">
+          <label>Status Verifikasi AI</label>
+          <select class="form-control">
+            <option value="">Semua Status AI</option>
+            <option value="Diverifikasi">Diverifikasi (Sukses)</option>
+            <option value="Menunggu Tinjauan">Menunggu Tinjauan</option>
+            <option value="Gagal">Gagal Verifikasi</option>
+          </select>
+        </div>
+
+        <!-- 3. Status AI Risk -->
+        <div class="form-group">
+          <label>Status AI Risk</label>
+          <select class="form-control">
+            <option value="">Semua Status Risk</option>
+            <option value="Risiko Tinggi">Risiko Tinggi</option>
+            <option value="Risiko Sedang">Risiko Sedang</option>
+            <option value="Risiko Rendah">Risiko Rendah</option>
+          </select>
+        </div>
       </div>
-      <div class="filter-input-group">
-        <select class="filter-select">
-          <option>Semua Kader</option>
-        </select>
-      </div>
-      <div class="filter-input-group">
-        <select class="filter-select">
-          <option>Semua Status</option>
-        </select>
-      </div>
-      <div class="filter-input-group">
-        <input type="date" class="filter-date" placeholder="mm/dd/yyyy" />
-      </div>
-      <button class="btn-apply">Apply</button>
-    </div>
+    </section>
 
     <!-- 3. Verification Table -->
     <div class="table-card card">
@@ -155,10 +166,42 @@
               <td>
                 <span class="pill" :class="item.reviewPillClass">{{ item.reviewStatus }}</span>
               </td>
-              <td class="actions">
-                <RouterLink :to="`/dashboard/video-verifications/${item.id}`" class="btn-action" title="Lihat Detail">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </RouterLink>
+              <td class="actions relative text-center">
+                <div class="action-dropdown-wrapper">
+                  <button class="btn-more-actions" @click.stop="toggleDropdown(item.id)" title="Aksi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                  
+                  <div v-if="activeDropdown === item.id" class="dropdown-menu-floating" @click.stop>
+                    <button class="dropdown-item" @click="viewDetail(item.id); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      <span>Lihat Detail</span>
+                    </button>
+
+                    <button class="dropdown-item" @click="sendMessage(item); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <span>Kirim Pesan</span>
+                    </button>
+
+                    <button class="dropdown-item text-danger" @click="deleteVerification(item); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -167,12 +210,12 @@
       
       <!-- 4. Pagination -->
       <div class="pagination-section">
-        <span class="pagination-info">Menampilkan 1-10 dari 128 entri</span>
+        <span class="pagination-info">Menampilkan 1-10 dari 20 entri</span>
         <div class="pagination-controls">
-          <button class="page-btn">Prev</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">Next</button>
+          <button class="btn-page" disabled>Prev</button>
+          <button class="btn-page active">1</button>
+          <button class="btn-page">2</button>
+          <button class="btn-page">Next</button>
         </div>
       </div>
     </div>
@@ -181,11 +224,17 @@
     <div class="bottom-row">
       <!-- Left (60%): Statistik Verifikasi AI -->
       <div class="stats-chart-card card">
-        <div class="card-header">
-          <h2 class="card-title">Statistik Verifikasi AI (30 Hari Terakhir)</h2>
-          <div class="chart-legend">
-            <span class="legend-item"><span class="legend-dot teal-dot"></span> Berhasil</span>
-            <span class="legend-item"><span class="legend-dot red-dot"></span> Gagal</span>
+        <div class="card-header flex justify-between items-start mb-4">
+          <div>
+            <h2 class="card-title">Statistik Verifikasi AI (30 Hari Terakhir)</h2>
+            <p class="text-xs text-secondary mt-1">Perbandingan jumlah video verifikasi yang berhasil vs gagal per periode.</p>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold" style="color: #1E293B;">18 <span class="text-xs font-normal" style="color: #64748B;">Total Verifikasi</span></div>
+            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              <span>+15.2% bulan ini</span>
+            </div>
           </div>
         </div>
         <div class="css-bar-chart">
@@ -210,42 +259,51 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Right (40%): AI Insights -->
-      <div class="insights-card card">
-        <div class="card-header">
-          <div class="title-with-icon">
-            <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="9" y1="18" x2="15" y2="18"></line>
-              <line x1="10" y1="22" x2="14" y2="22"></line>
-              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
-            </svg>
-            <h2 class="card-title">AI Insights</h2>
-          </div>
+        <div class="chart-legend flex justify-end gap-4 mt-3 pt-2 border-t border-gray-100">
+          <span class="legend-item flex items-center gap-1.5 text-xs text-secondary font-medium"><span class="legend-dot primary-dot"></span> Berhasil Verifikasi</span>
+          <span class="legend-item flex items-center gap-1.5 text-xs text-secondary font-medium"><span class="legend-dot red-dot"></span> Gagal Verifikasi</span>
         </div>
-        <div class="insights-list">
-          <div class="insight-item">
-            <h3 class="insight-title">Tren Kepatuhan</h3>
-            <p class="insight-desc">Pola kepatuhan meningkat 15% di pagi hari (06:00 - 08:00) dibandingkan waktu malam.</p>
-          </div>
-          <div class="insight-item">
-            <h3 class="insight-title">Anomali Terdeteksi</h3>
-            <p class="insight-desc">Terdeteksi 4 video dengan pencahayaan rendah di Cluster Sukajadi Barat. Disarankan edukasi ulang kepada kader.</p>
-          </div>
-          <div class="insight-item">
-            <h3 class="insight-title">Akurasi Model</h3>
-            <p class="insight-desc">Model AI saat ini memiliki tingkat kepercayaan stabil di angka 92.5%. Update dataset dijadwalkan minggu depan.</p>
-          </div>
-        </div>
-        <button class="btn-download">Download Report Lengkap</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+
+const router = useRouter();
+const activeDropdown = ref(null);
+
+const toggleDropdown = (id) => {
+  activeDropdown.value = activeDropdown.value === id ? null : id;
+};
+
+const handleDocumentClick = () => {
+  activeDropdown.value = null;
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
+const viewDetail = (id) => {
+  router.push(`/dashboard/video-verifications/${id}`);
+};
+
+const sendMessage = (item) => {
+  alert(`Mengirim pesan ke ${item.name}`);
+};
+
+const deleteVerification = (item) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus verifikasi video ${item.name}?`)) {
+    tableData.value = tableData.value.filter(v => v.id !== item.id);
+  }
+};
 
 const tableData = [
   {
@@ -371,148 +429,115 @@ const chartData = [
 /* 1. Statistic Cards Row */
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .stat-card {
-  background: #FFFFFF;
-  border-radius: 8px;
-  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-left: 4px solid #6DF5E1;
 }
-.stat-card:nth-child(2) { border-left-color: #22C55E; }
-.stat-card:nth-child(3) { border-left-color: #006591; }
-.stat-card:nth-child(4) { border-left-color: #EF4444; }
-.stat-card:nth-child(5) { border-left-color: #6DF5E1; }
-
-.stat-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.stat-value-group {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.stat-subtext {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.stat-subtext.success { color: #22C55E; }
 
 .stat-icon-wrapper {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
-.stat-icon-wrapper.teal { background: #e0fcf8; color: #0d9488; }
-.stat-icon-wrapper.success { background: #dcfce7; color: #22c55e; }
-.stat-icon-wrapper.primary { background: #e6f0f4; color: #006591; }
-.stat-icon-wrapper.danger { background: #fee2e2; color: #ef4444; }
+.stat-icon-wrapper.teal { background: #E0F2FE; color: #0284C7; }
+.stat-icon-wrapper.success { background: #DCFCE7; color: #16A34A; }
+.stat-icon-wrapper.primary { background: #E0F2FE; color: #006591; }
+.stat-icon-wrapper.danger { background: #FEE2E2; color: #DC2626; }
 
 .stat-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 /* Base Card Style */
 .card {
-  background: #FFFFFF;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 /* 2. Filter Section */
 .filter-section {
-  padding: 1rem;
+  padding: 20px;
+}
+.filter-header {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #334155;
 }
-
-.filter-input-group {
-  position: relative;
-  flex: 1;
-  min-width: 150px;
+.filter-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
 }
-
-.search-group {
-  min-width: 200px;
-  flex: 2;
+.filter-grid-simple {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #64748b;
+@media (max-width: 768px) {
+  .filter-grid-simple { grid-template-columns: 1fr; }
 }
-
-.filter-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-  border: 1px solid #e2e8f0;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+.form-control {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
+  background-color: #fff;
+  color: #334155;
 }
-.filter-input:focus { border-color: #006591; }
-
-.filter-select, .filter-date {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: #1e293b;
-  outline: none;
-  background: white;
-}
-.filter-select:focus, .filter-date:focus { border-color: #006591; }
-
-.btn-apply {
-  background-color: #0d9488;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  height: 36px;
+.form-control:focus {
+  border-color: #006591;
 }
 .btn-apply:hover {
-  background-color: #0f766e;
+  background-color: #005378;
 }
 
 /* 3. Verification Table */
@@ -556,6 +581,77 @@ const chartData = [
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.action-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-more-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #F1F5F9;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-more-actions:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+
+.dropdown-menu-floating {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  min-width: 170px;
+  background-color: #0F172A;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  z-index: 100;
+  text-align: left;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #F8FAFC;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.dropdown-item.text-danger {
+  color: #F87171;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
 }
 
 .avatar {
@@ -670,24 +766,47 @@ const chartData = [
 
 .pagination-controls {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 6px;
 }
-
-.page-btn {
-  background: white;
-  border: 1px solid #e2e8f0;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: #475569;
+.btn-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #006591;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
-.page-btn:hover { background: #f8fafc; }
-.page-btn.active {
-  background: #006591;
-  color: white;
+.btn-page:hover:not(:disabled):not(.active) {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+.btn-page:disabled {
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  background-color: #FFFFFF;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+.btn-page.active {
+  background-color: #006591;
+  color: #FFFFFF;
   border-color: #006591;
+  font-weight: 600;
+}
+.page-ellipsis {
+  color: #006591;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 6px;
 }
 
 /* 5. Bottom Row - Two Cards */
@@ -697,16 +816,8 @@ const chartData = [
 }
 
 .stats-chart-card {
-  flex: 3; /* 60% */
+  width: 100%;
   padding: 1.5rem;
-}
-.insights-card {
-  flex: 2; /* 40% */
-  padding: 1.5rem;
-  background-color: #e0fcf8; /* Light teal/cyan */
-  border: 1px solid #bbf7d0;
-  display: flex;
-  flex-direction: column;
 }
 
 .card-header {
@@ -739,8 +850,8 @@ const chartData = [
   height: 10px;
   border-radius: 50%;
 }
-.teal-dot { background-color: #0d9488; }
-.red-dot { background-color: #ef4444; }
+.primary-dot { background-color: #006591; }
+.red-dot { background-color: #EF4444; }
 
 /* CSS Bar Chart */
 .css-bar-chart {
@@ -803,9 +914,12 @@ const chartData = [
   border-radius: 4px 4px 0 0;
   position: relative;
   transition: height 0.3s ease;
+  cursor: pointer;
 }
-.bar-success { background-color: #0d9488; }
-.bar-fail { background-color: #fca5a5; }
+.bar-success { background: linear-gradient(180deg, #0080B5 0%, #006591 100%); }
+.bar-fail { background-color: #EF4444; }
+.bar-success:hover { background: linear-gradient(180deg, #6DF5E1 0%, #006591 100%); }
+.bar-fail:hover { background-color: #DC2626; }
 
 .bar-tooltip {
   position: absolute;
@@ -886,7 +1000,7 @@ const chartData = [
   transition: background-color 0.2s;
 }
 .btn-download:hover {
-  background-color: #004d70;
+  background-color: #005378;
 }
 
 /* Responsive adjustments */

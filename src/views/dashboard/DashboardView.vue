@@ -1,11 +1,20 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import mobiledoctorIMG from '@/assets/images/mobile-doctor.png';
+
+const router = useRouter();
+
+const goToPatients = () => router.push('/dashboard/patients');
+const goToNewPatient = () => router.push('/dashboard/patients/add');
+const goToReports = () => router.push('/dashboard/reports');
+const goToMedicines = () => router.push('/dashboard/medicines');
+const goToPatientDetail = (id) => router.push(`/dashboard/patients/${id}`);
 
 const patientStats = ref([
   {
     label: 'Pasien Aktif',
-    value: '452',
+    value: '20',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
     color: '#006591',
     bgColor: '#e6f0f4'
@@ -19,7 +28,7 @@ const patientStats = ref([
   },
   {
     label: 'Risiko Tinggi',
-    value: '12',
+    value: '1',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
     color: '#EF4444',
     bgColor: '#fee2e2'
@@ -69,9 +78,9 @@ const recentActivities = ref([
 ]);
 
 const oatStocks = ref([
-  { name: 'Rifampisin', status: 'Aman 65%', percent: 65, colorClass: 'bg-success' },
-  { name: 'Isoniazid', status: 'Menipis 42%', percent: 42, colorClass: 'bg-warning' },
-  { name: 'Pirazinamid', status: 'Kritis 15%', percent: 15, colorClass: 'bg-danger' }
+  { name: 'Rifampisin', status: 'Aman 85%', percent: 85, colorClass: 'bg-success', subtext: '1,200 / 1,410 Tablet' },
+  { name: 'Isoniazid', status: 'Menipis 42%', percent: 42, colorClass: 'bg-warning', subtext: '580 / 1,380 Tablet' },
+  { name: 'Pirazinamid', status: 'Kritis 15%', percent: 15, colorClass: 'bg-danger', subtext: '165 / 1,100 Tablet' }
 ]);
 </script>
 
@@ -86,8 +95,8 @@ const oatStocks = ref([
           Pantau perkembangan kesehatan pasien TB secara real-time dan pastikan ketersediaan obat tercukupi untuk wilayah Anda.
         </p>
         <div class="hero-actions">
-          <button class="btn btn-primary-inv">Kelola Pasien Baru</button>
-          <button class="btn btn-outline-white">Lihat Laporan Bulanan</button>
+          <button class="btn btn-primary-inv" @click="goToNewPatient">Kelola Pasien Baru</button>
+          <button class="btn btn-outline-white" @click="goToReports">Lihat Laporan Bulanan</button>
         </div>
       </div>
       <div class="hero-image-wrapper">
@@ -115,7 +124,7 @@ const oatStocks = ref([
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             Pasien Berisiko Putus Obat
           </div>
-          <a href="#" class="link-view-all">Lihat Semua</a>
+          <a href="#" class="link-view-all" @click.prevent="goToPatients">Lihat Semua</a>
         </div>
         
         <div class="risk-content">
@@ -123,20 +132,20 @@ const oatStocks = ref([
             <div class="donut-chart-container">
               <div class="donut-chart">
                 <div class="donut-inner-text">
-                  <span class="donut-percent">25%</span>
-                  <span class="donut-label">SIAGA</span>
+                  <span class="donut-percent">20</span>
+                  <span class="donut-label">TOTAL PASIEN</span>
                 </div>
               </div>
             </div>
             <div class="risk-legend">
-              <div class="legend-item"><span class="dot dot-danger"></span>Tinggi 12</div>
-              <div class="legend-item"><span class="dot dot-warning"></span>Sedang 45</div>
-              <div class="legend-item"><span class="dot dot-success"></span>Rendah 395</div>
+              <div class="legend-item"><span class="dot dot-danger"></span>Tinggi: 1 (5%)</div>
+              <div class="legend-item"><span class="dot dot-warning"></span>Sedang: 3 (15%)</div>
+              <div class="legend-item"><span class="dot dot-primary"></span>Rendah: 16 (80%)</div>
             </div>
           </div>
 
           <div class="risk-list">
-            <div v-for="patient in riskPatients" :key="patient.id" class="risk-item">
+            <div v-for="patient in riskPatients" :key="patient.id" class="risk-item cursor-pointer" @click="goToPatientDetail(patient.id)">
               <div class="risk-avatar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
@@ -147,7 +156,7 @@ const oatStocks = ref([
               <div class="risk-badge" :class="'badge-' + patient.levelColor">
                 {{ patient.level }}
               </div>
-              <button class="btn-phone">
+              <button class="btn-phone" @click.stop="alert('Menghubungi ' + patient.name)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               </button>
             </div>
@@ -155,46 +164,75 @@ const oatStocks = ref([
         </div>
       </div>
 
-      <!-- Right: Verifikasi AI -->
-      <div class="card ai-card">
-        <div class="card-header">
-          <div class="card-title">Verifikasi AI</div>
-        </div>
-        <div class="ai-summary">
-          <div class="ai-main-stat">
-            <span class="ai-number text-primary">842</span>
-            <span class="ai-label">Berhasil Verifikasi</span>
-          </div>
-          <div class="ai-sub-stats">
-            <div class="text-danger">3 Gagal</div>
-            <div class="text-warning">12 Menunggu</div>
-          </div>
-        </div>
-        <hr class="divider" />
-        <div class="ai-terbaru-label">TERBARU</div>
-        <div class="ai-recent-list">
-          <div v-for="item in aiVerificationRecent" :key="item.id" class="ai-item">
-            <div class="ai-item-info">
-              <span class="ai-item-name">{{ item.name }}</span>
-              <span class="ai-item-time">{{ item.time }}</span>
-            </div>
-            <span class="ai-status" :class="'text-' + item.statusClass">{{ item.status }}</span>
-          </div>
-        </div>
-        <button class="btn btn-outline-primary btn-full mt-auto">Log Verifikasi Lengkap</button>
-      </div>
     </div>
 
     <!-- 4. Bottom Row -->
     <div class="bottom-row">
       <!-- Left: Tren Kepatuhan -->
       <div class="card chart-card">
-        <div class="card-title mb-4">Tren Kepatuhan</div>
-        <div class="bar-chart-container">
-          <div class="bar-chart">
-            <div v-for="(bar, index) in complianceTrend" :key="index" class="bar-col">
-              <div class="bar" :style="{ height: bar.height + '%' }"></div>
-              <div class="bar-label">{{ bar.day }}</div>
+        <div class="chart-header flex justify-between items-start mb-4">
+          <div>
+            <div class="card-title">Tren Kepatuhan Pasien</div>
+            <p class="chart-subtitle text-xs text-secondary mt-1">Persentase kepatuhan harian (7 Hari Terakhir)</p>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold" style="color: #1E293B;">80.4% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></div>
+            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              <span>+2.4% minggu ini</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="area-chart-container">
+          <div class="y-axis text-xs text-secondary flex flex-col justify-between pr-2">
+            <span>100%</span>
+            <span>75%</span>
+            <span>50%</span>
+            <span>25%</span>
+            <span>0%</span>
+          </div>
+          <div class="chart-area-wrapper flex-1 relative">
+            <div class="chart-grid-lines absolute inset-0 flex flex-col justify-between pointer-events-none">
+              <div class="grid-line border-b border-dashed border-gray-200"></div>
+              <div class="grid-line border-b border-dashed border-gray-200"></div>
+              <div class="grid-line border-b border-dashed border-gray-200"></div>
+              <div class="grid-line border-b border-dashed border-gray-200"></div>
+              <div class="grid-line border-b border-dashed border-gray-200"></div>
+            </div>
+            
+            <svg viewBox="0 0 480 160" class="w-full h-full relative z-10 overflow-visible">
+              <defs>
+                <linearGradient id="dashComplianceGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#006591" stop-opacity="0.38" />
+                  <stop offset="100%" stop-color="#006591" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              
+              <!-- Area fill under curve -->
+              <path d="M 30 45 C 65 45, 65 27, 100 27 C 135 27, 135 9, 170 9 C 205 9, 205 72, 240 72 C 275 72, 275 36, 310 36 C 345 36, 345 18, 380 18 C 415 18, 415 3.6, 450 3.6 L 450 160 L 30 160 Z" fill="url(#dashComplianceGradient)" />
+              
+              <!-- Smooth Curve Line -->
+              <path d="M 30 45 C 65 45, 65 27, 100 27 C 135 27, 135 9, 170 9 C 205 9, 205 72, 240 72 C 275 72, 275 36, 310 36 C 345 36, 345 18, 380 18 C 415 18, 415 3.6, 450 3.6" fill="none" stroke="#006591" stroke-width="3" stroke-linecap="round" />
+              
+              <!-- Points -->
+              <g class="chart-point-group" v-for="(pt, i) in [
+                {x: 30, y: 45, val: 75},
+                {x: 100, y: 27, val: 85},
+                {x: 170, y: 9, val: 95},
+                {x: 240, y: 72, val: 60},
+                {x: 310, y: 36, val: 80},
+                {x: 380, y: 18, val: 90},
+                {x: 450, y: 3.6, val: 98, active: true}
+              ]" :key="i">
+                <circle :cx="pt.x" :cy="pt.y" r="5" fill="#FFFFFF" stroke="#006591" stroke-width="3" class="chart-point cursor-pointer transition-transform hover:scale-125" />
+                <circle v-if="pt.active" :cx="pt.x" :cy="pt.y" r="8" fill="none" stroke="#6DF5E1" stroke-width="2.5" class="animate-pulse" />
+              </g>
+            </svg>
+
+            <!-- X Axis Labels -->
+            <div class="x-axis-row flex justify-between px-4 mt-2 text-xs text-secondary font-medium" style="margin-left: 20px; margin-right: 15px;">
+              <span v-for="pt in ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']" :key="pt" :class="{ 'text-primary font-bold': pt === 'Min' }">{{ pt }}</span>
             </div>
           </div>
         </div>
@@ -221,14 +259,18 @@ const oatStocks = ref([
           <div v-for="(stock, index) in oatStocks" :key="index" class="stock-item">
             <div class="stock-header">
               <span class="stock-name">{{ stock.name }}</span>
-              <span class="stock-status">{{ stock.status }}</span>
+              <span class="stock-status" :class="'text-' + stock.colorClass.replace('bg-', '')">{{ stock.status }}</span>
             </div>
             <div class="progress-bar-bg">
               <div class="progress-bar" :class="stock.colorClass" :style="{ width: stock.percent + '%' }"></div>
             </div>
+            <div class="text-xs text-secondary flex justify-between mt-0.5 font-medium">
+              <span>{{ stock.subtext }}</span>
+              <span>{{ stock.percent }}%</span>
+            </div>
           </div>
         </div>
-        <button class="btn btn-gradient btn-full mt-auto">Restock Request</button>
+        <button class="btn btn-primary btn-full mt-auto" @click="goToMedicines">Permintaan Restock OAT</button>
       </div>
     </div>
   </div>
@@ -417,17 +459,18 @@ const oatStocks = ref([
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 16px;
 }
 
 .stat-card {
-  background: #FFFFFF;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   transition: transform 0.2s;
 }
 .stat-card:hover {
@@ -441,6 +484,7 @@ const oatStocks = ref([
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .stat-info {
@@ -449,16 +493,17 @@ const oatStocks = ref([
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: 11px;
+  font-weight: 600;
   color: #64748b;
-  font-weight: 500;
+  margin-bottom: 4px;
+  text-transform: uppercase;
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
-  color: #1e293b;
-  margin-top: 4px;
+  color: #0f172a;
 }
 
 /* 3. Middle Row */
@@ -472,8 +517,7 @@ const oatStocks = ref([
   .middle-row {
     flex-direction: row;
   }
-  .risk-card { flex: 6; }
-  .ai-card { flex: 4; }
+  .risk-card { width: 100%; }
 }
 
 .link-view-all {
@@ -525,31 +569,34 @@ const oatStocks = ref([
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: conic-gradient(#EF4444 0% 25%, #e2e8f0 25% 100%);
+  background: conic-gradient(#EF4444 0% 3%, #F59E0B 3% 13%, #006591 13% 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 .donut-inner-text {
-  width: 110px;
-  height: 110px;
+  width: 105px;
+  height: 105px;
   background: white;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 .donut-percent {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
-  color: #EF4444;
+  color: #1E293B;
 }
 .donut-label {
-  font-size: 12px;
+  font-size: 10px;
   color: #64748b;
   font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .risk-legend {
@@ -573,6 +620,7 @@ const oatStocks = ref([
 .dot-danger { background-color: #EF4444; }
 .dot-warning { background-color: #F59E0B; }
 .dot-success { background-color: #22C55E; }
+.dot-primary { background-color: #006591; }
 
 .risk-list {
   flex: 2;
@@ -730,13 +778,36 @@ const oatStocks = ref([
   }
 }
 
-/* Bar Chart */
-.bar-chart-container {
+/* Area Chart */
+.chart-card {
+  padding-bottom: 20px;
+}
+.area-chart-container {
   height: 200px;
   width: 100%;
   display: flex;
-  align-items: flex-end;
-  padding-top: 20px;
+}
+.chart-area-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.chart-area-wrapper svg {
+  height: 150px;
+  width: 100%;
+}
+.x-axis-row {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.area-chart-container .y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  color: #64748B;
+  font-size: 0.75rem;
+  width: 36px;
 }
 .bar-chart {
   display: flex;
@@ -749,20 +820,53 @@ const oatStocks = ref([
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 10%;
+  width: 12%;
   height: 100%;
-  justify-content: flex-end;
+}
+.bar-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
 }
 .bar {
-  width: 100%;
+  width: 28px;
+  background: linear-gradient(180deg, #0080B5 0%, #006591 100%);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+.bar:hover {
   background: linear-gradient(180deg, #6DF5E1 0%, #006591 100%);
-  border-radius: 4px 4px 0 0;
-  transition: height 0.3s ease;
+  transform: scaleY(1.02);
+}
+.bar-tooltip {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1E293B;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.bar:hover .bar-tooltip {
+  opacity: 1;
 }
 .bar-label {
   margin-top: 8px;
   font-size: 12px;
   color: #64748b;
+  font-weight: 500;
 }
 
 /* Timeline */

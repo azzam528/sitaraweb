@@ -1,24 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Router setup
 const router = useRouter();
 
-// Filter State
+// Filter State (Only 3 filters as requested)
 const filters = ref({
   search: '',
   phase: '',
-  type: '',
-  risk: '',
-  pmo: '',
-  kader: '',
-  kelurahan: ''
+  risk: ''
 });
 
 // Pagination State
 const currentPage = ref(1);
-const totalPages = ref(129);
+const totalPages = ref(2);
 
 // Dummy Data
 const patients = ref([
@@ -31,10 +27,10 @@ const patients = ref([
     phase: 'Fase Lanjutan',
     month: 4,
     compliance: 98,
-    pmo: 'Siti Aminah',
+    pmo: 'Siti Ayu',
     pmoRelation: 'Istri',
     kader: 'Ibu Rahma',
-    status: 'AKTIF'
+    status: 'Risiko Rendah'
   },
   {
     id: 2,
@@ -48,7 +44,7 @@ const patients = ref([
     pmo: 'Budi Santoso',
     pmoRelation: 'Adik',
     kader: 'Pak Jono',
-    status: 'RISIKO TINGGI'
+    status: 'Risiko Tinggi'
   },
   {
     id: 3,
@@ -62,7 +58,7 @@ const patients = ref([
     pmo: 'Mandiri',
     pmoRelation: '',
     kader: 'Ibu Rahma',
-    status: 'SELESAI TERAPI'
+    status: 'Risiko Rendah'
   },
   {
     id: 4,
@@ -76,7 +72,7 @@ const patients = ref([
     pmo: 'Hasan',
     pmoRelation: 'Suami',
     kader: 'Pak Jono',
-    status: 'AKTIF'
+    status: 'Risiko Sedang'
   },
   {
     id: 5,
@@ -90,7 +86,7 @@ const patients = ref([
     pmo: 'Ani Pratama',
     pmoRelation: 'Ibu',
     kader: 'Ibu Siti',
-    status: 'RISIKO TINGGI'
+    status: 'Risiko Tinggi'
   },
   {
     id: 6,
@@ -104,7 +100,7 @@ const patients = ref([
     pmo: 'Rudi',
     pmoRelation: 'Suami',
     kader: 'Pak Ahmad',
-    status: 'AKTIF'
+    status: 'Risiko Rendah'
   }
 ]);
 
@@ -123,17 +119,42 @@ const resetFilters = () => {
   filters.value = {
     search: '',
     phase: '',
-    type: '',
-    risk: '',
-    pmo: '',
-    kader: '',
-    kelurahan: ''
+    risk: ''
   };
 };
 
-const applyFilters = () => {
-  console.log('Applying filters:', filters.value);
+// Filtered Patients Computation
+const filteredPatients = computed(() => {
+  return patients.value.filter(patient => {
+    const searchLower = filters.value.search.trim().toLowerCase();
+    const matchesSearch = !searchLower || 
+      patient.name.toLowerCase().includes(searchLower) ||
+      patient.nik.includes(searchLower);
+
+    const matchesPhase = !filters.value.phase || patient.phase === filters.value.phase;
+    const matchesRisk = !filters.value.risk || patient.status === filters.value.risk;
+
+    return matchesSearch && matchesPhase && matchesRisk;
+  });
+});
+
+const activeDropdown = ref(null);
+
+const toggleDropdown = (id) => {
+  activeDropdown.value = activeDropdown.value === id ? null : id;
 };
+
+const handleDocumentClick = () => {
+  activeDropdown.value = null;
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
 
 const viewPatient = (id) => {
   router.push(`/dashboard/patients/${id}`);
@@ -141,6 +162,16 @@ const viewPatient = (id) => {
 
 const editPatient = (id) => {
   router.push(`/dashboard/patients/${id}/edit`);
+};
+
+const sendEmail = (patient) => {
+  alert(`Mengirim pesan / email ke ${patient.name}`);
+};
+
+const deletePatient = (patient) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${patient.name}?`)) {
+    patients.value = patients.value.filter(p => p.id !== patient.id);
+  }
 };
 
 const prevPage = () => {
@@ -182,7 +213,7 @@ const nextPage = () => {
         </div>
         <div class="stat-info">
           <span class="stat-label">PASIEN AKTIF</span>
-          <span class="stat-value">1,284</span>
+          <span class="stat-value">20</span>
         </div>
       </div>
       <div class="stat-card">
@@ -194,7 +225,7 @@ const nextPage = () => {
         </div>
         <div class="stat-info">
           <span class="stat-label">SEDANG TERAPI</span>
-          <span class="stat-value">942</span>
+          <span class="stat-value">16</span>
         </div>
       </div>
       <div class="stat-card">
@@ -206,7 +237,7 @@ const nextPage = () => {
         </div>
         <div class="stat-info">
           <span class="stat-label">SELESAI TERAPI</span>
-          <span class="stat-value">312</span>
+          <span class="stat-value">3</span>
         </div>
       </div>
       <div class="stat-card">
@@ -219,7 +250,7 @@ const nextPage = () => {
         </div>
         <div class="stat-info">
           <span class="stat-label">PUTUS OBAT</span>
-          <span class="stat-value">12</span>
+          <span class="stat-value">1</span>
         </div>
       </div>
       <div class="stat-card">
@@ -232,7 +263,7 @@ const nextPage = () => {
         </div>
         <div class="stat-info">
           <span class="stat-label">RISIKO TINGGI</span>
-          <span class="stat-value">28</span>
+          <span class="stat-value">1</span>
         </div>
       </div>
     </section>
@@ -246,29 +277,25 @@ const nextPage = () => {
         <h2>Filter Pencarian Pasien</h2>
       </div>
       
-      <div class="filter-grid">
-        <!-- Row 1 -->
+      <div class="filter-grid-simple">
+        <!-- 1. Cari Nama / NIK -->
         <div class="form-group">
           <label>Nama atau NIK</label>
           <input type="text" v-model="filters.search" placeholder="Cari nama atau NIK..." class="form-control" />
         </div>
+
+        <!-- 2. Fase Pengobatan -->
         <div class="form-group">
           <label>Fase Pengobatan</label>
           <select v-model="filters.phase" class="form-control">
             <option value="">Semua Fase</option>
+            <option value="Fase Awal">Fase Awal</option>
             <option value="Fase Intensif">Fase Intensif</option>
             <option value="Fase Lanjutan">Fase Lanjutan</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Tipe TB</label>
-          <select v-model="filters.type" class="form-control">
-            <option value="">Semua Tipe</option>
-            <option value="TB Paru BTA+">TB Paru BTA+</option>
-            <option value="TB Paru BTA-">TB Paru BTA-</option>
-            <option value="TB Ekstra Paru">TB Ekstra Paru</option>
-          </select>
-        </div>
+
+        <!-- 3. Status AI Risk -->
         <div class="form-group">
           <label>Status AI Risk</label>
           <select v-model="filters.risk" class="form-control">
@@ -277,37 +304,6 @@ const nextPage = () => {
             <option value="Risiko Sedang">Risiko Sedang</option>
             <option value="Risiko Rendah">Risiko Rendah</option>
           </select>
-        </div>
-        
-        <!-- Row 2 -->
-        <div class="form-group">
-          <label>PMO / Pengawas</label>
-          <input type="text" v-model="filters.pmo" placeholder="Nama PMO..." class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>Kader</label>
-          <input type="text" v-model="filters.kader" placeholder="Nama Kader..." class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>Domisili Kelurahan</label>
-          <select v-model="filters.kelurahan" class="form-control">
-            <option value="">Pilih Kelurahan</option>
-            <option value="Kelurahan A">Kelurahan A</option>
-            <option value="Kelurahan B">Kelurahan B</option>
-            <option value="Kelurahan C">Kelurahan C</option>
-          </select>
-        </div>
-        <div class="filter-actions form-group">
-          <label class="hidden-label">&nbsp;</label>
-          <div class="action-buttons">
-            <button class="btn-primary" @click="applyFilters">Terapkan Filter</button>
-            <button class="btn-icon-reset" @click="resetFilters" title="Reset Filters">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                <path d="M3 3v5h5"></path>
-              </svg>
-            </button>
-          </div>
         </div>
       </div>
     </section>
@@ -327,7 +323,7 @@ const nextPage = () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="patient in patients" :key="patient.id">
+            <tr v-for="patient in filteredPatients" :key="patient.id">
               <!-- PASIEN & NIK -->
               <td>
                 <div class="patient-profile">
@@ -377,36 +373,58 @@ const nextPage = () => {
               <!-- STATUS -->
               <td>
                 <span class="status-badge" :class="{
-                  'status-active': patient.status === 'AKTIF',
-                  'status-risk': patient.status === 'RISIKO TINGGI',
-                  'status-done': patient.status === 'SELESAI TERAPI'
+                  'status-high': patient.status === 'Risiko Tinggi',
+                  'status-medium': patient.status === 'Risiko Sedang',
+                  'status-low': patient.status === 'Risiko Rendah'
                 }">
                   {{ patient.status }}
                 </span>
               </td>
               
               <!-- AKSI -->
-              <td class="text-center">
-                <div class="action-buttons-table">
-                  <button class="btn-action" @click="viewPatient(patient.id)" title="View">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  </button>
-                  <button class="btn-action" @click="editPatient(patient.id)" title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                  </button>
-                  <button class="btn-action" title="More">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <td class="text-center relative">
+                <div class="action-dropdown-wrapper">
+                  <button class="btn-more-actions" @click.stop="toggleDropdown(patient.id)" title="Aksi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="19" cy="12" r="1"></circle>
                       <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                   </button>
+                  
+                  <div v-if="activeDropdown === patient.id" class="dropdown-menu-floating" @click.stop>
+                    <button class="dropdown-item" @click="viewPatient(patient.id); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      <span>Lihat Detail</span>
+                    </button>
+
+                    <button class="dropdown-item" @click="editPatient(patient.id); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      <span>Edit User</span>
+                    </button>
+
+                    <button class="dropdown-item" @click="sendEmail(patient); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <span>Kirim Email</span>
+                    </button>
+
+                    <button class="dropdown-item text-danger" @click="deletePatient(patient); activeDropdown = null">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      <span>Hapus</span>
+                    </button>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -417,24 +435,16 @@ const nextPage = () => {
       <!-- 5. Pagination -->
       <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan 1-10 dari 1,284 pasien
+          Menampilkan 1-10 dari 20 pasien
         </div>
         <div class="pagination-controls">
           <button class="btn-page" @click="prevPage" :disabled="currentPage === 1">Prev</button>
           
-          <button v-for="page in [1, 2, 3]" :key="page" 
+          <button v-for="page in totalPages" :key="page" 
                   class="btn-page" 
                   :class="{ 'active': currentPage === page }"
                   @click="currentPage = page">
             {{ page }}
-          </button>
-          
-          <span class="page-ellipsis">...</span>
-          
-          <button class="btn-page" 
-                  :class="{ 'active': currentPage === totalPages }"
-                  @click="currentPage = totalPages">
-            {{ totalPages }}
           </button>
           
           <button class="btn-page" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
@@ -480,17 +490,17 @@ const nextPage = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #002B3F;
+  background-color: #006591;
   color: #ffffff;
   padding: 10px 16px;
   border-radius: 8px;
   font-weight: 500;
   font-size: 14px;
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: background-color 0.2s;
 }
 .btn-add:hover {
-  opacity: 0.9;
+  background-color: #005378;
 }
 
 /* 2. Stats Cards */
@@ -563,16 +573,13 @@ const nextPage = () => {
   font-weight: 600;
   margin: 0;
 }
-.filter-grid {
+.filter-grid-simple {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
-@media (max-width: 1024px) {
-  .filter-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 640px) {
-  .filter-grid { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .filter-grid-simple { grid-template-columns: 1fr; }
 }
 
 .form-group {
@@ -607,17 +614,17 @@ const nextPage = () => {
 }
 .btn-primary {
   flex: 1;
-  background-color: #002B3F;
+  background-color: #006591;
   color: #fff;
   border: none;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background-color 0.2s;
 }
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: #005378;
 }
 .btn-icon-reset {
   width: 38px;
@@ -782,21 +789,91 @@ const nextPage = () => {
   font-weight: 600;
   display: inline-block;
 }
-.status-active {
-  background-color: #DCFCE7;
-  color: #16A34A;
-}
-.status-risk {
+.status-high {
   background-color: #FEE2E2;
   color: #DC2626;
 }
-.status-done {
-  background-color: #E0F2FE;
-  color: #0284C7;
+.status-medium {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+.status-low {
+  background-color: #DCFCE7;
+  color: #16A34A;
 }
 
 .text-center {
   text-align: center;
+}
+.action-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-more-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #F1F5F9;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-more-actions:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+
+.dropdown-menu-floating {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  min-width: 160px;
+  background-color: #0F172A;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  z-index: 100;
+  text-align: left;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #F8FAFC;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.dropdown-item.text-danger {
+  color: #F87171;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
 }
 .action-buttons-table {
   display: flex;
@@ -840,33 +917,45 @@ const nextPage = () => {
 .pagination-controls {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .btn-page {
-  padding: 6px 12px;
-  border: 1px solid #e2e8f0;
-  background-color: #ffffff;
-  color: #334155;
-  border-radius: 6px;
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #006591;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
-.btn-page:hover:not(:disabled) {
-  background-color: #f1f5f9;
+.btn-page:hover:not(:disabled):not(.active) {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
 }
 .btn-page:disabled {
-  opacity: 0.5;
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  background-color: #FFFFFF;
   cursor: not-allowed;
+  opacity: 0.75;
 }
 .btn-page.active {
-  background-color: #002B3F;
-  color: #ffffff;
-  border-color: #002B3F;
+  background-color: #006591;
+  color: #FFFFFF;
+  border-color: #006591;
+  font-weight: 600;
 }
 .page-ellipsis {
-  color: #64748b;
-  padding: 0 4px;
+  color: #006591;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 6px;
 }
 </style>

@@ -173,6 +173,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-left: 12px;
 }
 
 .logo-icon {
@@ -186,6 +187,7 @@ const handleLogout = () => {
 .sidebar.is-collapsed .logo-wrapper {
   justify-content: center;
   width: 100%;
+  padding-left: 0;
 }
 
 .logo-text h1 {
@@ -199,6 +201,8 @@ const handleLogout = () => {
 
 .logo-text .highlight {
   color: #ffffff;
+  padding-left: 4px;
+  display: inline-block;
 }
 
 .logo-text p {

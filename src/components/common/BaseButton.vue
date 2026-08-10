@@ -114,12 +114,12 @@ const handleClick = (event) => {
   color: white;
 }
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-secondary, #1E40AF);
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  background-color: var(--color-primary-dark, #005378);
+  box-shadow: 0 4px 6px -1px rgba(0, 101, 145, 0.2);
 }
 
 .btn-secondary {
-  background-color: var(--color-secondary, #1E40AF);
+  background-color: var(--color-primary-dark, #005378);
   color: white;
 }
 .btn-secondary:hover:not(:disabled) {
