@@ -1,197 +1,783 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from '@/services/api'
 
+const route = useRoute()
 const router = useRouter()
 
+const patientId = route.params.id
+
+const loading = ref(true)
+const saving = ref(false)
+const error = ref('')
+const success = ref('')
+
 const patientData = ref({
-  id: 'TB-2026-089',
-  nik: '3273619263040005',
-  bpjs: '0001234567890',
-  name: 'Bpk. Ahmad Subarjo',
-  dob: '1960-05-15',
-  gender: 'L',
-  phone: '0812-3456-7890',
-  job: 'Pensiunan',
-  address: 'Jl. Sukajadi No. 12, Sukajadi, Kota Bandung, Jawa Barat 40162',
-  
-  tbType: 'TB Paru SO',
-  category: 'Kategori 1',
-  regimen: '2RHZE/4RH',
-  startDate: '2026-01-12',
-  status: 'active',
-  
-  faskes: 'Puskesmas Sukajadi',
-  doctor: 'dr. Heru Prasetyo',
-  pmoName: 'Surya',
-  pmoRelation: 'Anak',
-  pmoPhone: '0812-9876-5432',
-  kader: 'Agus Salim'
+  id: null,
+  medical_record_number: '',
+  full_name: '',
+  nik: '',
+  birth_date: '',
+  gender: 'male',
+  phone: '',
+  address: '',
+  occupation: '',
+  pmo_name: '',
+  pmo_phone: '',
+  clinical_note: ''
 })
 
-const savePatient = () => {
-  // Mock save
-  router.push('/dashboard/patients/1')
+/**
+ * Ambil data pasien dari backend
+ */
+const fetchPatient = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const response = await api.get(`/patients/${patientId}`)
+
+    console.log('GET PATIENT:', response.data)
+
+    const patient = response.data
+
+    patientData.value = {
+      id: patient.id,
+      medical_record_number: patient.medical_record_number || '',
+      full_name: patient.full_name || '',
+      nik: patient.nik || '',
+      birth_date: patient.birth_date || '',
+      gender: patient.gender || 'male',
+      phone: patient.phone || '',
+      address: patient.address || '',
+      occupation: patient.occupation || '',
+      pmo_name: patient.pmo_name || '',
+      pmo_phone: patient.pmo_phone || '',
+      clinical_note: patient.clinical_note || ''
+    }
+
+  } catch (err) {
+    console.error('GET PATIENT ERROR:', err)
+
+    error.value =
+      err.response?.data?.detail ||
+      'Gagal memuat data pasien.'
+  } finally {
+    loading.value = false
+  }
 }
 
-const cancelEdit = () => {
-  router.push('/dashboard/patients/1')
+/**
+ * Simpan perubahan pasien
+ */
+const savePatient = async () => {
+  saving.value = true
+  error.value = ''
+  success.value = ''
+
+  try {
+    /**
+     * Hanya kirim field yang memang diterima
+     * oleh PatientUpdate di FastAPI.
+     */
+    const payload = {
+      full_name: patientData.value.full_name,
+      phone: patientData.value.phone,
+      address: patientData.value.address,
+      occupation: patientData.value.occupation,
+      pmo_name: patientData.value.pmo_name,
+      pmo_phone: patientData.value.pmo_phone,
+      clinical_note: patientData.value.clinical_note
+    }
+
+    console.log('=== UPDATE PATIENT ===')
+    console.log('Patient ID:', patientId)
+    console.log('Payload:', payload)
+
+    const response = await api.put(
+      `/patients/${patientId}`,
+      payload
+    )
+
+    console.log('UPDATE RESPONSE:', response.data)
+
+    success.value = 'Data pasien berhasil diperbarui.'
+
+    /**
+     * Tunggu sebentar supaya pesan sukses
+     * sempat terlihat.
+     */
+    setTimeout(() => {
+      router.push(`/dashboard/patients/${patientId}`)
+    }, 700)
+
+  } catch (err) {
+    console.error('=== UPDATE PATIENT ERROR ===')
+    console.error('Status:', err.response?.status)
+    console.error('Response:', err.response?.data)
+    console.error('Error:', err)
+
+    error.value =
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      `Gagal menyimpan perubahan. Status: ${err.response?.status || 'unknown'}`
+  } finally {
+    saving.value = false
+  }
 }
+
+/**
+ * Batal edit
+ */
+const cancelEdit = () => {
+  router.push(`/dashboard/patients/${patientId}`)
+}
+
+onMounted(() => {
+  fetchPatient()
+})
 </script>
 
 <template>
   <div class="patient-edit-page">
+
+    <!-- ============================================= -->
+    <!-- Header Navigation -->
+    <!-- ============================================= -->
+
     <div class="header-nav">
-      <button @click="cancelEdit" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <button
+        type="button"
+        @click="cancelEdit"
+        class="back-link"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line
+            x1="19"
+            y1="12"
+            x2="5"
+            y2="12"
+          ></line>
+
+          <polyline
+            points="12 19 5 12 12 5"
+          ></polyline>
+        </svg>
+
         Batal & Kembali
       </button>
     </div>
 
+
+    <!-- ============================================= -->
+    <!-- Page Header -->
+    <!-- ============================================= -->
+
     <div class="page-header">
-      <h1 class="page-title">Edit Data Pasien</h1>
-      <p class="subtitle">Perbarui informasi personal, medis, dan tim kesehatan pasien.</p>
+      <h1 class="page-title">
+        Edit Data Pasien
+      </h1>
+
+      <p class="subtitle">
+        Perbarui informasi personal dan data pendamping pasien.
+      </p>
     </div>
 
-    <form @submit.prevent="savePatient" class="edit-form">
+
+    <!-- ============================================= -->
+    <!-- Loading -->
+    <!-- ============================================= -->
+
+    <div
+      v-if="loading"
+      class="card form-card"
+    >
+      <div class="loading-state">
+        Memuat data pasien...
+      </div>
+    </div>
+
+
+    <!-- ============================================= -->
+    <!-- Error -->
+    <!-- ============================================= -->
+
+    <div
+      v-else-if="error && !patientData.id"
+      class="card form-card"
+    >
+      <div class="error-state">
+        <strong>Gagal memuat data pasien</strong>
+
+        <p>
+          {{ error }}
+        </p>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="fetchPatient"
+        >
+          Coba Lagi
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ============================================= -->
+    <!-- Form -->
+    <!-- ============================================= -->
+
+    <form
+      v-else
+      @submit.prevent="savePatient"
+      class="edit-form"
+    >
+
+      <!-- =========================================== -->
+      <!-- Success Message -->
+      <!-- =========================================== -->
+
+      <div
+        v-if="success"
+        class="success-message"
+      >
+        {{ success }}
+      </div>
+
+
+      <!-- =========================================== -->
+      <!-- Error Message -->
+      <!-- =========================================== -->
+
+      <div
+        v-if="error"
+        class="error-message"
+      >
+        {{ error }}
+      </div>
+
+
+      <!-- =========================================== -->
+      <!-- Main Grid -->
+      <!-- =========================================== -->
+
       <div class="grid-layout">
-        <!-- Kolom Kiri -->
+
+
+        <!-- ========================================= -->
+        <!-- KOLOM KIRI -->
+        <!-- ========================================= -->
+
         <div class="left-col">
+
+          <!-- ======================================= -->
+          <!-- Identitas Lengkap -->
+          <!-- ======================================= -->
+
           <div class="card form-card">
-            <h3 class="card-title">Identitas Lengkap</h3>
-            
+
+            <h3 class="card-title">
+              Identitas Lengkap
+            </h3>
+
+
+            <!-- Nomor Rekam Medis -->
+
             <div class="form-group">
-              <label>Nama Lengkap</label>
-              <input type="text" v-model="patientData.name" class="form-control" required>
+
+              <label>
+                Nomor Rekam Medis
+              </label>
+
+              <input
+                type="text"
+                v-model="patientData.medical_record_number"
+                class="form-control"
+                disabled
+              />
+
+              <small class="form-help">
+                Nomor rekam medis tidak dapat diubah.
+              </small>
+
             </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>NIK</label>
-                <input type="text" v-model="patientData.nik" class="form-control" required>
-              </div>
-              <div class="form-group half">
-                <label>No. BPJS</label>
-                <input type="text" v-model="patientData.bpjs" class="form-control">
-              </div>
+
+            <!-- Nama Lengkap -->
+
+            <div class="form-group">
+
+              <label>
+                Nama Lengkap
+                <span class="required">*</span>
+              </label>
+
+              <input
+                type="text"
+                v-model="patientData.full_name"
+                class="form-control"
+                placeholder="Nama lengkap pasien"
+                required
+              />
+
             </div>
 
+
+            <!-- NIK -->
+
+            <div class="form-group">
+
+              <label>
+                NIK
+              </label>
+
+              <input
+                type="text"
+                v-model="patientData.nik"
+                class="form-control"
+                disabled
+              />
+
+              <small class="form-help">
+                NIK tidak dapat diubah melalui form ini.
+              </small>
+
+            </div>
+
+
+            <!-- Tanggal Lahir + Gender -->
+
             <div class="form-row">
+
               <div class="form-group half">
-                <label>Tanggal Lahir</label>
-                <input type="date" v-model="patientData.dob" class="form-control">
+
+                <label>
+                  Tanggal Lahir
+                </label>
+
+                <input
+                  type="date"
+                  v-model="patientData.birth_date"
+                  class="form-control"
+                  disabled
+                />
+
               </div>
+
+
               <div class="form-group half">
-                <label>Jenis Kelamin</label>
-                <select v-model="patientData.gender" class="form-select">
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
+
+                <label>
+                  Jenis Kelamin
+                </label>
+
+                <select
+                  v-model="patientData.gender"
+                  class="form-select"
+                  disabled
+                >
+
+                  <option value="male">
+                    Laki-laki
+                  </option>
+
+                  <option value="female">
+                    Perempuan
+                  </option>
+
                 </select>
+
               </div>
+
             </div>
+
+
+            <!-- Telepon + Pekerjaan -->
 
             <div class="form-row">
+
               <div class="form-group half">
-                <label>Nomor Telepon</label>
-                <input type="tel" v-model="patientData.phone" class="form-control">
+
+                <label>
+                  Nomor Telepon
+                  <span class="required">*</span>
+                </label>
+
+                <input
+                  type="tel"
+                  v-model="patientData.phone"
+                  class="form-control"
+                  placeholder="08xxxxxxxxxx"
+                  required
+                />
+
               </div>
+
+
               <div class="form-group half">
-                <label>Pekerjaan</label>
-                <input type="text" v-model="patientData.job" class="form-control">
+
+                <label>
+                  Pekerjaan
+                </label>
+
+                <input
+                  type="text"
+                  v-model="patientData.occupation"
+                  class="form-control"
+                  placeholder="Pekerjaan pasien"
+                />
+
               </div>
+
             </div>
 
+
+            <!-- Alamat -->
+
             <div class="form-group">
-              <label>Alamat Lengkap</label>
-              <textarea v-model="patientData.address" class="form-control" rows="3"></textarea>
+
+              <label>
+                Alamat Lengkap
+                <span class="required">*</span>
+              </label>
+
+              <textarea
+                v-model="patientData.address"
+                class="form-control"
+                rows="3"
+                placeholder="Alamat lengkap pasien"
+                required
+              ></textarea>
+
             </div>
+
+
+            <!-- Catatan Klinis -->
+
+            <div class="form-group">
+
+              <label>
+                Catatan Klinis
+              </label>
+
+              <textarea
+                v-model="patientData.clinical_note"
+                class="form-control"
+                rows="4"
+                placeholder="Catatan tambahan mengenai pasien"
+              ></textarea>
+
+            </div>
+
           </div>
+
+
         </div>
 
-        <!-- Kolom Kanan -->
+
+        <!-- ========================================= -->
+        <!-- KOLOM KANAN -->
+        <!-- ========================================= -->
+
         <div class="right-col">
-          <div class="card form-card">
-            <h3 class="card-title">Informasi Medis</h3>
-            
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Tipe TB</label>
-                <select v-model="patientData.tbType" class="form-select">
-                  <option value="TB Paru SO">TB Paru SO</option>
-                  <option value="TB Paru RO">TB Paru RO</option>
-                  <option value="TB Ekstra Paru">TB Ekstra Paru</option>
-                </select>
-              </div>
-              <div class="form-group half">
-                <label>Kategori</label>
-                <select v-model="patientData.category" class="form-select">
-                  <option value="Kategori 1">Kategori 1</option>
-                  <option value="Kategori 2">Kategori 2</option>
-                  <option value="Anak">Anak</option>
-                </select>
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Resimen Pengobatan</label>
-                <input type="text" v-model="patientData.regimen" class="form-control">
-              </div>
-              <div class="form-group half">
-                <label>Tanggal Mulai</label>
-                <input type="date" v-model="patientData.startDate" class="form-control">
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>Status Pengobatan</label>
-              <select v-model="patientData.status" class="form-select status-select">
-                <option value="active">Aktif Pengobatan</option>
-                <option value="completed">Selesai (Sembuh)</option>
-                <option value="dropout">Putus Berobat</option>
-                <option value="transferred">Pindah Faskes</option>
-              </select>
-            </div>
-          </div>
+
+          <!-- ======================================= -->
+          <!-- Informasi PMO -->
+          <!-- ======================================= -->
 
           <div class="card form-card">
-            <h3 class="card-title">Tim Kesehatan & PMO</h3>
-            
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Dokter Penanggung Jawab</label>
-                <input type="text" v-model="patientData.doctor" class="form-control">
-              </div>
-              <div class="form-group half">
-                <label>Kader Pendamping</label>
-                <input type="text" v-model="patientData.kader" class="form-control">
-              </div>
+
+            <h3 class="card-title">
+              Tim Kesehatan & PMO
+            </h3>
+
+
+            <p class="card-description">
+              Informasi pendamping minum obat pasien.
+            </p>
+
+
+            <!-- Nama PMO -->
+
+            <div class="form-group">
+
+              <label>
+                Nama PMO
+                <span class="required">*</span>
+              </label>
+
+              <input
+                type="text"
+                v-model="patientData.pmo_name"
+                class="form-control"
+                placeholder="Nama PMO"
+                required
+              />
+
             </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Nama PMO</label>
-                <input type="text" v-model="patientData.pmoName" class="form-control">
-              </div>
-              <div class="form-group half">
-                <label>Hubungan PMO</label>
-                <input type="text" v-model="patientData.pmoRelation" class="form-control">
-              </div>
-            </div>
+
+            <!-- Nomor PMO -->
+
             <div class="form-group">
-              <label>Kontak PMO</label>
-              <input type="tel" v-model="patientData.pmoPhone" class="form-control">
+
+              <label>
+                Nomor Telepon PMO
+                <span class="required">*</span>
+              </label>
+
+              <input
+                type="tel"
+                v-model="patientData.pmo_phone"
+                class="form-control"
+                placeholder="08xxxxxxxxxx"
+                required
+              />
+
             </div>
+
           </div>
+
+
+          <!-- ======================================= -->
+          <!-- Informasi Medis -->
+          <!-- ======================================= -->
+
+          <div class="card form-card">
+
+            <h3 class="card-title">
+              Informasi Medis
+            </h3>
+
+
+            <p class="card-description">
+              Data diagnosis dan pengobatan pasien dikelola
+              melalui modul Treatment.
+            </p>
+
+
+            <!-- Fase -->
+
+            <div class="form-group">
+
+              <label>
+                Fase Pengobatan
+              </label>
+
+              <input
+                type="text"
+                :value="
+                  treatment?.phase === 'intensive'
+                    ? 'Fase Intensif'
+                    : treatment?.phase === 'continuation'
+                      ? 'Fase Lanjutan'
+                      : '-'
+                "
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Diagnosis -->
+
+            <div class="form-group">
+
+              <label>
+                Tanggal Diagnosis
+              </label>
+
+              <input
+                type="date"
+                :value="treatment?.diagnosis_date || ''"
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Mulai Terapi -->
+
+            <div class="form-group">
+
+              <label>
+                Tanggal Mulai Terapi
+              </label>
+
+              <input
+                type="date"
+                :value="treatment?.therapy_start_date || ''"
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Selesai Terapi -->
+
+            <div class="form-group">
+
+              <label>
+                Tanggal Selesai Terapi
+              </label>
+
+              <input
+                type="date"
+                :value="treatment?.therapy_end_date || ''"
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Regimen -->
+
+            <div class="form-group">
+
+              <label>
+                Regimen
+              </label>
+
+              <input
+                type="text"
+                :value="
+                  treatment?.regimen === 'category_1'
+                    ? 'Kategori 1'
+                    : treatment?.regimen === 'category_2'
+                      ? 'Kategori 2'
+                      : treatment?.regimen === 'mdr'
+                        ? 'MDR'
+                        : '-'
+                "
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Status -->
+
+            <div class="form-group">
+
+              <label>
+                Status Pengobatan
+              </label>
+
+              <input
+                type="text"
+                :value="
+                  treatment?.status === 'active'
+                    ? 'Aktif'
+                    : treatment?.status === 'completed'
+                      ? 'Selesai'
+                      : treatment?.status === 'dropped'
+                        ? 'Putus Berobat'
+                        : '-'
+                "
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <!-- Dokter -->
+
+            <div class="form-group">
+
+              <label>
+                Dokter Penanggung Jawab
+              </label>
+
+              <input
+                type="text"
+                :value="treatment?.doctor_name || '-'"
+                class="form-control"
+                disabled
+              />
+
+            </div>
+
+
+            <div
+              v-if="treatment"
+              class="medical-info-note"
+            >
+              Untuk mengubah data pengobatan, gunakan modul
+              <strong>Monitoring Pengobatan</strong>.
+            </div>
+
+
+            <div
+              v-else
+              class="medical-info-note"
+            >
+              Pasien ini belum memiliki data treatment aktif.
+
+            </div>
+
+          </div>
+
+
         </div>
+
       </div>
 
+
+      <!-- =========================================== -->
       <!-- Footer Actions -->
+      <!-- =========================================== -->
+
       <div class="form-actions">
-        <button type="button" @click="cancelEdit" class="btn btn-outline btn-lg">Batal</button>
-        <button type="submit" class="btn btn-primary btn-lg">Simpan Perubahan</button>
+
+        <button
+          type="button"
+          @click="cancelEdit"
+          class="btn btn-outline btn-lg"
+          :disabled="saving"
+        >
+          Batal
+        </button>
+
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          :disabled="saving"
+        >
+
+          <span v-if="saving">
+            Menyimpan...
+          </span>
+
+          <span v-else>
+            Simpan Perubahan
+          </span>
+
+        </button>
+
       </div>
+
     </form>
+
   </div>
 </template>
 
