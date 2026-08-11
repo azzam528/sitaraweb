@@ -7,16 +7,13 @@ export default {
   getById(id) {
     return api.get(`/treatments/${id}`);
   },
-  getSchedule(patientId) {
-    return api.get(`/treatments/${patientId}/schedule`);
+  create(data) {
+    return api.post('/treatments', data);
   },
-  getMedicationHistory(patientId) {
-    return api.get(`/treatments/${patientId}/medication-history`);
+  update(id, data) {
+    return api.put(`/treatments/${id}`, data);
   },
-  getProgress(patientId) {
-    return api.get(`/treatments/${patientId}/progress`);
-  },
-  getCompliance(patientId) {
-    return api.get(`/treatments/${patientId}/compliance`);
+  delete(id) {
+    return api.delete(`/treatments/${id}`);
   }
 };

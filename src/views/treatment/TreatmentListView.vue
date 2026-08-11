@@ -3,18 +3,76 @@
     <!-- 1. Page Header -->
     <header class="page-header">
       <div class="header-content">
-        <h1 class="page-title">Pemantauan Obat</h1>
-        <p class="page-subtitle">Pemantauan kepatuhan minum obat (PMO) pasien TB secara real-time.</p>
+        <h1 class="page-title">Monitoring Pengobatan TB</h1>
+        <p class="page-subtitle">Pemantauan terapi obat, fase kepatuhan, dan progres pasien TB secara real-time.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" @click="openAddModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Tambah Pengobatan Baru
+        </button>
       </div>
     </header>
 
+    <!-- Notification Alert -->
+    <div v-if="alertMessage" class="toast-alert" :class="'toast-' + alertType">
+      <span>{{ alertMessage }}</span>
+      <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
+    </div>
+
     <!-- 2. Statistic Cards Row -->
     <section class="stats-grid">
-      <div class="stat-card" v-for="(stat, index) in statistics" :key="index">
-        <div class="stat-icon-wrapper" :class="stat.circleClass" v-html="stat.icon"></div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper blue-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+        </div>
         <div class="stat-info">
-          <span class="stat-label">{{ stat.title }}</span>
-          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">PENGOBATAN AKTIF</span>
+          <span class="stat-value">{{ activeCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper orange-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">FASE INTENSIF</span>
+          <span class="stat-value">{{ intensiveCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper teal-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">FASE LANJUTAN</span>
+          <span class="stat-value">{{ continuationCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper green-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">SELESAI / SEMBUH</span>
+          <span class="stat-value">{{ completedCount }}</span>
         </div>
       </div>
     </section>
@@ -22,42 +80,53 @@
     <!-- 3. Filter Section -->
     <section class="filter-section card">
       <div class="filter-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
         </svg>
-        <h2>Filter Pemantauan Pasien</h2>
+        <h2>Filter Data Pengobatan</h2>
       </div>
 
       <div class="filter-grid-simple">
-        <!-- 1. Search Name / NIK -->
+        <!-- 1. Search Name / NIK / Doctor -->
         <div class="form-group">
           <label>Pencarian</label>
           <input 
             type="text" 
-            placeholder="Cari Nama / NIK Pasien..." 
+            v-model="searchQuery" 
+            placeholder="Cari Nama Pasien, NIK, No RM, atau Dokter..." 
             class="form-control"
           />
         </div>
 
         <!-- 2. Fase Pengobatan -->
         <div class="form-group">
-          <label>Fase Pengobatan</label>
-          <select class="form-control">
+          <label>Fase Terapi</label>
+          <select v-model="filterPhase" class="form-control">
             <option value="">Semua Fase</option>
-            <option value="Fase Awal">Fase Awal</option>
-            <option value="Fase Intensif">Fase Intensif</option>
-            <option value="Fase Lanjutan">Fase Lanjutan</option>
+            <option value="intensive">Fase Intensif</option>
+            <option value="continuation">Fase Lanjutan</option>
           </select>
         </div>
 
-        <!-- 3. Status AI Risk -->
+        <!-- 3. Status Pengobatan -->
         <div class="form-group">
-          <label>Status AI Risk</label>
-          <select class="form-control">
-            <option value="">Semua Status Risk</option>
-            <option value="Risiko Tinggi">Risiko Tinggi</option>
-            <option value="Risiko Sedang">Risiko Sedang</option>
-            <option value="Risiko Rendah">Risiko Rendah</option>
+          <label>Status</label>
+          <select v-model="filterStatus" class="form-control">
+            <option value="">Semua Status</option>
+            <option value="active">Aktif</option>
+            <option value="completed">Selesai</option>
+            <option value="dropped">Putus Obat</option>
+          </select>
+        </div>
+
+        <!-- 4. Regimen -->
+        <div class="form-group">
+          <label>Regimen</label>
+          <select v-model="filterRegimen" class="form-control">
+            <option value="">Semua Regimen</option>
+            <option value="category_1">Kategori 1</option>
+            <option value="category_2">Kategori 2</option>
+            <option value="mdr">TB-RO (MDR)</option>
           </select>
         </div>
       </div>
@@ -65,60 +134,122 @@
 
     <!-- 4. Treatment Monitoring Table -->
     <div class="table-card card">
-      <div class="table-responsive">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Memuat data pengobatan...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="filteredTreatments.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <h3>Belum Ada Data Pengobatan</h3>
+        <p v-if="searchQuery || filterPhase || filterStatus || filterRegimen">
+          Tidak ditemukan data pengobatan yang cocok dengan filter yang dipilih.
+        </p>
+        <p v-else>
+          Belum ada rekam pengobatan yang terdaftar di sistem. Mulai dengan menambahkan pengobatan baru untuk pasien.
+        </p>
+        <button class="btn btn-primary mt-3" @click="openAddModal">
+          + Tambah Pengobatan Baru
+        </button>
+      </div>
+
+      <!-- Data Table -->
+      <div v-else class="table-responsive">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Nama Pasien</th>
-              <th>Hari Perawatan</th>
-              <th>Jadwal Hari ini</th>
-              <th>Status Kepatuhan</th>
-              <th>Progress Kepatuhan</th>
-              <th>Tingkat Risiko</th>
-              <th>Aksi</th>
+              <th>Pasien</th>
+              <th>Fase & Regimen</th>
+              <th>Periode Terapi</th>
+              <th>Progres Hari</th>
+              <th>Dokter PJ</th>
+              <th>Status</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="patient in patients" :key="patient.id">
+            <tr v-for="treatment in paginatedTreatments" :key="treatment.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + patient.avatarColor">{{ patient.initials }}</div>
+                  <div class="avatar" :class="'avatar-' + getAvatarColor(treatment.id)">
+                    {{ getInitials(treatment.patient?.full_name || 'Pasien ' + treatment.patient_id) }}
+                  </div>
                   <div>
-                    <div class="patient-name">{{ patient.name }}</div>
-                    <div class="patient-kader">Kader: {{ patient.kader }}</div>
+                    <div class="patient-name font-semibold">
+                      {{ treatment.patient?.full_name || 'Pasien #' + treatment.patient_id }}
+                    </div>
+                    <div class="patient-meta text-xs text-muted">
+                      NIK: {{ treatment.patient?.nik || '-' }} | RM: {{ treatment.patient?.medical_record_number || '-' }}
+                    </div>
                   </div>
                 </div>
               </td>
               <td>
-                <div class="treatment-day">Hari {{ patient.day }}/180</div>
-                <div class="treatment-phase">{{ patient.phase }}</div>
+                <div class="phase-regimen">
+                  <span class="phase-badge" :class="'badge-' + treatment.phase">
+                    {{ formatPhase(treatment.phase) }}
+                  </span>
+                  <div class="regimen-text text-xs text-muted mt-1">
+                    {{ formatRegimen(treatment.regimen) }}
+                  </div>
+                </div>
               </td>
               <td>
-                <span class="schedule-pill">{{ patient.schedule }} WIB</span>
-              </td>
-              <td>
-                <div class="status-indicator">
-                  <span class="status-dot" :class="'bg-' + patient.statusColor"></span>
-                  {{ patient.status }}
+                <div class="therapy-dates">
+                  <div class="date-range font-medium text-sm">
+                    {{ formatDate(treatment.therapy_start_date) }} - {{ formatDate(treatment.therapy_end_date) }}
+                  </div>
+                  <div class="diag-date text-xs text-muted">
+                    Diagnosis: {{ formatDate(treatment.diagnosis_date) }}
+                  </div>
                 </div>
               </td>
               <td>
                 <div class="progress-wrapper">
                   <div class="progress-bar-container">
-                    <div class="progress-bar" :class="'bg-' + patient.statusColor" :style="{ width: patient.progressPercentage + '%' }"></div>
+                    <div 
+                      class="progress-bar" 
+                      :class="getProgressColorClass(treatment)" 
+                      :style="{ width: calculateProgress(treatment).percentage + '%' }"
+                    ></div>
                   </div>
                   <div class="progress-text">
-                    <span :class="'text-' + patient.statusColor">{{ patient.progressPercentage }}%</span>
-                    <span class="progress-days">{{ patient.progressDays }}/{{ patient.day }} hari</span>
+                    <span class="progress-pct font-bold">
+                      {{ calculateProgress(treatment).percentage }}%
+                    </span>
+                    <span class="progress-days text-muted">
+                      Hari ke-{{ calculateProgress(treatment).daysPassed }}/{{ calculateProgress(treatment).totalDays }}
+                    </span>
                   </div>
                 </div>
               </td>
               <td>
-                <span class="status-badge" :class="getRiskBadgeClass(patient.risk)">{{ patient.risk }}</span>
+                <div class="doctor-info">
+                  <span class="doctor-name font-medium">{{ treatment.doctor_name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" :class="'status-' + treatment.status">
+                  {{ formatStatus(treatment.status) }}
+                </span>
               </td>
               <td class="text-center">
                 <div class="action-dropdown-wrapper">
-                  <button class="btn-more-actions" @click.stop="toggleDropdown(patient.id)" title="Aksi">
+                  <button 
+                    class="btn-more-actions" 
+                    @click.stop="toggleDropdown(treatment.id)" 
+                    title="Menu Aksi"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="19" cy="12" r="1"></circle>
@@ -126,8 +257,8 @@
                     </svg>
                   </button>
 
-                  <div v-if="activeDropdown === patient.id" class="dropdown-menu-floating" @click.stop>
-                    <button class="dropdown-item" @click="viewDetail(patient.id); activeDropdown = null">
+                  <div v-if="activeDropdown === treatment.id" class="dropdown-menu-floating" @click.stop>
+                    <button class="dropdown-item" @click="viewDetail(treatment.id); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
@@ -135,20 +266,31 @@
                       <span>Lihat Detail</span>
                     </button>
 
-                    <button class="dropdown-item" @click="sendMessage(patient); activeDropdown = null">
+                    <button class="dropdown-item" @click="openStatusModal(treatment); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                       </svg>
-                      <span>Kirim Pesan</span>
+                      <span>Ubah Status</span>
                     </button>
 
-                    <button class="dropdown-item text-danger" @click="deleteRecord(patient); activeDropdown = null">
+                    <button 
+                      v-if="treatment.patient?.phone" 
+                      class="dropdown-item" 
+                      @click="sendWhatsApp(treatment); activeDropdown = null"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                      <span>Hubungi Pasien (WA)</span>
+                    </button>
+
+                    <button class="dropdown-item text-danger" @click="confirmDelete(treatment); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                       </svg>
-                      <span>Hapus</span>
+                      <span>Hapus Rekam</span>
                     </button>
                   </div>
                 </div>
@@ -159,248 +301,507 @@
       </div>
 
       <!-- 5. Pagination -->
-      <div class="pagination-wrapper">
-        <div class="pagination-info">Menampilkan 1-10 dari 20 pasien</div>
+      <div v-if="filteredTreatments.length > 0" class="pagination-wrapper">
+        <div class="pagination-info">
+          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredTreatments.length) }} dari {{ filteredTreatments.length }} pengobatan
+        </div>
         <div class="pagination-controls">
-          <button class="btn-page" disabled>Prev</button>
-          <button class="btn-page active">1</button>
-          <button class="btn-page">2</button>
-          <button class="btn-page">Next</button>
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === 1" 
+            @click="currentPage--"
+          >
+            Prev
+          </button>
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="btn-page" 
+            :class="{ active: currentPage === page }"
+            @click="currentPage = page"
+          >
+            {{ page }}
+          </button>
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === totalPages || totalPages === 0" 
+            @click="currentPage++"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- 5. Visualizations Row (Tren Kepatuhan & Log Aktivitas Terbaru) -->
-    <div class="bottom-row">
-      <!-- Left: Tren Kepatuhan Mingguan -->
-      <div class="chart-section card">
-        <div class="chart-header flex justify-between items-start mb-4">
-          <div>
-            <h3 class="section-title mb-1">Tren Kepatuhan Mingguan</h3>
-            <p class="section-subtitle">Persentase kepatuhan minum obat pasien TB dalam 7 hari terakhir.</p>
-          </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold" style="color: #1E293B;">87.8% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></div>
-            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-              <span>+3.2% minggu ini</span>
-            </div>
-          </div>
+    <!-- MODAL: Tambah Pengobatan Baru -->
+    <div v-if="showAddModal" class="modal-backdrop" @click="closeAddModal">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>Tambah Pengobatan TB Baru</h3>
+          <button class="modal-close" @click="closeAddModal">&times;</button>
         </div>
-        
-        <div class="area-chart-container flex">
-          <div class="y-axis text-xs text-secondary flex flex-col justify-between pr-2">
-            <span>100%</span>
-            <span>75%</span>
-            <span>50%</span>
-            <span>25%</span>
-            <span>0%</span>
-          </div>
-          <div class="chart-area-wrapper flex-1 relative">
-            <div class="chart-grid-lines absolute inset-0 flex flex-col justify-between pointer-events-none">
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-            </div>
-            
-            <svg viewBox="0 0 480 160" class="w-full h-full relative z-10 overflow-visible">
-              <defs>
-                <linearGradient id="treatComplianceGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#006591" stop-opacity="0.38" />
-                  <stop offset="100%" stop-color="#006591" stop-opacity="0.02" />
-                </linearGradient>
-              </defs>
-              
-              <!-- Area fill under curve -->
-              <path d="M 30 24 C 65 24, 65 36, 100 36 C 135 36, 135 12, 170 12 C 205 12, 205 48, 240 48 C 275 48, 275 24, 310 24 C 345 24, 345 16, 380 16 C 415 16, 415 8, 450 8 L 450 160 L 30 160 Z" fill="url(#treatComplianceGradient)" />
-              
-              <!-- Smooth Curve Line -->
-              <path d="M 30 24 C 65 24, 65 36, 100 36 C 135 36, 135 12, 170 12 C 205 12, 205 48, 240 48 C 275 48, 275 24, 310 24 C 345 24, 345 16, 380 16 C 415 16, 415 8, 450 8" fill="none" stroke="#006591" stroke-width="3" stroke-linecap="round" />
-              
-              <!-- Points -->
-              <g class="chart-point-group" v-for="(pt, i) in [
-                {x: 30, y: 24, val: 85},
-                {x: 100, y: 36, val: 78},
-                {x: 170, y: 12, val: 92},
-                {x: 240, y: 48, val: 70},
-                {x: 310, y: 24, val: 85},
-                {x: 380, y: 16, val: 90},
-                {x: 450, y: 8, val: 95, active: true}
-              ]" :key="i">
-                <circle :cx="pt.x" :cy="pt.y" r="5" fill="#FFFFFF" stroke="#006591" stroke-width="3" class="chart-point cursor-pointer transition-transform hover:scale-125" />
-                <circle v-if="pt.active" :cx="pt.x" :cy="pt.y" r="8" fill="none" stroke="#6DF5E1" stroke-width="2.5" class="animate-pulse" />
-              </g>
-            </svg>
 
-            <!-- X Axis Labels -->
-            <div class="x-axis-row flex justify-between px-4 mt-2 text-xs text-secondary font-medium" style="margin-left: 20px; margin-right: 15px;">
-              <span v-for="pt in ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']" :key="pt" :class="{ 'text-primary font-bold': pt === 'Min' }">{{ pt }}</span>
+        <form @submit.prevent="submitAddTreatment">
+          <div class="modal-body">
+            <!-- Pasien Selector -->
+            <div class="form-group mb-3">
+              <label>Pilih Pasien <span class="text-danger">*</span></label>
+              <select v-model="addForm.patient_id" class="form-control" required>
+                <option value="" disabled>-- Pilih Pasien Terdaftar --</option>
+                <option v-for="p in availablePatients" :key="p.id" :value="p.id">
+                  {{ p.full_name }} (NIK: {{ p.nik }} | RM: {{ p.medical_record_number }})
+                </option>
+              </select>
+              <small v-if="availablePatients.length === 0" class="text-muted">
+                Belum ada data pasien atau sedang memuat...
+              </small>
+            </div>
+
+            <div class="grid-2-cols mb-3">
+              <!-- Tanggal Diagnosis -->
+              <div class="form-group">
+                <label>Tanggal Diagnosis <span class="text-danger">*</span></label>
+                <input type="date" v-model="addForm.diagnosis_date" class="form-control" required />
+              </div>
+
+              <!-- Dokter Penanggung Jawab -->
+              <div class="form-group">
+                <label>Dokter PJ <span class="text-danger">*</span></label>
+                <input type="text" v-model="addForm.doctor_name" placeholder="dr. Heru Prasetyo, Sp.P" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="grid-2-cols mb-3">
+              <!-- Tanggal Mulai Terapi -->
+              <div class="form-group">
+                <label>Tanggal Mulai Terapi <span class="text-danger">*</span></label>
+                <input type="date" v-model="addForm.therapy_start_date" @change="onStartDateChange" class="form-control" required />
+              </div>
+
+              <!-- Tanggal Selesai Terapi (Estimasi) -->
+              <div class="form-group">
+                <label>Estimasi Selesai <span class="text-danger">*</span></label>
+                <input type="date" v-model="addForm.therapy_end_date" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="grid-2-cols mb-3">
+              <!-- Fase Pengobatan -->
+              <div class="form-group">
+                <label>Fase Awal <span class="text-danger">*</span></label>
+                <select v-model="addForm.phase" class="form-control" required>
+                  <option value="intensive">Fase Intensif (2 Bulan)</option>
+                  <option value="continuation">Fase Lanjutan (4 Bulan)</option>
+                </select>
+              </div>
+
+              <!-- Regimen Obat -->
+              <div class="form-group">
+                <label>Regimen Terapi <span class="text-danger">*</span></label>
+                <select v-model="addForm.regimen" class="form-control" required>
+                  <option value="category_1">Kategori 1 (2HRZE / 4H3R3)</option>
+                  <option value="category_2">Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)</option>
+                  <option value="mdr">TB-RO (MDR / Resisten)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Catatan Dokter -->
+            <div class="form-group">
+              <label>Catatan Klinis / Catatan Dokter</label>
+              <textarea 
+                v-model="addForm.doctor_note" 
+                rows="3" 
+                placeholder="Tambahkan catatan klinis, riwayat alergi, atau instruksi khusus..."
+                class="form-control"
+              ></textarea>
             </div>
           </div>
-        </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="closeAddModal">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>Simpan Pengobatan</span>
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <!-- Right: Log Aktivitas Terbaru & Peringatan -->
-      <div class="alerts-section card">
-        <div class="alerts-header mb-3">
-           <h3 class="section-title mb-1">Log Aktivitas Terbaru</h3>
-           <p class="section-subtitle mb-0">Aktivitas dan intervensi pasien terkini:</p>
+    <!-- MODAL: Ubah Status Pengobatan -->
+    <div v-if="showStatusModal" class="modal-backdrop" @click="showStatusModal = false">
+      <div class="modal-dialog modal-sm" @click.stop>
+        <div class="modal-header">
+          <h3>Ubah Status Pengobatan</h3>
+          <button class="modal-close" @click="showStatusModal = false">&times;</button>
         </div>
-        
-        <div class="alerts-list">
-          <div v-for="alert in alerts" :key="alert.id" class="alert-item" :class="'alert-' + alert.type">
-            <div class="alert-icon-wrapper">
-              <svg v-if="alert.type === 'danger'" class="icon alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              <svg v-else class="icon alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
+
+        <form @submit.prevent="submitUpdateStatus">
+          <div class="modal-body">
+            <p class="mb-3 text-sm">
+              Pasien: <strong>{{ selectedTreatment?.patient?.full_name || 'Pasien #' + selectedTreatment?.patient_id }}</strong>
+            </p>
+
+            <div class="form-group mb-3">
+              <label>Status Pengobatan <span class="text-danger">*</span></label>
+              <select v-model="statusForm.status" class="form-control" required>
+                <option value="active">Aktif (Sedang Menjalani Terapi)</option>
+                <option value="completed">Selesai / Sembuh (Lulus Terapi)</option>
+                <option value="dropped">Putus Obat (Drop Out)</option>
+              </select>
             </div>
-            <div class="alert-content">
-              <div class="alert-name">{{ alert.name }}</div>
-              <div class="alert-desc">{{ alert.desc }}</div>
+
+            <div class="form-group mb-3">
+              <label>Fase Pengobatan</label>
+              <select v-model="statusForm.phase" class="form-control">
+                <option value="intensive">Fase Intensif</option>
+                <option value="continuation">Fase Lanjutan</option>
+              </select>
             </div>
-            <button class="btn-action-text" :class="'text-' + alert.type">{{ alert.action }}</button>
+
+            <div class="form-group">
+              <label>Catatan Dokter / Keterangan</label>
+              <textarea 
+                v-model="statusForm.doctor_note" 
+                rows="2" 
+                placeholder="Keterangan perubahan status..."
+                class="form-control"
+              ></textarea>
+            </div>
           </div>
-        </div>
-        
-        <button class="btn btn-outline btn-block mt-4">Tampilkan Semua Log (8)</button>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="showStatusModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>Update Status</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import treatmentService from '../../services/treatment.service'
+import patientService from '../../services/patient.service'
 
-const router = useRouter();
-const activeDropdown = ref(null);
+const router = useRouter()
+
+// Data State
+const treatments = ref([])
+const availablePatients = ref([])
+const isLoading = ref(true)
+const isSubmitting = ref(false)
+
+// Alert Feedback
+const alertMessage = ref('')
+const alertType = ref('success')
+
+const showAlert = (message, type = 'success') => {
+  alertMessage.value = message
+  alertType.value = type
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 4000)
+}
+
+// Filters & Search
+const searchQuery = ref('')
+const filterPhase = ref('')
+const filterStatus = ref('')
+const filterRegimen = ref('')
+
+// Pagination
+const currentPage = ref(1)
+const pageSize = 10
+
+// Dropdown Action
+const activeDropdown = ref(null)
 
 const toggleDropdown = (id) => {
-  activeDropdown.value = activeDropdown.value === id ? null : id;
-};
+  activeDropdown.value = activeDropdown.value === id ? null : id
+}
 
 const handleDocumentClick = () => {
-  activeDropdown.value = null;
-};
+  activeDropdown.value = null
+}
 
 onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
+  document.addEventListener('click', handleDocumentClick)
+  loadTreatments()
+  loadPatients()
+})
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
+  document.removeEventListener('click', handleDocumentClick)
+})
 
+// Fetch Treatments from API
+const loadTreatments = async () => {
+  isLoading.value = true
+  try {
+    const response = await treatmentService.getAll()
+    treatments.value = response.data || []
+  } catch (error) {
+    console.error('Failed to load treatments:', error)
+    showAlert('Gagal memuat data pengobatan dari server', 'danger')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Fetch Patients for Selector
+const loadPatients = async () => {
+  try {
+    const response = await patientService.getAll()
+    availablePatients.value = response.data || []
+  } catch (error) {
+    console.error('Failed to load patients for selector:', error)
+  }
+}
+
+// Computed Statistics
+const activeCount = computed(() => treatments.value.filter(t => t.status === 'active').length)
+const intensiveCount = computed(() => treatments.value.filter(t => t.status === 'active' && t.phase === 'intensive').length)
+const continuationCount = computed(() => treatments.value.filter(t => t.status === 'active' && t.phase === 'continuation').length)
+const completedCount = computed(() => treatments.value.filter(t => t.status === 'completed').length)
+
+// Filtered Treatments
+const filteredTreatments = computed(() => {
+  return treatments.value.filter(t => {
+    // Search query
+    const patientName = t.patient?.full_name?.toLowerCase() || ''
+    const patientNik = t.patient?.nik || ''
+    const patientRm = t.patient?.medical_record_number?.toLowerCase() || ''
+    const doctor = t.doctor_name?.toLowerCase() || ''
+    const q = searchQuery.value.toLowerCase().trim()
+
+    const matchesSearch = !q || patientName.includes(q) || patientNik.includes(q) || patientRm.includes(q) || doctor.includes(q)
+    const matchesPhase = !filterPhase.value || t.phase === filterPhase.value
+    const matchesStatus = !filterStatus.value || t.status === filterStatus.value
+    const matchesRegimen = !filterRegimen.value || t.regimen === filterRegimen.value
+
+    return matchesSearch && matchesPhase && matchesStatus && matchesRegimen
+  })
+})
+
+const totalPages = computed(() => Math.ceil(filteredTreatments.value.length / pageSize) || 1)
+
+const paginatedTreatments = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredTreatments.value.slice(start, start + pageSize)
+})
+
+// Progress Calculation
+const calculateProgress = (treatment) => {
+  if (!treatment.therapy_start_date || !treatment.therapy_end_date) {
+    return { daysPassed: 0, totalDays: 180, percentage: 0 }
+  }
+
+  const start = new Date(treatment.therapy_start_date)
+  const end = new Date(treatment.therapy_end_date)
+  const now = new Date()
+
+  const totalDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)))
+  const daysPassed = Math.max(0, Math.min(totalDays, Math.round((now - start) / (1000 * 60 * 60 * 24))))
+  const percentage = Math.min(100, Math.round((daysPassed / totalDays) * 100))
+
+  return { daysPassed, totalDays, percentage }
+}
+
+const getProgressColorClass = (treatment) => {
+  if (treatment.status === 'completed') return 'bg-success'
+  if (treatment.status === 'dropped') return 'bg-danger'
+  return 'bg-primary'
+}
+
+// Helpers for formatting
+const formatPhase = (phase) => {
+  if (phase === 'intensive') return 'Fase Intensif'
+  if (phase === 'continuation') return 'Fase Lanjutan'
+  return phase || '-'
+}
+
+const formatRegimen = (regimen) => {
+  if (regimen === 'category_1') return 'Kategori 1 (2HRZE / 4H3R3)'
+  if (regimen === 'category_2') return 'Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)'
+  if (regimen === 'mdr') return 'TB-RO (MDR)'
+  return regimen || '-'
+}
+
+const formatStatus = (status) => {
+  if (status === 'active') return 'Aktif'
+  if (status === 'completed') return 'Selesai'
+  if (status === 'dropped') return 'Putus Obat'
+  return status || '-'
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+const getInitials = (name) => {
+  if (!name) return 'TB'
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+}
+
+const getAvatarColor = (id) => {
+  const colors = ['teal', 'primary', 'orange', 'green', 'purple']
+  return colors[id % colors.length]
+}
+
+// Navigation
 const viewDetail = (id) => {
-  router.push(`/dashboard/treatments/${id}`);
-};
+  router.push(`/dashboard/treatments/${id}`)
+}
 
-const sendMessage = (patient) => {
-  alert(`Mengirim pesan / pengingat ke ${patient.name}`);
-};
-
-const deleteRecord = (patient) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus record pemantauan ${patient.name}?`)) {
-    patients.value = patients.value.filter(p => p.id !== patient.id);
+const sendWhatsApp = (treatment) => {
+  const phone = treatment.patient?.phone
+  if (!phone) {
+    showAlert('Nomor telepon pasien tidak tersedia', 'warning')
+    return
   }
-};
+  const cleanPhone = phone.replace(/^0/, '62').replace(/\D/g, '')
+  const msg = encodeURIComponent(`Halo Bpk/Ibu ${treatment.patient?.full_name}, kami dari tim SITARA mengingatkan untuk rutin meminum obat TB Anda hari ini. Terima kasih!`)
+  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
+}
 
-const statistics = ref([
-  {
-    title: 'TERKONFIRMASI HARI INI',
-    value: '18',
-    circleClass: 'teal-circle',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
-  },
-  {
-    title: 'MENUNGGU KONFIRMASI',
-    value: '2',
-    circleClass: 'orange-circle',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`
-  },
-  {
-    title: 'DOSIS TERLAMBAT',
-    value: '1',
-    circleClass: 'red-circle',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
-  },
-  {
-    title: 'KEPATUHAN MINGGUAN',
-    value: '94.2%',
-    circleClass: 'green-circle',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`
-  },
-  {
-    title: 'RISIKO TINGGI',
-    value: '1',
-    circleClass: 'red-circle',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
+// Modal Add Treatment
+const showAddModal = ref(false)
+const addForm = ref({
+  patient_id: '',
+  diagnosis_date: new Date().toISOString().split('T')[0],
+  therapy_start_date: new Date().toISOString().split('T')[0],
+  therapy_end_date: '',
+  phase: 'intensive',
+  regimen: 'category_1',
+  doctor_name: '',
+  doctor_note: ''
+})
+
+const onStartDateChange = () => {
+  if (addForm.value.therapy_start_date) {
+    const start = new Date(addForm.value.therapy_start_date)
+    start.setDate(start.getDate() + 180) // 6 months standard duration
+    addForm.value.therapy_end_date = start.toISOString().split('T')[0]
   }
-])
+}
 
-const getRiskBadgeClass = (risk) => {
-  if (!risk) return 'status-low';
-  const r = risk.toLowerCase();
-  if (r.includes('tinggi')) return 'status-high';
-  if (r.includes('sedang')) return 'status-medium';
-  return 'status-low';
-};
+const openAddModal = () => {
+  const today = new Date().toISOString().split('T')[0]
+  const sixMonthsLater = new Date()
+  sixMonthsLater.setDate(sixMonthsLater.getDate() + 180)
 
-const patients = ref([
-  {
-    id: 1, initials: 'BS', avatarColor: 'teal', name: 'Bambang Sugiyono', kader: 'Siti Ayu',
-    day: 45, phase: 'Fase Intensif', schedule: '08:00',
-    status: 'Dikonfirmasi', statusColor: 'success',
-    progressPercentage: 92, progressDays: 42,
-    risk: 'Risiko Rendah'
-  },
-  {
-    id: 2, initials: 'RM', avatarColor: 'gray', name: 'Ratna Mutia', kader: 'Agus Pratama',
-    day: 12, phase: 'Fase Intensif', schedule: '07:00',
-    status: 'Telat', statusColor: 'warning',
-    progressPercentage: 75, progressDays: 9,
-    risk: 'Risiko Sedang'
-  },
-  {
-    id: 3, initials: 'DW', avatarColor: 'danger', name: 'Dedi Wijaya', kader: 'Siti Ayu',
-    day: 88, phase: 'Fase Lanjutan', schedule: '19:00',
-    status: 'Ketinggalan', statusColor: 'danger',
-    progressPercentage: 45, progressDays: 40,
-    risk: 'Risiko Tinggi'
-  },
-  {
-    id: 4, initials: 'AS', avatarColor: 'primary', name: 'Ani Sulastri', kader: 'Agus Pratama',
-    day: 156, phase: 'Fase Lanjutan', schedule: '08:00',
-    status: 'Dikonfirmasi', statusColor: 'success',
-    progressPercentage: 98, progressDays: 153,
-    risk: 'Risiko Rendah'
+  addForm.value = {
+    patient_id: '',
+    diagnosis_date: today,
+    therapy_start_date: today,
+    therapy_end_date: sixMonthsLater.toISOString().split('T')[0],
+    phase: 'intensive',
+    regimen: 'category_1',
+    doctor_name: '',
+    doctor_note: ''
   }
-])
+  showAddModal.value = true
+}
 
-const chartData = ref([
-  { label: 'Sen', value: 92 },
-  { label: 'Sel', value: 94 },
-  { label: 'Rab', value: 95 },
-  { label: 'Kam', value: 90 },
-  { label: 'Jum', value: 85 },
-  { label: 'Sab', value: 98 },
-  { label: 'Min', value: 96 }
-])
+const closeAddModal = () => {
+  showAddModal.value = false
+}
 
-const alerts = ref([
-  { id: 1, type: 'danger', name: 'Dedi Wijaya', desc: 'Terlewat 3 dosis berturut-turut', action: 'TELEPON KADER' },
-  { id: 2, type: 'danger', name: 'Mulyono Santoso', desc: 'Efek samping yang dilaporkan: Muntah', action: 'ATUR KONSULTASI' },
-  { id: 3, type: 'warning', name: 'Siti Khotimah', desc: 'Dosis terlambat terdeteksi (4 jam)', action: 'CEK STATUS' }
-])
+const submitAddTreatment = async () => {
+  if (!addForm.value.patient_id) {
+    showAlert('Pilih pasien terlebih dahulu', 'warning')
+    return
+  }
+
+  isSubmitting.value = true
+  try {
+    await treatmentService.create({
+      patient_id: Number(addForm.value.patient_id),
+      diagnosis_date: addForm.value.diagnosis_date,
+      therapy_start_date: addForm.value.therapy_start_date,
+      therapy_end_date: addForm.value.therapy_end_date,
+      phase: addForm.value.phase,
+      regimen: addForm.value.regimen,
+      doctor_name: addForm.value.doctor_name,
+      doctor_note: addForm.value.doctor_note || null
+    })
+
+    showAlert('Pengobatan baru berhasil didaftarkan!')
+    closeAddModal()
+    await loadTreatments()
+  } catch (error) {
+    console.error('Failed to create treatment:', error)
+    const detail = error.response?.data?.detail || 'Gagal menambahkan pengobatan baru'
+    showAlert(detail, 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Modal Update Status
+const showStatusModal = ref(false)
+const selectedTreatment = ref(null)
+const statusForm = ref({
+  status: 'active',
+  phase: 'intensive',
+  doctor_note: ''
+})
+
+const openStatusModal = (treatment) => {
+  selectedTreatment.value = treatment
+  statusForm.value = {
+    status: treatment.status || 'active',
+    phase: treatment.phase || 'intensive',
+    doctor_note: treatment.doctor_note || ''
+  }
+  showStatusModal.value = true
+}
+
+const submitUpdateStatus = async () => {
+  if (!selectedTreatment.value) return
+
+  isSubmitting.value = true
+  try {
+    await treatmentService.update(selectedTreatment.value.id, {
+      status: statusForm.value.status,
+      phase: statusForm.value.phase,
+      doctor_note: statusForm.value.doctor_note || null
+    })
+
+    showAlert('Status pengobatan berhasil diperbarui!')
+    showStatusModal.value = false
+    await loadTreatments()
+  } catch (error) {
+    console.error('Failed to update status:', error)
+    showAlert('Gagal memperbarui status pengobatan', 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Confirm Delete
+const confirmDelete = async (treatment) => {
+  const name = treatment.patient?.full_name || 'Pasien #' + treatment.patient_id
+  if (confirm(`Apakah Anda yakin ingin menghapus rekam pengobatan untuk ${name}?`)) {
+    try {
+      await treatmentService.delete(treatment.id)
+      showAlert('Rekam pengobatan berhasil dihapus!')
+      await loadTreatments()
+    } catch (error) {
+      console.error('Failed to delete treatment:', error)
+      showAlert('Gagal menghapus rekam pengobatan', 'danger')
+    }
+  }
+}
 </script>
 
 <style scoped src="./TreatmentListView.css"></style>
