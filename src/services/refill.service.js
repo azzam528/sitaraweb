@@ -2,15 +2,30 @@ import api from './api';
 
 export default {
   getAll(params) {
-    return api.get('/refill-requests', { params });
+    return api.get('/refills', { params });
   },
   getById(id) {
-    return api.get(`/refill-requests/${id}`);
+    return api.get(`/refills/${id}`);
   },
-  approve(id, data) {
-    return api.patch(`/refill-requests/${id}/approve`, data);
+  create(data) {
+    return api.post('/refills', data);
   },
-  reject(id, data) {
-    return api.patch(`/refill-requests/${id}/reject`, data);
+  update(id, data) {
+    return api.put(`/refills/${id}`, data);
+  },
+  approve(id, nurse_note = '') {
+    return api.put(`/refills/${id}`, {
+      status: 'approved',
+      nurse_note
+    });
+  },
+  reject(id, nurse_note = '') {
+    return api.put(`/refills/${id}`, {
+      status: 'rejected',
+      nurse_note
+    });
+  },
+  delete(id) {
+    return api.delete(`/refills/${id}`);
   }
 };
