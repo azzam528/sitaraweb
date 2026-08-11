@@ -203,15 +203,23 @@ h3 {
 .avatar-large {
   width: 80px;
   height: 80px;
+  min-width: 80px;
+  min-height: 80px;
+  flex: 0 0 80px;
+  aspect-ratio: 1 / 1;
+
   background: #006591;
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: white;
   font-size: 1.75rem;
   font-weight: 600;
 }
+
 .name-row {
   display: flex;
   align-items: center;
