@@ -37,69 +37,171 @@ const goToPatientDetail = (id) => {
 }
 
 // ========================================
-// Dashboard Statistics
+// Dashboard Data
+// ========================================
+
+const summary = computed(() => {
+  return dashboardStore.dashboard?.summary || {
+    active_patients: 0,
+    medication_adherence: 0,
+    high_risk_patients: 0,
+    today_complaints: 0,
+    critical_stock_items: 0
+  }
+})
+
+const risk = computed(() => {
+  return dashboardStore.dashboard?.risk || {
+    high: 0,
+    medium: 0,
+    low: 0
+  }
+})
+
+const adherenceTrend = computed(() => {
+  return dashboardStore.dashboard?.adherence_trend || []
+})
+
+const recentActivities = computed(() => {
+  return dashboardStore.dashboard?.recent_activities || []
+})
+
+const criticalStock = computed(() => {
+  return dashboardStore.dashboard?.critical_stock || []
+})
+
+// ========================================
+// Statistics Cards
 // ========================================
 
 const patientStats = computed(() => {
-  const stats = dashboardStore.statistics || {}
-
   return [
     {
       label: 'Pasien Aktif',
-      value: stats.active_patients ?? 0,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-        <circle cx="9" cy="7" r="4"></circle>
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-      </svg>`,
+      value: summary.value.active_patients,
+
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      `,
+
       color: '#006591',
       bgColor: '#e6f0f4'
     },
 
     {
       label: 'Kepatuhan Obat',
-      value: `${stats.compliance_rate ?? 0}%`,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-        <polyline points="9 14 11 16 15 11"></polyline>
-      </svg>`,
+      value: `${summary.value.medication_adherence}%`,
+
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+          <polyline points="9 14 11 16 15 11"></polyline>
+        </svg>
+      `,
+
       color: '#22C55E',
       bgColor: '#dcfce7'
     },
 
     {
       label: 'Risiko Tinggi',
-      value: stats.high_risk_patients ?? 0,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-        <line x1="12" y1="9" x2="12" y2="13"></line>
-        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>`,
+      value: summary.value.high_risk_patients,
+
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      `,
+
       color: '#EF4444',
       bgColor: '#fee2e2'
     },
 
     {
       label: 'Keluhan Hari Ini',
-      value: stats.today_complaints ?? 0,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-      </svg>`,
+      value: summary.value.today_complaints,
+
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </svg>
+      `,
+
       color: '#F59E0B',
       bgColor: '#fef3c7'
     },
 
     {
       label: 'Stok OAT Kritis',
-      value: `${stats.critical_medicine_stock ?? 0} Items`,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-        <line x1="12" y1="22.08" x2="12" y2="12"></line>
-      </svg>`,
+      value: `${summary.value.critical_stock_items} Items`,
+
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+      `,
+
       color: '#EF4444',
       bgColor: '#fee2e2'
     }
@@ -109,33 +211,21 @@ const patientStats = computed(() => {
 // ========================================
 // Risk Patients
 // ========================================
+//
+// Backend saat ini hanya mengirim:
+//
+// "risk": {
+//   "high": 0,
+//   "medium": 0,
+//   "low": 1
+// }
+//
+// Belum ada daftar pasien.
+// Jadi jangan membuat data pasien dummy.
+//
 
 const riskPatients = computed(() => {
-  return dashboardStore.statistics?.risk_patients || []
-})
-
-// ========================================
-// Recent Activities
-// ========================================
-
-const recentActivities = computed(() => {
-  return dashboardStore.recentActivities || []
-})
-
-// ========================================
-// OAT Stock
-// ========================================
-
-const oatStocks = computed(() => {
-  return dashboardStore.medicineWarnings || []
-})
-
-// ========================================
-// Compliance Chart
-// ========================================
-
-const complianceTrend = computed(() => {
-  return dashboardStore.complianceChart || []
+  return dashboardStore.dashboard?.risk_patients || []
 })
 
 // ========================================
@@ -159,12 +249,70 @@ const currentUserName = computed(() => {
 })
 
 // ========================================
+// Compliance
+// ========================================
+
+const complianceAverage = computed(() => {
+  return summary.value.medication_adherence ?? 0
+})
+
+// ========================================
+// Helper - Get trend value
+// ========================================
+
+const getTrendValue = (item) => {
+  if (typeof item === 'number') {
+    return item
+  }
+
+  return (
+    item?.value ??
+    item?.adherence ??
+    item?.medication_adherence ??
+    item?.percentage ??
+    0
+  )
+}
+
+// ========================================
+// Helper - Get trend label
+// ========================================
+
+const getTrendLabel = (item, index) => {
+  if (item?.label) {
+    return item.label
+  }
+
+  if (item?.date) {
+    const date = new Date(item.date)
+
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleDateString('id-ID', {
+        weekday: 'short'
+      })
+    }
+  }
+
+  const labels = [
+    'Sen',
+    'Sel',
+    'Rab',
+    'Kam',
+    'Jum',
+    'Sab',
+    'Min'
+  ]
+
+  return labels[index] || ''
+}
+
+// ========================================
 // Fetch Dashboard
 // ========================================
 
 onMounted(async () => {
   try {
-    await dashboardStore.fetchAll()
+    await dashboardStore.fetchDashboard()
   } catch (error) {
     console.error('Dashboard loading failed:', error)
   }
@@ -278,12 +426,10 @@ onMounted(async () => {
 
 
     <!-- ======================================== -->
-    <!-- Middle Row -->
+    <!-- Risk Section -->
     <!-- ======================================== -->
 
     <div class="middle-row">
-
-      <!-- Risk Patients -->
 
       <div class="card risk-card">
 
@@ -324,6 +470,8 @@ onMounted(async () => {
 
         <div class="risk-content">
 
+          <!-- Risk Chart -->
+
           <div class="risk-chart-section">
 
             <div class="donut-chart-container">
@@ -333,11 +481,11 @@ onMounted(async () => {
                 <div class="donut-inner-text">
 
                   <span class="donut-percent">
-                    {{ dashboardStore.statistics?.total_patients ?? 0 }}
+                    {{ summary.active_patients }}
                   </span>
 
                   <span class="donut-label">
-                    TOTAL PASIEN
+                    PASIEN AKTIF
                   </span>
 
                 </div>
@@ -350,27 +498,38 @@ onMounted(async () => {
             <div class="risk-legend">
 
               <div class="legend-item">
+
                 <span class="dot dot-danger"></span>
+
                 Tinggi:
-                {{ dashboardStore.statistics?.high_risk_patients ?? 0 }}
+                {{ risk.high }}
+
               </div>
 
               <div class="legend-item">
+
                 <span class="dot dot-warning"></span>
+
                 Sedang:
-                {{ dashboardStore.statistics?.medium_risk_patients ?? 0 }}
+                {{ risk.medium }}
+
               </div>
 
               <div class="legend-item">
+
                 <span class="dot dot-primary"></span>
+
                 Rendah:
-                {{ dashboardStore.statistics?.low_risk_patients ?? 0 }}
+                {{ risk.low }}
+
               </div>
 
             </div>
 
           </div>
 
+
+          <!-- Risk Patient List -->
 
           <div class="risk-list">
 
@@ -414,14 +573,15 @@ onMounted(async () => {
 
               <div
                 class="risk-badge"
-                :class="'badge-' + patient.levelColor"
+                :class="'badge-' + (patient.levelColor || 'warning')"
               >
                 {{ patient.level }}
               </div>
 
               <button
+                v-if="patient.phone"
                 class="btn-phone"
-                @click.stop="alert('Menghubungi ' + patient.name)"
+                @click.stop="window.location.href = `tel:${patient.phone}`"
               >
 
                 <svg
@@ -442,11 +602,20 @@ onMounted(async () => {
 
             </div>
 
+
             <div
               v-if="riskPatients.length === 0"
               class="empty-state"
             >
-              Tidak ada pasien berisiko.
+              Belum ada daftar pasien berisiko.
+
+              <br />
+
+              <small>
+                Data risiko tersedia: {{ risk.high }} tinggi,
+                {{ risk.medium }} sedang,
+                {{ risk.low }} rendah.
+              </small>
             </div>
 
           </div>
@@ -464,7 +633,10 @@ onMounted(async () => {
 
     <div class="bottom-row">
 
-      <!-- Compliance -->
+
+      <!-- ======================================== -->
+      <!-- Compliance Chart -->
+      <!-- ======================================== -->
 
       <div class="card chart-card">
 
@@ -488,7 +660,8 @@ onMounted(async () => {
               class="text-2xl font-bold"
               style="color: #1E293B;"
             >
-              {{ dashboardStore.statistics?.compliance_rate ?? 0 }}%
+
+              {{ complianceAverage }}%
 
               <span
                 class="text-xs font-normal"
@@ -504,16 +677,31 @@ onMounted(async () => {
         </div>
 
 
-        <div class="area-chart-container">
+        <!-- Empty -->
 
-          <div class="y-axis text-xs text-secondary flex flex-col justify-between pr-2">
+        <div
+          v-if="adherenceTrend.length === 0"
+          class="empty-state"
+        >
+          Belum ada data tren kepatuhan.
+        </div>
 
+
+        <!-- Chart -->
+
+        <div
+          v-else
+          class="area-chart-container"
+        >
+
+          <div
+            class="y-axis text-xs text-secondary flex flex-col justify-between pr-2"
+          >
             <span>100%</span>
             <span>75%</span>
             <span>50%</span>
             <span>25%</span>
             <span>0%</span>
-
           </div>
 
 
@@ -535,44 +723,34 @@ onMounted(async () => {
               class="w-full h-full relative z-10 overflow-visible"
             >
 
-              <defs>
+              <polyline
+                :points="
+                  adherenceTrend
+                    .map((item, index) => {
+                      const value = Math.max(
+                        0,
+                        Math.min(100, getTrendValue(item))
+                      )
 
-                <linearGradient
-                  id="dashComplianceGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stop-color="#006591"
-                    stop-opacity="0.38"
-                  />
+                      const x =
+                        adherenceTrend.length === 1
+                          ? 240
+                          : 30 +
+                            (index /
+                              (adherenceTrend.length - 1)) *
+                              420
 
-                  <stop
-                    offset="100%"
-                    stop-color="#006591"
-                    stop-opacity="0.02"
-                  />
+                      const y = 160 - (value / 100) * 150
 
-                </linearGradient>
-
-              </defs>
-
-
-              <path
-                d="M 30 45 C 65 45, 65 27, 100 27 C 135 27, 135 9, 170 9 C 205 9, 205 72, 240 72 C 275 72, 275 36, 310 36 C 345 36, 345 18, 380 18 C 415 18, 415 3.6, 450 3.6 L 450 160 L 30 160 Z"
-                fill="url(#dashComplianceGradient)"
-              />
-
-
-              <path
-                d="M 30 45 C 65 45, 65 27, 100 27 C 135 27, 135 9, 170 9 C 205 9, 205 72, 240 72 C 275 72, 275 36, 310 36 C 345 36, 345 18, 380 18 C 415 18, 415 3.6, 450 3.6"
+                      return `${x},${y}`
+                    })
+                    .join(' ')
+                "
                 fill="none"
                 stroke="#006591"
                 stroke-width="3"
                 stroke-linecap="round"
+                stroke-linejoin="round"
               />
 
             </svg>
@@ -583,13 +761,12 @@ onMounted(async () => {
               style="margin-left: 20px; margin-right: 15px;"
             >
 
-              <span>Sen</span>
-              <span>Sel</span>
-              <span>Rab</span>
-              <span>Kam</span>
-              <span>Jum</span>
-              <span>Sab</span>
-              <span>Min</span>
+              <span
+                v-for="(item, index) in adherenceTrend"
+                :key="index"
+              >
+                {{ getTrendLabel(item, index) }}
+              </span>
 
             </div>
 
@@ -600,7 +777,9 @@ onMounted(async () => {
       </div>
 
 
+      <!-- ======================================== -->
       <!-- Recent Activities -->
+      <!-- ======================================== -->
 
       <div class="card timeline-card">
 
@@ -611,29 +790,30 @@ onMounted(async () => {
         <div class="timeline">
 
           <div
-            v-for="act in recentActivities"
-            :key="act.id"
+            v-for="activity in recentActivities"
+            :key="activity.id"
             class="timeline-item"
           >
 
             <div
               class="timeline-dot"
-              :class="'bg-' + act.type"
+              :class="'bg-' + (activity.type || 'primary')"
             ></div>
 
             <div class="timeline-content">
 
               <p class="timeline-text">
-                {{ act.text }}
+                {{ activity.text || activity.message }}
               </p>
 
               <span class="timeline-time">
-                {{ act.time }}
+                {{ activity.time || activity.created_at }}
               </span>
 
             </div>
 
           </div>
+
 
           <div
             v-if="recentActivities.length === 0"
@@ -647,7 +827,9 @@ onMounted(async () => {
       </div>
 
 
-      <!-- OAT Stock -->
+      <!-- ======================================== -->
+      <!-- Critical Stock -->
+      <!-- ======================================== -->
 
       <div class="card stock-card">
 
@@ -658,7 +840,7 @@ onMounted(async () => {
         <div class="stock-list">
 
           <div
-            v-for="(stock, index) in oatStocks"
+            v-for="(stock, index) in criticalStock"
             :key="stock.id || index"
             class="stock-item"
           >
@@ -666,49 +848,53 @@ onMounted(async () => {
             <div class="stock-header">
 
               <span class="stock-name">
-                {{ stock.name }}
+                {{ stock.name || stock.medicine_name }}
               </span>
 
-              <span
-                class="stock-status"
-                :class="'text-' + (stock.colorClass || 'success').replace('bg-', '')"
-              >
-                {{ stock.status }}
+              <span class="stock-status">
+                {{ stock.status || 'Kritis' }}
               </span>
 
             </div>
+
 
             <div class="progress-bar-bg">
 
               <div
                 class="progress-bar"
-                :class="stock.colorClass || 'bg-success'"
-                :style="{ width: `${stock.percent ?? 0}%` }"
+                :style="{
+                  width: `${Math.max(
+                    0,
+                    Math.min(100, stock.percent ?? stock.percentage ?? 0)
+                  )}%`
+                }"
               ></div>
 
             </div>
+
 
             <div
               class="text-xs text-secondary flex justify-between mt-0.5 font-medium"
             >
 
               <span>
-                {{ stock.subtext || '' }}
+                {{ stock.subtext || stock.quantity || '' }}
               </span>
 
               <span>
-                {{ stock.percent ?? 0 }}%
+                {{ stock.percent ?? stock.percentage ?? 0 }}%
               </span>
 
             </div>
 
           </div>
 
+
           <div
-            v-if="oatStocks.length === 0"
+            v-if="criticalStock.length === 0"
             class="empty-state"
           >
-            Belum ada data stok OAT.
+            Belum ada data stok OAT kritis.
           </div>
 
         </div>
