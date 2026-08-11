@@ -215,63 +215,37 @@
       </div>
     </div>
 
-    <!-- Bottom Row -->
-    <div class="bottom-grid">
-      <!-- Level Stok OAT -->
-      <div class="card">
-        <h2 class="card-title mb-4">Level Stok OAT</h2>
-        <div v-if="stocks.length === 0" class="text-sm text-muted py-3">
-          Belum ada master data obat OAT.
-        </div>
-        <div v-else class="stock-list">
-          <div v-for="stock in stocks" :key="stock.id || stock.name" class="stock-item">
-            <div class="stock-header">
-              <span class="stock-name">{{ stock.name }}</span>
-              <span :class="['stock-badge', stock.badgeClass]">{{ stock.status }}</span>
-            </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar" :style="{ width: stock.percentage + '%', backgroundColor: stock.color }"></div>
-            </div>
-            <div class="stock-footer">
-              <span class="stock-subtext">{{ stock.subtext }}</span>
-              <span class="stock-percentage">{{ stock.percentage }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Riwayat Distribusi -->
-      <div class="card">
-        <h2 class="card-title mb-4">Riwayat Distribusi OAT</h2>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Pasien</th>
-                <th>Tipe Obat</th>
-                <th>Jumlah</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="distributionHistory.length === 0">
-                <td colspan="5" class="text-center text-muted py-3">Belum ada riwayat distribusi.</td>
-              </tr>
-              <tr v-for="hist in distributionHistory" :key="hist.id">
-                <td class="whitespace-nowrap">{{ formatDate(hist.created_at) }}</td>
-                <td>{{ hist.treatment?.patient?.full_name || 'Pasien' }}</td>
-                <td>{{ hist.medicine?.name || 'OAT' }}</td>
-                <td>{{ hist.quantity }} {{ hist.medicine?.unit || 'Tablet' }}</td>
-                <td>
-                  <span :class="['status-pill', getStatusClass(hist.status)]">
-                    {{ formatStatus(hist.status) }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Riwayat Distribusi OAT -->
+    <div class="card">
+      <h2 class="card-title mb-4">Riwayat Distribusi OAT</h2>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Pasien</th>
+              <th>Tipe Obat</th>
+              <th>Jumlah</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="distributionHistory.length === 0">
+              <td colspan="5" class="text-center text-muted py-3">Belum ada riwayat distribusi.</td>
+            </tr>
+            <tr v-for="hist in distributionHistory" :key="hist.id">
+              <td class="whitespace-nowrap">{{ formatDate(hist.created_at) }}</td>
+              <td>{{ hist.treatment?.patient?.full_name || 'Pasien' }}</td>
+              <td>{{ hist.medicine?.name || 'OAT' }}</td>
+              <td>{{ hist.quantity }} {{ hist.medicine?.unit || 'Tablet' }}</td>
+              <td>
+                <span :class="['status-pill', getStatusClass(hist.status)]">
+                  {{ formatStatus(hist.status) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
