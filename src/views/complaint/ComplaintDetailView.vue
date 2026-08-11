@@ -1,647 +1,249 @@
-<script setup>
-import { ref } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-const complaintId = route.params.id || 'KLH-2026-001'
-
-// Patient data
-const patient = ref({
-  name: 'Budi Kusuma',
-  id: 'TB-2026-089',
-  nik: '3273102805620001',
-  usia: 42,
-  gender: 'Laki-laki',
-  fase: 'Fase Intensif (Bulan ke-1)',
-  pmo: 'Siti Ayu (Istri)',
-  noHp: '0812-3456-7890',
-  puskesmas: 'Puskesmas Sukajadi',
-  dokterPj: 'Dr. Hendra W.'
-})
-
-// Complaint data
-const complaint = ref({
-  tingkat: 'BERAT',
-  waktuLaporan: '28 Jul 2026, 08:15 WIB',
-  kategori: 'Efek Samping Obat (ESO)',
-  deskripsi: '"Dok, saya merasa sangat mual sejak pagi tadi. Mata saya juga terlihat agak kuning dan nafsu makan hilang total. Sudah 2 hari begini, tapi hari ini paling parah sampai lemas sekali."'
-})
-
-// Status update
-const selectedStatus = ref('diproses')
-const statusOptions = [
-  { value: 'diproses', label: 'Diproses / Observasi' },
-  { value: 'dirujuk', label: 'Dirujuk ke RS/Spesialis' },
-  { value: 'selesai', label: 'Selesai (Resolved)' }
-]
-
-// Previous complaints
-const previousComplaints = ref([
-  { date: '12 Jul 2026', text: 'Gatal-gatal ringan (Selesai)', color: '#006591' },
-  { date: '05 Jul 2026', text: 'Batuk berdahak (Selesai)', color: '#F59E0B' }
-])
-
-const handleSaveStatus = () => {
-  alert('Status berhasil diperbarui: ' + selectedStatus.value)
-}
-</script>
-
 <template>
   <div class="complaint-detail-page">
-
-    <!-- Patient Profile Header -->
-    <div class="card patient-header">
-      <div class="patient-info-left">
-        <div class="patient-avatar">
-          <span class="avatar-initials">{{ patient.initials }}</span>
-        </div>
-        <div class="patient-bio">
-          <h2 class="patient-name">{{ patient.name }}</h2>
-          <p class="patient-sub">NIK: {{ patient.nik }} &bull; {{ patient.age }} Tahun</p>
-        </div>
-      </div>
-      <div class="patient-meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">TIPE TB</span>
-          <span class="meta-value">{{ patient.tipeTb }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">FASE PENGOBATAN</span>
-          <span class="meta-value">{{ patient.fasePengobatan }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">PROGRES</span>
-          <span class="meta-value">{{ patient.progres }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">PMO (KELUARGA)</span>
-          <span class="meta-value">{{ patient.pmo }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">KADER</span>
-          <span class="meta-value">{{ patient.kader }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">DOKTER PJ</span>
-          <span class="meta-value">{{ patient.dokterPj }}</span>
-        </div>
-      </div>
+    <!-- Nav Back -->
+    <div class="header-nav mb-3">
+      <button @click="goBack" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Kembali ke Daftar Keluhan
+      </button>
     </div>
 
-    <!-- Middle Row -->
-    <div class="row-grid">
-      <!-- Detail Keluhan Pasien -->
-      <div class="card col-main">
-        <div class="card-header-row">
-          <div class="card-title-with-icon">
-            <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <h3>Detail Keluhan Pasien</h3>
-          </div>
-          <span class="badge-severity">TINGKAT: {{ complaint.tingkat }}</span>
-        </div>
-
-        <div class="info-boxes">
-          <div class="info-box">
-            <span class="info-box-label">Waktu Laporan</span>
-            <span class="info-box-value">{{ complaint.waktuLaporan }}</span>
-          </div>
-          <div class="info-box">
-            <span class="info-box-label">Kategori Keluhan</span>
-            <span class="info-box-value">{{ complaint.kategori }}</span>
-          </div>
-        </div>
-
-        <div class="description-section">
-          <h4 class="description-label">Deskripsi Pasien</h4>
-          <div class="description-quote">
-            <p>{{ complaint.deskripsi }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pembaruan Status -->
-      <div class="card col-side">
-        <h3 class="side-title">Pembaruan Status</h3>
-        <div class="status-options">
-          <label 
-            v-for="opt in statusOptions" 
-            :key="opt.value" 
-            class="status-radio"
-            :class="{ 'is-selected': selectedStatus === opt.value }"
-          >
-            <input 
-              type="radio" 
-              name="status" 
-              :value="opt.value" 
-              v-model="selectedStatus" 
-            />
-            <span class="radio-circle">
-              <span class="radio-dot" v-if="selectedStatus === opt.value"></span>
-            </span>
-            <span class="radio-label">{{ opt.label }}</span>
-          </label>
-        </div>
-        <button class="btn-save" @click="handleSaveStatus">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
-          Simpan Perubahan
-        </button>
-      </div>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading-state card">
+      <div class="spinner"></div>
+      <p>Memuat detail keluhan pasien...</p>
     </div>
 
-    <!-- Bottom Row -->
-    <div class="row-grid">
-      <!-- Keluhan Sebelumnya -->
-      <div class="card col-main">
-        <h3 class="section-title">Keluhan Sebelumnya</h3>
-        <div class="timeline-list">
-          <div v-for="(item, idx) in previousComplaints" :key="idx" class="timeline-item">
-            <div class="timeline-dot" :style="{ backgroundColor: item.color }"></div>
-            <div class="timeline-content">
-              <span class="timeline-date">{{ item.date }}</span>
-              <span class="timeline-text">{{ item.text }}</span>
+    <!-- Error State -->
+    <div v-else-if="!complaint" class="error-state card">
+      <h3>Data Keluhan Tidak Ditemukan</h3>
+      <p>Laporan keluhan dengan ID ini tidak tersedia atau telah dihapus.</p>
+      <button class="btn btn-primary mt-3" @click="goBack">Kembali ke Daftar</button>
+    </div>
+
+    <!-- Main Detail Content -->
+    <div v-else class="detail-container">
+      <!-- Toast Alert -->
+      <div v-if="alertMessage" class="toast-alert" :class="'toast-' + alertType">
+        <span>{{ alertMessage }}</span>
+        <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
+      </div>
+
+      <!-- 1. Patient Profile Header Card -->
+      <div class="card patient-header">
+        <div class="patient-info-left">
+          <div class="patient-avatar">
+            {{ getInitials(complaint.treatment?.patient?.full_name || 'TB') }}
+          </div>
+          <div class="patient-bio">
+            <div class="flex-row items-center gap-2">
+              <h2 class="patient-name">{{ complaint.treatment?.patient?.full_name || 'Pasien #' + complaint.treatment_id }}</h2>
+              <span class="status-badge" :class="'status-' + complaint.status">
+                {{ formatStatus(complaint.status) }}
+              </span>
+            </div>
+            <p class="patient-sub">
+              NIK: {{ complaint.treatment?.patient?.nik || '-' }} &bull; No. RM: {{ complaint.treatment?.patient?.medical_record_number || '-' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="patient-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">FASE TERAPI</span>
+            <span class="meta-value">{{ formatPhase(complaint.treatment?.phase) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">REGIMEN OBAT</span>
+            <span class="meta-value">{{ formatRegimen(complaint.treatment?.regimen) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">DOKTER PJ</span>
+            <span class="meta-value">{{ complaint.treatment?.doctor_name || '-' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">PMO (PENGAWAS)</span>
+            <span class="meta-value">{{ complaint.treatment?.patient?.pmo_name || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Grid Layout -->
+      <div class="row-grid">
+        <!-- Left Column: Detail Keluhan & Deskripsi Pasien -->
+        <div class="col-main">
+          <!-- Detail Keluhan Box -->
+          <div class="card">
+            <div class="card-header-row">
+              <div class="card-title-with-icon">
+                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <h3>Informasi Keluhan Pasien</h3>
+              </div>
+              <span class="category-badge">{{ complaint.category }}</span>
+            </div>
+
+            <div class="info-boxes">
+              <div class="info-box">
+                <span class="info-box-label">WAKTU LAPORAN</span>
+                <span class="info-box-value">{{ formatDate(complaint.created_at) }}, {{ formatTime(complaint.created_at) }} WIB</span>
+              </div>
+              <div class="info-box">
+                <span class="info-box-label">KATEGORI KELUHAN</span>
+                <span class="info-box-value font-semibold">{{ complaint.category }}</span>
+              </div>
+              <div class="info-box">
+                <span class="info-box-label">STATUS PENANGANAN</span>
+                <span class="info-box-value">
+                  <span class="status-badge" :class="'status-' + complaint.status">
+                    {{ formatStatus(complaint.status) }}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div class="description-section">
+              <h4 class="description-label">Deskripsi / Keluhan Pasien:</h4>
+              <div class="description-quote">
+                <p>"{{ complaint.description }}"</p>
+              </div>
+            </div>
+
+            <!-- Tanggapan yang sudah tersimpan -->
+            <div class="response-section mt-4" v-if="complaint.response">
+              <h4 class="response-label">Tanggapan / Rekomendasi Medis Tersimpan:</h4>
+              <div class="response-box">
+                <div class="response-header">
+                  <span class="badge-resolved">Respon Terkirim</span>
+                  <span class="text-xs text-muted" v-if="complaint.updated_at">
+                    Diperbarui: {{ formatDate(complaint.updated_at) }}
+                  </span>
+                </div>
+                <p class="response-content">{{ complaint.response }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kontak & Informasi Pasien -->
+          <div class="card" v-if="complaint.treatment?.patient">
+            <h3 class="section-title">Kontak & Alamat Pasien</h3>
+            <div class="detail-list">
+              <div class="detail-row">
+                <span class="detail-label">Nomor Telepon Pasien:</span>
+                <span class="detail-val font-semibold">{{ complaint.treatment.patient.phone || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Pengawas Menelan Obat (PMO):</span>
+                <span class="detail-val">{{ complaint.treatment.patient.pmo_name }} ({{ complaint.treatment.patient.pmo_phone || '-' }})</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Alamat Lengkap:</span>
+                <span class="detail-val">{{ complaint.treatment.patient.address || '-' }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Tindakan Cepat -->
-      <div class="card col-side">
-        <h3 class="side-title">Tindakan Cepat</h3>
-        <div class="quick-actions">
-          <button class="action-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-            </svg>
-            Hubungi Pasien
-          </button>
-          <button class="action-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            Hubungi PMO
-          </button>
-          <button class="action-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Jadwalkan Pemeriksaan
-          </button>
-          <button class="action-btn action-danger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Rujuk ke RS Paru
-          </button>
+        <!-- Right Column: Tindakan Medis & Pembaruan Status -->
+        <div class="col-side">
+          <!-- Form Pembaruan Status -->
+          <div class="card action-card">
+            <h3 class="side-title">Pembaruan & Tindakan Medis</h3>
+
+            <form @submit.prevent="submitUpdateStatus">
+              <div class="form-group mb-3">
+                <label>Status Penanganan <span class="text-danger">*</span></label>
+                <div class="status-radio-group">
+                  <label 
+                    class="status-radio" 
+                    :class="{ 'is-selected': responseForm.status === 'pending' }"
+                  >
+                    <input type="radio" value="pending" v-model="responseForm.status" />
+                    <span>Menunggu Respon (Pending)</span>
+                  </label>
+
+                  <label 
+                    class="status-radio" 
+                    :class="{ 'is-selected': responseForm.status === 'in_progress' }"
+                  >
+                    <input type="radio" value="in_progress" v-model="responseForm.status" />
+                    <span>Sedang Diproses / Observasi</span>
+                  </label>
+
+                  <label 
+                    class="status-radio" 
+                    :class="{ 'is-selected': responseForm.status === 'resolved' }"
+                  >
+                    <input type="radio" value="resolved" v-model="responseForm.status" />
+                    <span>Selesai / Teratasi (Resolved)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group mb-4">
+                <label>Tanggapan / Rekomendasi Medis</label>
+                <textarea 
+                  v-model="responseForm.response" 
+                  rows="4" 
+                  placeholder="Tuliskan instruksi penanganan klinis, resep obat simtomatis, atau anjuran kontrol ke faskes..."
+                  class="form-control"
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block" :disabled="isSubmitting">
+                <span v-if="isSubmitting" class="spinner-sm"></span>
+                <span v-else>Simpan Tanggapan & Status</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Aksi Cepat / Hubungi Pasien -->
+          <div class="card">
+            <h3 class="side-title">Aksi Cepat</h3>
+            <div class="action-buttons-list">
+              <button 
+                v-if="complaint.treatment?.patient?.phone" 
+                class="btn btn-outline-success btn-block" 
+                @click="sendWhatsApp(complaint.treatment.patient.phone, complaint.treatment.patient.full_name, 'Pasien')"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                Hubungi Pasien (WA)
+              </button>
+
+              <button 
+                v-if="complaint.treatment?.patient?.pmo_phone" 
+                class="btn btn-outline btn-block" 
+                @click="sendWhatsApp(complaint.treatment.patient.pmo_phone, complaint.treatment.patient.pmo_name, 'PMO')"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                Hubungi PMO (WA)
+              </button>
+
+              <button class="btn btn-outline-danger btn-block" @click="confirmDelete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Hapus Laporan Keluhan
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.complaint-detail-page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+<script src="./ComplaintDetailView.js"></script>
 
-.card {
-  background: #FFFFFF;
-  border: 1px solid var(--color-border, #E2E8F0);
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-/* ========= PATIENT HEADER ========= */
-.patient-header {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-
-.patient-info-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-
-.patient-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #006591 0%, #004D6E 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.avatar-initials {
-  color: #FFFFFF;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.patient-bio {
-  min-width: 200px;
-}
-
-.patient-name {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0 0 4px;
-}
-
-.patient-sub {
-  font-size: 0.8125rem;
-  color: #64748B;
-  margin: 0;
-}
-
-.patient-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px 28px;
-  flex: 1;
-  min-width: 0;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.meta-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: #94A3B8;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.meta-value {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #1E293B;
-}
-
-/* ========= ROW GRID ========= */
-.row-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 20px;
-}
-
-/* ========= DETAIL KELUHAN ========= */
-.card-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  gap: 12px;
-}
-
-.card-title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.title-icon {
-  width: 22px;
-  height: 22px;
-  color: #F59E0B;
-}
-
-.card-title-with-icon h3 {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0;
-}
-
-.badge-severity {
-  background-color: #FEE2E2;
-  color: #DC2626;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 6px;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-.info-boxes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.info-box {
-  border: 1px solid var(--color-border, #E2E8F0);
-  border-radius: 10px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-box-label {
-  font-size: 0.75rem;
-  color: #94A3B8;
-  font-weight: 500;
-}
-
-.info-box-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1E293B;
-}
-
-.description-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1E293B;
-  margin: 0 0 10px;
-}
-
-.description-quote {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 10px;
-  padding: 18px 20px;
-  border-left: 3px solid #006591;
-}
-
-.description-quote p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #475569;
-  line-height: 1.7;
-  font-style: italic;
-}
-
-/* ========= PEMBARUAN STATUS ========= */
-.side-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0 0 20px;
-}
-
-.status-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.status-radio {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 200ms ease;
-  background: #FFFFFF;
-}
-
-.status-radio:hover {
-  border-color: #CBD5E1;
-  background-color: #F8FAFC;
-}
-
-.status-radio.is-selected {
-  border-color: #006591;
-  background-color: rgba(0, 101, 145, 0.04);
-}
-
-.status-radio input {
-  display: none;
-}
-
-.radio-circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #CBD5E1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: border-color 200ms ease;
-}
-
-.status-radio.is-selected .radio-circle {
-  border-color: #006591;
-}
-
-.radio-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #006591;
-}
-
-.radio-label {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #334155;
-}
-
-.btn-save {
-  width: 100%;
-  height: 44px;
-  background: linear-gradient(135deg, #002B3F 0%, #006591 100%);
-  color: #FFFFFF;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: 'Inter', sans-serif;
-  transition: all 250ms ease;
-}
-
-.btn-save:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 43, 63, 0.3);
-}
-
-.btn-save svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* ========= KELUHAN SEBELUMNYA ========= */
-.section-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0 0 20px;
-}
-
-.timeline-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-left: 4px;
-}
-
-.timeline-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  position: relative;
-}
-
-.timeline-item:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 16px;
-  bottom: -16px;
-  width: 2px;
-  background-color: #E2E8F0;
-}
-
-.timeline-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-
-.timeline-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.timeline-date {
-  font-size: 0.75rem;
-  color: #94A3B8;
-  font-weight: 500;
-}
-
-.timeline-text {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1E293B;
-}
-
-/* ========= TINDAKAN CEPAT ========= */
-.quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 16px;
-  background: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
-  color: #334155;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: all 200ms ease;
-}
-
-.action-btn:hover {
-  border-color: #006591;
-  background-color: rgba(0, 101, 145, 0.03);
-  color: #006591;
-}
-
-.action-btn svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.action-btn.action-danger {
-  color: #DC2626;
-  border-color: #FECACA;
-}
-
-.action-btn.action-danger:hover {
-  background-color: #FEF2F2;
-  border-color: #DC2626;
-}
-
-/* ========= RESPONSIVE ========= */
-@media (max-width: 1024px) {
-  .row-grid {
-    grid-template-columns: 1fr 280px;
-  }
-
-  .patient-meta-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .patient-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .patient-meta-grid {
-    width: 100%;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .row-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .info-boxes {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .patient-meta-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    padding: 16px;
-  }
-}
-</style>
+<style scoped src="./ComplaintDetailView.css"></style>

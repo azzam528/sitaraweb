@@ -1,173 +1,13 @@
-<script setup>
-import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import authService from '../../services/auth.service'
-
-const router = useRouter()
-
-// ============================
-// Form
-// ============================
-
-const form = ref({
-  username: '',
-  email: '',
-  password: '',
-  passwordConfirm: '',
-  role: 'nakes'
-})
-
-// ============================
-// UI State
-// ============================
-
-const showPassword = ref(false)
-const showPasswordConfirm = ref(false)
-const isLoading = ref(false)
-const agreeTerms = ref(false)
-
-const errors = ref({})
-
-// ============================
-// Clear Error
-// ============================
-
-const clearError = (field) => {
-  if (errors.value[field]) {
-    errors.value[field] = ''
-  }
-}
-
-// ============================
-// Validation
-// ============================
-
-const validateForm = () => {
-  const newErrors = {}
-
-  // Username
-  if (!form.value.username.trim()) {
-    newErrors.username = 'Username wajib diisi'
-  } else if (form.value.username.trim().length < 3) {
-    newErrors.username = 'Username minimal 3 karakter'
-  }
-
-  // Email
-  if (!form.value.email.trim()) {
-    newErrors.email = 'Email wajib diisi'
-  } else if (
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())
-  ) {
-    newErrors.email = 'Format email tidak valid'
-  }
-
-  // Password
-  if (!form.value.password) {
-    newErrors.password = 'Password wajib diisi'
-  } else if (form.value.password.length < 6) {
-    newErrors.password = 'Password minimal 6 karakter'
-  }
-
-  // Confirm Password
-  if (!form.value.passwordConfirm) {
-    newErrors.passwordConfirm = 'Konfirmasi password wajib diisi'
-  } else if (
-    form.value.password !== form.value.passwordConfirm
-  ) {
-    newErrors.passwordConfirm = 'Konfirmasi password tidak sama'
-  }
-
-  // Terms
-  if (!agreeTerms.value) {
-    newErrors.terms = 'Anda harus menyetujui Syarat & Ketentuan'
-  }
-
-  errors.value = newErrors
-
-  return Object.keys(newErrors).length === 0
-}
-
-// ============================
-// Register
-// ============================
-
-const handleRegister = async () => {
-  if (!validateForm()) {
-    return
-  }
-
-  isLoading.value = true
-
-  try {
-    const payload = {
-      username: form.value.username.trim(),
-      email: form.value.email.trim(),
-      password: form.value.password,
-      role: 'nakes'
-    }
-
-    console.log('Register payload:', payload)
-
-    const response = await authService.register(payload)
-
-    console.log('Register success:', response.data)
-
-    alert('Registrasi berhasil. Silakan login.')
-
-    // Bersihkan form
-    form.value = {
-      username: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      role: 'nakes'
-    }
-
-    agreeTerms.value = false
-    errors.value = {}
-
-    // Redirect ke login
-    router.push('/login')
-
-  } catch (error) {
-    console.error('Register error:', error)
-
-    const status = error.response?.status
-    const detail = error.response?.data?.detail
-
-    // Error dari backend
-    if (status === 400 || status === 409) {
-      if (typeof detail === 'string') {
-        alert(detail)
-      } else {
-        alert('Username atau email sudah digunakan.')
-      }
-    } else if (status === 422) {
-      alert('Data registrasi tidak sesuai dengan format yang diminta backend.')
-      console.error('Validation error:', error.response?.data)
-    } else {
-      alert('Registrasi gagal. Silakan coba lagi.')
-    }
-
-  } finally {
-    isLoading.value = false
-  }
-}
-</script>
+<script src="./RegisterView.js"></script>
 
 <template>
   <div class="register-fields">
-
     <form
       @submit.prevent="handleRegister"
       class="auth-form"
       novalidate
     >
-
-      <!-- ============================ -->
       <!-- Username -->
-      <!-- ============================ -->
-
       <div
         class="form-group"
         :class="{ 'has-error': errors.username }"
@@ -210,11 +50,7 @@ const handleRegister = async () => {
         </span>
       </div>
 
-
-      <!-- ============================ -->
       <!-- Email -->
-      <!-- ============================ -->
-
       <div
         class="form-group"
         :class="{ 'has-error': errors.email }"
@@ -257,15 +93,9 @@ const handleRegister = async () => {
         </span>
       </div>
 
-
-      <!-- ============================ -->
       <!-- Password + Confirm Password -->
-      <!-- ============================ -->
-
       <div class="form-row">
-
         <!-- Password -->
-
         <div
           class="form-group"
           :class="{ 'has-error': errors.password }"
@@ -275,7 +105,6 @@ const handleRegister = async () => {
           </label>
 
           <div class="input-wrapper">
-
             <span class="input-icon">
               <svg
                 viewBox="0 0 24 24"
@@ -293,7 +122,6 @@ const handleRegister = async () => {
                   rx="2"
                   ry="2"
                 />
-
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </span>
@@ -314,7 +142,6 @@ const handleRegister = async () => {
               @click="showPassword = !showPassword"
               tabindex="-1"
             >
-
               <svg
                 v-if="!showPassword"
                 viewBox="0 0 24 24"
@@ -343,9 +170,7 @@ const handleRegister = async () => {
                   y2="23"
                 />
               </svg>
-
             </button>
-
           </div>
 
           <span
@@ -354,23 +179,18 @@ const handleRegister = async () => {
           >
             {{ errors.password }}
           </span>
-
         </div>
 
-
         <!-- Confirm Password -->
-
         <div
           class="form-group"
           :class="{ 'has-error': errors.passwordConfirm }"
         >
-
           <label for="reg-password-confirm">
             Konfirmasi Password
           </label>
 
           <div class="input-wrapper">
-
             <span class="input-icon">
               <svg
                 viewBox="0 0 24 24"
@@ -400,7 +220,6 @@ const handleRegister = async () => {
               @click="showPasswordConfirm = !showPasswordConfirm"
               tabindex="-1"
             >
-
               <svg
                 v-if="!showPasswordConfirm"
                 viewBox="0 0 24 24"
@@ -429,9 +248,7 @@ const handleRegister = async () => {
                   y2="23"
                 />
               </svg>
-
             </button>
-
           </div>
 
           <span
@@ -440,29 +257,19 @@ const handleRegister = async () => {
           >
             {{ errors.passwordConfirm }}
           </span>
-
         </div>
-
       </div>
 
-
-      <!-- ============================ -->
       <!-- Terms -->
-      <!-- ============================ -->
-
       <div class="form-group">
-
         <label class="checkbox-wrapper">
-
           <input
             type="checkbox"
             v-model="agreeTerms"
             @change="clearError('terms')"
           />
-
           <span class="checkbox-label">
             Saya menyetujui
-
             <RouterLink
               to="/terms"
               class="terms-link"
@@ -470,9 +277,7 @@ const handleRegister = async () => {
             >
               Syarat & Ketentuan
             </RouterLink>
-
             serta
-
             <RouterLink
               to="/privacy"
               class="terms-link"
@@ -481,7 +286,6 @@ const handleRegister = async () => {
               Kebijakan Privasi
             </RouterLink>
           </span>
-
         </label>
 
         <span
@@ -490,257 +294,35 @@ const handleRegister = async () => {
         >
           {{ errors.terms }}
         </span>
-
       </div>
 
-
-      <!-- ============================ -->
       <!-- Submit -->
-      <!-- ============================ -->
-
       <button
         type="submit"
         class="btn-register"
         :disabled="isLoading"
       >
-
         <span
           v-if="isLoading"
           class="btn-spinner"
         ></span>
-
         <span v-else>
           Daftar Akun
         </span>
-
       </button>
-
     </form>
 
-
-    <!-- ============================ -->
     <!-- Footer -->
-    <!-- ============================ -->
-
     <p class="auth-footer-text">
-
       Sudah punya akun?
-
       <RouterLink
         to="/login"
         class="signin-link"
       >
         Login
       </RouterLink>
-
     </p>
-
   </div>
 </template>
 
-<style scoped>
-.register-fields {
-  width: 100%;
-}
-
-/* Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #94A3B8;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.input-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.input-wrapper input,
-.input-wrapper select {
-  width: 100%;
-  height: 44px;
-  padding: 0 14px 0 44px;
-  font-size: 0.875rem;
-  color: #1E293B;
-  background-color: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
-  outline: none;
-  transition: all 200ms ease;
-  font-family: inherit;
-}
-
-.input-wrapper select {
-  appearance: none;
-  cursor: pointer;
-}
-
-.input-wrapper input::placeholder {
-  color: #94A3B8;
-}
-
-.input-wrapper input:focus,
-.input-wrapper select:focus {
-  border-color: #006591;
-  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.1);
-}
-
-.input-wrapper input.is-error,
-.input-wrapper select.is-error {
-  border-color: #EF4444;
-}
-
-.error-text {
-  font-size: 0.75rem;
-  color: #EF4444;
-  margin-top: 2px;
-}
-
-/* Password Toggle */
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  color: #94A3B8;
-  display: flex;
-  align-items: center;
-}
-
-.password-toggle svg {
-  width: 18px;
-  height: 18px;
-}
-
-/* Checkbox & Terms */
-.checkbox-wrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  color: #475569;
-  line-height: 1.4;
-}
-
-.checkbox-wrapper input[type="checkbox"] {
-  margin-top: 2px;
-  accent-color: #006591;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.terms-link {
-  color: #006591;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.terms-link:hover {
-  text-decoration: underline;
-}
-
-/* Button */
-.btn-register {
-  width: 100%;
-  height: 46px;
-  background: linear-gradient(135deg, #006591 0%, #004D6E 100%);
-  color: #FFFFFF;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 200ms ease;
-  box-shadow: 0 4px 12px rgba(0, 101, 145, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-}
-
-.btn-register:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0077AB 0%, #005A82 100%);
-  box-shadow: 0 6px 16px rgba(0, 101, 145, 0.35);
-  transform: translateY(-1px);
-}
-
-.btn-register:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.btn-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #FFFFFF;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.auth-footer-text {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 0.875rem;
-  color: #64748B;
-}
-
-.signin-link {
-  color: #006591;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.signin-link:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
+<style scoped src="./RegisterView.css"></style>

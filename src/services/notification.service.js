@@ -4,13 +4,16 @@ export default {
   getAll(params) {
     return api.get('/notifications', { params });
   },
+  getById(id) {
+    return api.get(`/notifications/${id}`);
+  },
   markAsRead(id) {
-    return api.patch(`/notifications/${id}/read`);
+    return api.put(`/notifications/${id}/read`);
   },
   markAllAsRead() {
-    return api.patch('/notifications/read-all');
+    return api.put('/notifications/read-all');
   },
-  getUnreadCount() {
-    return api.get('/notifications/unread-count');
+  delete(id) {
+    return api.delete(`/notifications/${id}`);
   }
 };
