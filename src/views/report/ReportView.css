@@ -1,0 +1,272 @@
+.report-view {
+  padding: 24px;
+  background-color: #F8FAFC;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.filter-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.form-select {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  min-width: 200px;
+  background-color: white;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #006591;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #006591;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #005378;
+}
+
+/* Printable Report Styles */
+.printable-report {
+  padding: 40px;
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.report-title-section h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.report-title-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #334155;
+}
+
+.report-title-section p {
+  font-size: 0.875rem;
+  margin: 0;
+  color: #475569;
+}
+
+.report-divider {
+  border: none;
+  border-top: 2px solid #006591;
+  margin-bottom: 24px;
+}
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-box {
+  padding: 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.text-success { color: #16a34a; }
+.text-danger { color: #dc2626; }
+.text-primary { color: #006591; }
+
+.report-table-container {
+  margin-bottom: 40px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th, .report-table td {
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.report-table th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #334155;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+.report-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.signature-box {
+  text-align: center;
+  width: 250px;
+}
+
+.signature-box p {
+  margin: 0 0 4px 0;
+  font-size: 0.875rem;
+}
+
+.signature-box .role {
+  font-weight: 600;
+}
+
+.signature-space {
+  height: 80px; /* Space for signature */
+}
+
+.signature-box .name {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.signature-box .nip {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+/* 
+  Print CSS Media Query
+  This section controls how the page looks when printed (CTRL+P)
+*/
+@media print {
+  /* Hide all non-printable elements */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Reset background and padding for the page */
+  body, .report-view {
+    background-color: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Force the printable card to act as the full page */
+  .printable-report {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure colors and backgrounds print correctly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* You may need to hide the global sidebar and navbar if they are outside this component.
+     Since Vue scoped CSS won't affect global elements easily, 
+     it's usually better to put a global print CSS in index.css. 
+     But we can try doing it by targeting the global classes if they are not scoped. */
+  :deep(.sidebar), :deep(.navbar) {
+    display: none !important;
+  }
+}
