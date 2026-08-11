@@ -1,28 +1,27 @@
-import api from './api';
+import api from './api'
 
 export default {
-  getAll(params) {
-    return api.get('/patients', { params });
+  getAll() {
+    return api.get('/patients')
   },
-  getById(id) {
-    return api.get(`/patients/${id}`);
+
+  getById(patientId) {
+    return api.get(`/patients/${patientId}`)
   },
-  create(data) {
-    return api.post('/patients', data);
+
+  createPatient(data) {
+    return api.post('/patients', data)
   },
-  update(id, data) {
-    return api.put(`/patients/${id}`, data);
+
+  updatePatient(patientId, data) {
+    return api.put(`/patients/${patientId}`, data)
   },
-  delete(id) {
-    return api.delete(`/patients/${id}`);
+
+  deletePatient(patientId) {
+    return api.delete(`/patients/${patientId}`)
   },
-  getTreatmentHistory(id) {
-    return api.get(`/patients/${id}/treatment-history`);
-  },
-  getPMO(id) {
-    return api.get(`/patients/${id}/pmo`);
-  },
-  getVideoHistory(id) {
-    return api.get(`/patients/${id}/videos`);
+
+  getProfile() {
+    return api.get('/patients/profile')
   }
-};
+}

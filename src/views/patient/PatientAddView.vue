@@ -1,248 +1,704 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import patientService from '../../services/patient.service'
 
 const router = useRouter()
 
+// =====================================================
+// FORM DATA
+// =====================================================
+
 const formData = ref({
-  nik: '',
-  bpjs: '',
+  medicalRecordNumber: '',
   name: '',
+  nik: '',
   dob: '',
-  gender: 'L',
+  gender: 'male',
   phone: '',
-  job: '',
   address: '',
-  
-  tbType: 'TB Paru SO',
-  category: 'Kategori 1',
-  regimen: '',
-  startDate: '',
-  
-  faskes: 'Puskesmas Sukajadi',
-  doctor: '',
+  job: '',
   pmoName: '',
-  pmoRelation: '',
   pmoPhone: '',
-  kader: ''
+  clinicalNote: ''
 })
 
-const createAccount = ref(true)
+// =====================================================
+// STATE
+// =====================================================
+
 const isSubmitting = ref(false)
 const showSuccessModal = ref(false)
+const errorMessage = ref('')
 
-const savePatient = () => {
-  isSubmitting.value = true
-  
-  // Simulate API call
-  setTimeout(() => {
-    isSubmitting.value = false
-    showSuccessModal.value = true
-  }, 1000)
+const createdCredentials = ref({
+  username: '',
+  password: ''
+})
+
+// =====================================================
+// VALIDATION
+// =====================================================
+
+const validateForm = () => {
+  errorMessage.value = ''
+
+  if (!formData.value.medicalRecordNumber.trim()) {
+    errorMessage.value = 'Nomor rekam medis wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.name.trim()) {
+    errorMessage.value = 'Nama lengkap wajib diisi.'
+    return false
+  }
+
+  if (!/^\d{16}$/.test(formData.value.nik.trim())) {
+    errorMessage.value = 'NIK harus terdiri dari 16 digit.'
+    return false
+  }
+
+  if (!formData.value.dob) {
+    errorMessage.value = 'Tanggal lahir wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.gender) {
+    errorMessage.value = 'Jenis kelamin wajib dipilih.'
+    return false
+  }
+
+  if (!formData.value.phone.trim()) {
+    errorMessage.value = 'Nomor telepon wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.address.trim()) {
+    errorMessage.value = 'Alamat wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.job.trim()) {
+    errorMessage.value = 'Pekerjaan wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.pmoName.trim()) {
+    errorMessage.value = 'Nama PMO wajib diisi.'
+    return false
+  }
+
+  if (!formData.value.pmoPhone.trim()) {
+    errorMessage.value = 'Nomor telepon PMO wajib diisi.'
+    return false
+  }
+
+  return true
 }
 
-const finishAndRedirect = () => {
-  showSuccessModal.value = false
+// =====================================================
+// SAVE PATIENT
+// =====================================================
+
+const savePatient = async () => {
+  if (!validateForm()) {
+    return
+  }
+
+  isSubmitting.value = true
+  errorMessage.value = ''
+
+  try {
+    const payload = {
+      medical_record_number:
+        formData.value.medicalRecordNumber.trim(),
+
+      full_name:
+        formData.value.name.trim(),
+
+      nik:
+        formData.value.nik.trim(),
+
+      birth_date:
+        formData.value.dob,
+
+      gender:
+        formData.value.gender,
+
+      phone:
+        formData.value.phone.trim(),
+
+      address:
+        formData.value.address.trim(),
+
+      occupation:
+        formData.value.job.trim(),
+
+      pmo_name:
+        formData.value.pmoName.trim(),
+
+      pmo_phone:
+        formData.value.pmoPhone.trim(),
+
+      clinical_note:
+        formData.value.clinicalNote.trim() || null
+    }
+
+    console.log('POST /patients:', payload)
+
+    const response = await patientService.createPatient(payload)
+
+    console.log('Patient created:', response.data)
+
+    // Credential dibuat oleh BACKEND
+    createdCredentials.value = {
+      username: response.data.username,
+      password: response.data.temporary_password
+    }
+
+    showSuccessModal.value = true
+
+  } catch (error) {
+    console.error('Create patient failed:', error)
+
+    const detail = error?.response?.data?.detail
+
+    if (Array.isArray(detail)) {
+      errorMessage.value = detail
+        .map(item => item.msg)
+        .join(', ')
+    } else {
+      errorMessage.value =
+        detail || 'Gagal menambahkan pasien.'
+    }
+
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// =====================================================
+// CANCEL
+// =====================================================
+
+const cancelAdd = () => {
+  if (isSubmitting.value) {
+    return
+  }
+
   router.push('/dashboard/patients')
 }
 
-const cancelAdd = () => {
+// =====================================================
+// FINISH
+// =====================================================
+
+const finishAndRedirect = () => {
+  showSuccessModal.value = false
+
   router.push('/dashboard/patients')
 }
 </script>
 
+
 <template>
   <div class="patient-add-page">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
     <div class="header-nav">
-      <button @click="cancelAdd" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <button
+        type="button"
+        class="back-link"
+        @click="cancelAdd"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line
+            x1="19"
+            y1="12"
+            x2="5"
+            y2="12"
+          />
+          <polyline
+            points="12 19 5 12 12 5"
+          />
+        </svg>
+
         Batal & Kembali
       </button>
     </div>
 
+
+    <!-- ================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ================================================= -->
+
     <div class="page-header">
-      <h1 class="page-title">Tambah Pasien Baru</h1>
-      <p class="subtitle">Daftarkan pasien TB baru dan buatkan akun aplikasinya agar bisa memantau pengobatan.</p>
+      <h1 class="page-title">
+        Tambah Pasien Baru
+      </h1>
+
+      <p class="subtitle">
+        Daftarkan pasien TB baru dan buatkan
+        akun aplikasinya untuk pemantauan
+        pengobatan.
+      </p>
     </div>
 
-    <form @submit.prevent="savePatient" class="add-form">
-      
-      <!-- Konfigurasi Akun -->
-      <div class="card form-card account-card">
-        <div class="account-header">
-          <div class="account-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          </div>
-          <div class="account-text">
-            <h3>Buat Akun & Kirim via WhatsApp</h3>
-            <p>Sistem akan otomatis membuatkan username dan password untuk pasien. Kredensial akan dikirim melalui pesan WhatsApp ke nomor telepon pasien.</p>
-          </div>
-          <div class="account-toggle">
-            <label class="switch">
-              <input type="checkbox" v-model="createAccount">
-              <span class="slider round"></span>
-            </label>
-          </div>
-        </div>
-      </div>
+
+    <!-- ================================================= -->
+    <!-- ERROR -->
+    <!-- ================================================= -->
+
+    <div
+      v-if="errorMessage"
+      class="error-alert"
+    >
+      <strong>Gagal:</strong>
+      {{ errorMessage }}
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- FORM -->
+    <!-- ================================================= -->
+
+    <form
+      class="add-form"
+      @submit.prevent="savePatient"
+    >
 
       <div class="grid-layout">
-        <!-- Kolom Kiri -->
+
+        <!-- ============================================= -->
+        <!-- LEFT COLUMN -->
+        <!-- ============================================= -->
+
         <div class="left-col">
+
+          <!-- =========================================== -->
+          <!-- IDENTITAS -->
+          <!-- =========================================== -->
+
           <div class="card form-card">
-            <h3 class="card-title">Identitas Lengkap</h3>
-            
+
+            <h3 class="card-title">
+              Identitas Lengkap
+            </h3>
+
+
+            <!-- Nomor Rekam Medis -->
+
             <div class="form-group">
-              <label>Nama Lengkap <span class="required">*</span></label>
-              <input type="text" v-model="formData.name" class="form-control" placeholder="Contoh: Budi Santoso" required>
+              <label>
+                Nomor Rekam Medis
+                <span class="required">*</span>
+              </label>
+
+              <input
+                v-model="formData.medicalRecordNumber"
+                type="text"
+                class="form-control"
+                placeholder="Contoh: RM-TB-2026-001"
+                maxlength="20"
+                required
+              />
             </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>NIK <span class="required">*</span></label>
-                <input type="text" v-model="formData.nik" class="form-control" placeholder="16 Digit NIK" required>
-              </div>
-              <div class="form-group half">
-                <label>No. BPJS</label>
-                <input type="text" v-model="formData.bpjs" class="form-control" placeholder="Opsional">
-              </div>
+
+            <!-- Nama -->
+
+            <div class="form-group">
+              <label>
+                Nama Lengkap
+                <span class="required">*</span>
+              </label>
+
+              <input
+                v-model="formData.name"
+                type="text"
+                class="form-control"
+                placeholder="Contoh: Budi Santoso"
+                maxlength="255"
+                required
+              />
             </div>
 
+
+            <!-- NIK -->
+
+            <div class="form-group">
+              <label>
+                NIK
+                <span class="required">*</span>
+              </label>
+
+              <input
+                v-model="formData.nik"
+                type="text"
+                class="form-control"
+                placeholder="16 Digit NIK"
+                maxlength="16"
+                minlength="16"
+                inputmode="numeric"
+                required
+              />
+            </div>
+
+
+            <!-- Tanggal lahir + Gender -->
+
             <div class="form-row">
+
               <div class="form-group half">
-                <label>Tanggal Lahir <span class="required">*</span></label>
-                <input type="date" v-model="formData.dob" class="form-control" required>
+                <label>
+                  Tanggal Lahir
+                  <span class="required">*</span>
+                </label>
+
+                <input
+                  v-model="formData.dob"
+                  type="date"
+                  class="form-control"
+                  required
+                />
               </div>
+
+
               <div class="form-group half">
-                <label>Jenis Kelamin</label>
-                <select v-model="formData.gender" class="form-select">
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
+                <label>
+                  Jenis Kelamin
+                  <span class="required">*</span>
+                </label>
+
+                <select
+                  v-model="formData.gender"
+                  class="form-select"
+                  required
+                >
+                  <option value="male">
+                    Laki-laki
+                  </option>
+
+                  <option value="female">
+                    Perempuan
+                  </option>
                 </select>
               </div>
+
             </div>
+
+
+            <!-- Telepon + Pekerjaan -->
 
             <div class="form-row">
+
               <div class="form-group half">
-                <label>Nomor Telepon (WhatsApp) <span class="required" v-if="createAccount">*</span></label>
-                <input type="tel" v-model="formData.phone" class="form-control" placeholder="Contoh: 081234567890" :required="createAccount">
-                <small v-if="createAccount" class="text-primary mt-1 d-block">Nomor ini akan menerima kredensial akun.</small>
+                <label>
+                  Nomor Telepon
+                  <span class="required">*</span>
+                </label>
+
+                <input
+                  v-model="formData.phone"
+                  type="tel"
+                  class="form-control"
+                  placeholder="081234567890"
+                  maxlength="15"
+                  required
+                />
               </div>
+
+
               <div class="form-group half">
-                <label>Pekerjaan</label>
-                <input type="text" v-model="formData.job" class="form-control" placeholder="Pekerjaan">
+                <label>
+                  Pekerjaan
+                  <span class="required">*</span>
+                </label>
+
+                <input
+                  v-model="formData.job"
+                  type="text"
+                  class="form-control"
+                  placeholder="Contoh: Karyawan Swasta"
+                  maxlength="100"
+                  required
+                />
               </div>
+
             </div>
+
+
+            <!-- Alamat -->
 
             <div class="form-group">
-              <label>Alamat Lengkap <span class="required">*</span></label>
-              <textarea v-model="formData.address" class="form-control" rows="3" required></textarea>
+              <label>
+                Alamat Lengkap
+                <span class="required">*</span>
+              </label>
+
+              <textarea
+                v-model="formData.address"
+                class="form-control"
+                rows="4"
+                placeholder="Alamat lengkap pasien"
+                required
+              ></textarea>
             </div>
+
+
+            <!-- Clinical Note -->
+
+            <div class="form-group">
+              <label>
+                Catatan Klinis
+              </label>
+
+              <textarea
+                v-model="formData.clinicalNote"
+                class="form-control"
+                rows="4"
+                placeholder="Catatan tambahan mengenai pasien"
+              ></textarea>
+            </div>
+
           </div>
+
         </div>
 
-        <!-- Kolom Kanan -->
+
+        <!-- ============================================= -->
+        <!-- RIGHT COLUMN -->
+        <!-- ============================================= -->
+
         <div class="right-col">
-          <div class="card form-card">
-            <h3 class="card-title">Informasi Medis</h3>
-            
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Tipe TB</label>
-                <select v-model="formData.tbType" class="form-select">
-                  <option value="TB Paru SO">TB Paru SO</option>
-                  <option value="TB Paru RO">TB Paru RO</option>
-                  <option value="TB Ekstra Paru">TB Ekstra Paru</option>
-                </select>
-              </div>
-              <div class="form-group half">
-                <label>Kategori</label>
-                <select v-model="formData.category" class="form-select">
-                  <option value="Kategori 1">Kategori 1</option>
-                  <option value="Kategori 2">Kategori 2</option>
-                  <option value="Anak">Anak</option>
-                </select>
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Resimen Pengobatan</label>
-                <input type="text" v-model="formData.regimen" class="form-control" placeholder="Contoh: 2RHZE/4RH">
-              </div>
-              <div class="form-group half">
-                <label>Tanggal Mulai <span class="required">*</span></label>
-                <input type="date" v-model="formData.startDate" class="form-control" required>
-              </div>
-            </div>
-          </div>
+          <!-- =========================================== -->
+          <!-- PMO -->
+          <!-- =========================================== -->
 
           <div class="card form-card">
-            <h3 class="card-title">Tim Kesehatan & PMO</h3>
-            
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Dokter Penanggung Jawab</label>
-                <input type="text" v-model="formData.doctor" class="form-control" placeholder="Nama Dokter">
-              </div>
-              <div class="form-group half">
-                <label>Kader Pendamping</label>
-                <input type="text" v-model="formData.kader" class="form-control" placeholder="Nama Kader">
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Nama PMO</label>
-                <input type="text" v-model="formData.pmoName" class="form-control" placeholder="Nama PMO">
-              </div>
-              <div class="form-group half">
-                <label>Hubungan PMO</label>
-                <input type="text" v-model="formData.pmoRelation" class="form-control" placeholder="Cth: Suami/Istri/Anak">
-              </div>
-            </div>
+            <h3 class="card-title">
+              Informasi PMO
+            </h3>
+
+            <p class="text-muted">
+              Pengawas Minum Obat pasien.
+            </p>
+
+
             <div class="form-group">
-              <label>Kontak PMO</label>
-              <input type="tel" v-model="formData.pmoPhone" class="form-control" placeholder="Nomor Telepon PMO">
+              <label>
+                Nama PMO
+                <span class="required">*</span>
+              </label>
+
+              <input
+                v-model="formData.pmoName"
+                type="text"
+                class="form-control"
+                placeholder="Nama PMO"
+                maxlength="100"
+                required
+              />
             </div>
+
+
+            <div class="form-group">
+              <label>
+                Nomor Telepon PMO
+                <span class="required">*</span>
+              </label>
+
+              <input
+                v-model="formData.pmoPhone"
+                type="tel"
+                class="form-control"
+                placeholder="081234567890"
+                maxlength="15"
+                required
+              />
+            </div>
+
           </div>
+
+
+          <!-- =========================================== -->
+          <!-- INFORMASI TREATMENT -->
+          <!-- =========================================== -->
+
+          <div class="card form-card">
+
+            <h3 class="card-title">
+              Informasi Pengobatan
+            </h3>
+
+            <p class="text-muted">
+              Data TB, regimen obat, tanggal mulai
+              pengobatan, dan status terapi dikelola
+              melalui modul Treatment setelah pasien
+              berhasil dibuat.
+            </p>
+
+
+            <div class="info-box">
+
+              <strong>
+                Alur berikutnya
+              </strong>
+
+              <ul>
+                <li>Buat pasien</li>
+                <li>Buat treatment</li>
+                <li>Atur medicine schedule</li>
+                <li>Atur control schedule</li>
+              </ul>
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
-      <!-- Footer Actions -->
+
+      <!-- ================================================= -->
+      <!-- FOOTER ACTION -->
+      <!-- ================================================= -->
+
       <div class="form-actions">
-        <button type="button" @click="cancelAdd" class="btn btn-outline btn-lg" :disabled="isSubmitting">Batal</button>
-        <button type="submit" class="btn btn-primary btn-lg" :disabled="isSubmitting">
-          <span v-if="isSubmitting">Menyimpan...</span>
-          <span v-else>
-            {{ createAccount ? 'Simpan & Kirim Kredensial' : 'Simpan Data Pasien' }}
-          </span>
+
+        <button
+          type="button"
+          class="btn btn-outline btn-lg"
+          :disabled="isSubmitting"
+          @click="cancelAdd"
+        >
+          Batal
         </button>
+
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          :disabled="isSubmitting"
+        >
+
+          <span v-if="isSubmitting">
+            Menyimpan...
+          </span>
+
+          <span v-else>
+            Simpan Pasien
+          </span>
+
+        </button>
+
       </div>
+
     </form>
 
-    <!-- Success Modal -->
-    <div class="modal-overlay" v-if="showSuccessModal">
+
+    <!-- ================================================= -->
+    <!-- SUCCESS MODAL -->
+    <!-- ================================================= -->
+
+    <div
+      v-if="showSuccessModal"
+      class="modal-overlay"
+    >
+
       <div class="modal-content">
+
         <div class="modal-icon success">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        </div>
-        <h2>Pendaftaran Berhasil!</h2>
-        <p>Data pasien <strong>{{ formData.name }}</strong> telah berhasil ditambahkan ke dalam sistem.</p>
-        
-        <div v-if="createAccount" class="whatsapp-success">
-          <div class="wa-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          </div>
-          <div>
-            <h4>Kredensial WhatsApp Terkirim</h4>
-            <p>Pesan otomatis berisi username dan password telah dikirimkan ke nomor <strong>{{ formData.phone }}</strong>.</p>
-          </div>
+          ✓
         </div>
 
-        <button class="btn btn-primary btn-block" @click="finishAndRedirect">Kembali ke Daftar Pasien</button>
+
+        <h2>
+          Pasien Berhasil Ditambahkan
+        </h2>
+
+
+        <p>
+          Data pasien
+          <strong>
+            {{ formData.name }}
+          </strong>
+          berhasil disimpan.
+        </p>
+
+
+        <!-- Credential pasien -->
+
+        <div class="credentials-box">
+
+          <h4>
+            Akun Pasien
+          </h4>
+
+
+          <div class="credential-row">
+
+            <span>
+              Username
+            </span>
+
+            <strong>
+              {{ createdCredentials.username }}
+            </strong>
+
+          </div>
+
+
+          <div class="credential-row">
+
+            <span>
+              Password Sementara
+            </span>
+
+            <strong>
+              {{ createdCredentials.password }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <p class="text-muted">
+          Berikan username dan password sementara
+          ini kepada pasien. Pasien dapat menggunakan
+          akun tersebut untuk login ke SITARA.
+        </p>
+
+
+        <button
+          type="button"
+          class="btn btn-primary btn-block"
+          @click="finishAndRedirect"
+        >
+          Lanjut ke Daftar Pasien
+        </button>
+
       </div>
+
     </div>
+
   </div>
 </template>
 
