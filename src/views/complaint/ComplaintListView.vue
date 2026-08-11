@@ -4,16 +4,7 @@
     <header class="page-header">
       <div class="header-content">
         <h1 class="page-title">Laporan Keluhan & Efek Samping (ESO)</h1>
-        <p class="page-subtitle">Monitoring dan penanganan keluhan klinis pasien TB secara cepat dan tepat.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" @click="openAddModal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Catat Keluhan Baru
-        </button>
+        <p class="page-subtitle">Monitoring dan penanganan keluhan klinis yang dikirimkan oleh pasien TB melalui aplikasi mobile.</p>
       </div>
     </header>
 
@@ -291,66 +282,6 @@
       </div>
     </div>
 
-    <!-- MODAL: Catat Keluhan Baru -->
-    <div v-if="showAddModal" class="modal-backdrop" @click="showAddModal = false">
-      <div class="modal-dialog" @click.stop>
-        <div class="modal-header">
-          <h3>Catat Keluhan Pasien Baru</h3>
-          <button class="modal-close" @click="showAddModal = false">&times;</button>
-        </div>
-
-        <form @submit.prevent="submitAddComplaint">
-          <div class="modal-body">
-            <div class="form-group mb-3">
-              <label>Pilih Pasien / Pengobatan <span class="text-danger">*</span></label>
-              <select v-model="addForm.treatment_id" class="form-control" required>
-                <option value="" disabled>-- Pilih Pasien & Pengobatan Terdaftar --</option>
-                <option v-for="t in availableTreatments" :key="t.id" :value="t.id">
-                  {{ t.patient?.full_name || 'Pasien #' + t.patient_id }} (NIK: {{ t.patient?.nik || '-' }} | RM: {{ t.patient?.medical_record_number || '-' }})
-                </option>
-              </select>
-              <small v-if="availableTreatments.length === 0" class="text-muted">
-                Belum ada data pengobatan aktif.
-              </small>
-            </div>
-
-            <div class="form-group mb-3">
-              <label>Kategori Keluhan / Gejala <span class="text-danger">*</span></label>
-              <select v-model="addForm.category" class="form-control" required>
-                <option value="Mual & Muntah">Mual & Muntah</option>
-                <option value="Pusing & Sakit Kepala">Pusing & Sakit Kepala</option>
-                <option value="Gatal & Ruam Kulit">Gatal & Ruam Kulit</option>
-                <option value="Nyeri Sendi">Nyeri Sendi</option>
-                <option value="Mata / Kulit Kuning">Mata / Kulit Kuning (Hepatotoksik)</option>
-                <option value="Gangguan Penglihatan">Gangguan Penglihatan</option>
-                <option value="Efek Samping Obat">Efek Samping Obat (ESO Lainnya)</option>
-                <option value="Kondisi Klinis TB">Kondisi Klinis TB (Batuk Darah/Sesak)</option>
-                <option value="Lainnya">Keluhan Lainnya</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Deskripsi Keluhan Pasien <span class="text-danger">*</span></label>
-              <textarea 
-                v-model="addForm.description" 
-                rows="4" 
-                placeholder="Jelaskan secara detail gejala yang dirasakan pasien, durasi keluhan, dan faktor yang memperberat..."
-                class="form-control"
-                required
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline" @click="showAddModal = false">Batal</button>
-            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-              <span v-if="isSubmitting" class="spinner-sm"></span>
-              <span v-else>Simpan Keluhan</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <!-- MODAL: Beri Tanggapan / Update Status -->
     <div v-if="showResponseModal" class="modal-backdrop" @click="showResponseModal = false">

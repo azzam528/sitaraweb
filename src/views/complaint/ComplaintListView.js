@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import complaintService from '../../services/complaint.service'
-import treatmentService from '../../services/treatment.service'
 
 export default defineComponent({
   name: 'ComplaintListView',
@@ -10,7 +9,6 @@ export default defineComponent({
 
     // Data State
     const complaints = ref([])
-    const availableTreatments = ref([])
     const isLoading = ref(true)
     const isSubmitting = ref(false)
 
@@ -49,7 +47,6 @@ export default defineComponent({
     onMounted(() => {
       document.addEventListener('click', handleDocumentClick)
       loadComplaints()
-      loadTreatments()
     })
 
     onUnmounted(() => {
@@ -67,16 +64,6 @@ export default defineComponent({
         showAlert('Gagal memuat daftar keluhan pasien', 'danger')
       } finally {
         isLoading.value = false
-      }
-    }
-
-    // Load Treatments for Selector
-    const loadTreatments = async () => {
-      try {
-        const res = await treatmentService.getAll()
-        availableTreatments.value = res.data || []
-      } catch (error) {
-        console.error('Failed to load treatments:', error)
       }
     }
 
@@ -161,46 +148,6 @@ export default defineComponent({
       window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
     }
 
-    // Modal Add Complaint
-    const showAddModal = ref(false)
-    const addForm = ref({
-      treatment_id: '',
-      category: 'Mual & Muntah',
-      description: ''
-    })
-
-    const openAddModal = () => {
-      addForm.value = {
-        treatment_id: availableTreatments.value[0]?.id || '',
-        category: 'Mual & Muntah',
-        description: ''
-      }
-      showAddModal.value = true
-    }
-
-    const submitAddComplaint = async () => {
-      if (!addForm.value.treatment_id) {
-        showAlert('Pilih pasien pengobatan terlebih dahulu', 'warning')
-        return
-      }
-      isSubmitting.value = true
-      try {
-        await complaintService.create({
-          treatment_id: Number(addForm.value.treatment_id),
-          category: addForm.value.category,
-          description: addForm.value.description
-        })
-        showAlert('Keluhan pasien berhasil dicatat!')
-        showAddModal.value = false
-        await loadComplaints()
-      } catch (error) {
-        console.error('Failed to create complaint:', error)
-        showAlert('Gagal mencatat keluhan baru', 'danger')
-      } finally {
-        isSubmitting.value = false
-      }
-    }
-
     // Modal Response
     const showResponseModal = ref(false)
     const selectedComplaint = ref(null)
@@ -254,7 +201,6 @@ export default defineComponent({
 
     return {
       complaints,
-      availableTreatments,
       isLoading,
       isSubmitting,
       alertMessage,
@@ -281,10 +227,6 @@ export default defineComponent({
       getAvatarColor,
       viewDetail,
       sendWhatsApp,
-      showAddModal,
-      addForm,
-      openAddModal,
-      submitAddComplaint,
       showResponseModal,
       selectedComplaint,
       responseForm,
