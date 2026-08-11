@@ -6,15 +6,6 @@
         <h1 class="page-title">Monitoring Pengobatan TB</h1>
         <p class="page-subtitle">Pemantauan terapi obat, fase kepatuhan, dan progres pasien TB secara real-time.</p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" @click="openAddModal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Tambah Pengobatan Baru
-        </button>
-      </div>
     </header>
 
     <!-- Notification Alert -->
@@ -156,11 +147,8 @@
           Tidak ditemukan data pengobatan yang cocok dengan filter yang dipilih.
         </p>
         <p v-else>
-          Belum ada rekam pengobatan yang terdaftar di sistem. Mulai dengan menambahkan pengobatan baru untuk pasien.
+          Belum ada rekam pengobatan yang terdaftar di sistem.
         </p>
-        <button class="btn btn-primary mt-3" @click="openAddModal">
-          + Tambah Pengobatan Baru
-        </button>
       </div>
 
       <!-- Data Table -->
@@ -333,101 +321,6 @@
       </div>
     </div>
 
-    <!-- MODAL: Tambah Pengobatan Baru -->
-    <div v-if="showAddModal" class="modal-backdrop" @click="closeAddModal">
-      <div class="modal-dialog" @click.stop>
-        <div class="modal-header">
-          <h3>Tambah Pengobatan TB Baru</h3>
-          <button class="modal-close" @click="closeAddModal">&times;</button>
-        </div>
-
-        <form @submit.prevent="submitAddTreatment">
-          <div class="modal-body">
-            <!-- Pasien Selector -->
-            <div class="form-group mb-3">
-              <label>Pilih Pasien <span class="text-danger">*</span></label>
-              <select v-model="addForm.patient_id" class="form-control" required>
-                <option value="" disabled>-- Pilih Pasien Terdaftar --</option>
-                <option v-for="p in availablePatients" :key="p.id" :value="p.id">
-                  {{ p.full_name }} (NIK: {{ p.nik }} | RM: {{ p.medical_record_number }})
-                </option>
-              </select>
-              <small v-if="availablePatients.length === 0" class="text-muted">
-                Belum ada data pasien atau sedang memuat...
-              </small>
-            </div>
-
-            <div class="grid-2-cols mb-3">
-              <!-- Tanggal Diagnosis -->
-              <div class="form-group">
-                <label>Tanggal Diagnosis <span class="text-danger">*</span></label>
-                <input type="date" v-model="addForm.diagnosis_date" class="form-control" required />
-              </div>
-
-              <!-- Dokter Penanggung Jawab -->
-              <div class="form-group">
-                <label>Dokter PJ <span class="text-danger">*</span></label>
-                <input type="text" v-model="addForm.doctor_name" placeholder="dr. Heru Prasetyo, Sp.P" class="form-control" required />
-              </div>
-            </div>
-
-            <div class="grid-2-cols mb-3">
-              <!-- Tanggal Mulai Terapi -->
-              <div class="form-group">
-                <label>Tanggal Mulai Terapi <span class="text-danger">*</span></label>
-                <input type="date" v-model="addForm.therapy_start_date" @change="onStartDateChange" class="form-control" required />
-              </div>
-
-              <!-- Tanggal Selesai Terapi (Estimasi) -->
-              <div class="form-group">
-                <label>Estimasi Selesai <span class="text-danger">*</span></label>
-                <input type="date" v-model="addForm.therapy_end_date" class="form-control" required />
-              </div>
-            </div>
-
-            <div class="grid-2-cols mb-3">
-              <!-- Fase Pengobatan -->
-              <div class="form-group">
-                <label>Fase Awal <span class="text-danger">*</span></label>
-                <select v-model="addForm.phase" class="form-control" required>
-                  <option value="intensive">Fase Intensif (2 Bulan)</option>
-                  <option value="continuation">Fase Lanjutan (4 Bulan)</option>
-                </select>
-              </div>
-
-              <!-- Regimen Obat -->
-              <div class="form-group">
-                <label>Regimen Terapi <span class="text-danger">*</span></label>
-                <select v-model="addForm.regimen" class="form-control" required>
-                  <option value="category_1">Kategori 1 (2HRZE / 4H3R3)</option>
-                  <option value="category_2">Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)</option>
-                  <option value="mdr">TB-RO (MDR / Resisten)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Catatan Dokter -->
-            <div class="form-group">
-              <label>Catatan Klinis / Catatan Dokter</label>
-              <textarea 
-                v-model="addForm.doctor_note" 
-                rows="3" 
-                placeholder="Tambahkan catatan klinis, riwayat alergi, atau instruksi khusus..."
-                class="form-control"
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline" @click="closeAddModal">Batal</button>
-            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-              <span v-if="isSubmitting" class="spinner-sm"></span>
-              <span v-else>Simpan Pengobatan</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <!-- MODAL: Ubah Status Pengobatan -->
     <div v-if="showStatusModal" class="modal-backdrop" @click="showStatusModal = false">

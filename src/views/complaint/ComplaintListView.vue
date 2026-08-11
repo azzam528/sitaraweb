@@ -138,11 +138,8 @@
           Tidak ditemukan keluhan yang cocok dengan kriteria filter yang dipilih.
         </p>
         <p v-else>
-          Belum ada laporan keluhan atau efek samping dari pasien. Keluhan baru dapat dicatat melalui tombol di atas.
+          Belum ada laporan keluhan atau efek samping yang dikirimkan oleh pasien melalui aplikasi mobile.
         </p>
-        <button class="btn btn-primary mt-3" @click="openAddModal">
-          + Catat Keluhan Baru
-        </button>
       </div>
 
       <div v-else class="table-responsive">

@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import treatmentService from '../../services/treatment.service'
-import patientService from '../../services/patient.service'
 
 export default defineComponent({
   name: 'TreatmentListView',
@@ -10,7 +9,6 @@ export default defineComponent({
 
     // Data State
     const treatments = ref([])
-    const availablePatients = ref([])
     const isLoading = ref(true)
     const isSubmitting = ref(false)
 
@@ -50,7 +48,6 @@ export default defineComponent({
     onMounted(() => {
       document.addEventListener('click', handleDocumentClick)
       loadTreatments()
-      loadPatients()
     })
 
     onUnmounted(() => {
@@ -68,16 +65,6 @@ export default defineComponent({
         showAlert('Gagal memuat data pengobatan dari server', 'danger')
       } finally {
         isLoading.value = false
-      }
-    }
-
-    // Fetch Patients for Selector
-    const loadPatients = async () => {
-      try {
-        const response = await patientService.getAll()
-        availablePatients.value = response.data || []
-      } catch (error) {
-        console.error('Failed to load patient list:', error)
       }
     }
 
@@ -198,68 +185,6 @@ export default defineComponent({
       window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
     }
 
-    // Modal Add Treatment
-    const showAddModal = ref(false)
-    const addForm = ref({
-      patient_id: '',
-      diagnosis_date: new Date().toISOString().split('T')[0],
-      therapy_start_date: new Date().toISOString().split('T')[0],
-      therapy_end_date: '',
-      phase: 'intensive',
-      regimen: 'category_1',
-      doctor_name: 'dr. Heru Prasetyo',
-      doctor_note: ''
-    })
-
-    const openAddModal = () => {
-      const today = new Date()
-      const end = new Date()
-      end.setMonth(end.getMonth() + 6)
-
-      addForm.value = {
-        patient_id: availablePatients.value[0]?.id || '',
-        diagnosis_date: today.toISOString().split('T')[0],
-        therapy_start_date: today.toISOString().split('T')[0],
-        therapy_end_date: end.toISOString().split('T')[0],
-        phase: 'intensive',
-        regimen: 'category_1',
-        doctor_name: 'dr. Heru Prasetyo',
-        doctor_note: ''
-      }
-      showAddModal.value = true
-    }
-
-    const submitAddTreatment = async () => {
-      if (!addForm.value.patient_id) {
-        showAlert('Pilih pasien terlebih dahulu', 'warning')
-        return
-      }
-
-      isSubmitting.value = true
-      try {
-        await treatmentService.create({
-          patient_id: Number(addForm.value.patient_id),
-          diagnosis_date: addForm.value.diagnosis_date,
-          therapy_start_date: addForm.value.therapy_start_date,
-          therapy_end_date: addForm.value.therapy_end_date,
-          phase: addForm.value.phase,
-          regimen: addForm.value.regimen,
-          doctor_name: addForm.value.doctor_name,
-          doctor_note: addForm.value.doctor_note || null,
-          status: 'active'
-        })
-
-        showAlert('Program pengobatan berhasil didaftarkan!')
-        showAddModal.value = false
-        await loadTreatments()
-      } catch (error) {
-        console.error('Failed to create treatment:', error)
-        showAlert('Gagal mendaftarkan pengobatan baru', 'danger')
-      } finally {
-        isSubmitting.value = false
-      }
-    }
-
     // Modal Update Status
     const showStatusModal = ref(false)
     const selectedTreatment = ref(null)
@@ -318,7 +243,6 @@ export default defineComponent({
 
     return {
       treatments,
-      availablePatients,
       isLoading,
       isSubmitting,
       alertMessage,
@@ -349,10 +273,6 @@ export default defineComponent({
       getProgressColorClass,
       viewDetail,
       sendWhatsApp,
-      showAddModal,
-      addForm,
-      openAddModal,
-      submitAddTreatment,
       showStatusModal,
       selectedTreatment,
       statusForm,
