@@ -1,248 +1,235 @@
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-
-const router = useRouter();
-const activeDropdown = ref(null);
-
-const toggleDropdown = (id) => {
-  activeDropdown.value = activeDropdown.value === id ? null : id;
-};
-
-const handleDocumentClick = () => {
-  activeDropdown.value = null;
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
-
-const viewDetail = (id) => {
-  router.push(`/dashboard/complaints/${id}`);
-};
-
-const sendReply = (item) => {
-  alert(`Kirim pesan balasan keluhan ke ${item.patientName}`);
-};
-
-const deleteComplaint = (item) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus laporan keluhan ${item.complaintName}?`)) {
-    complaints.value = complaints.value.filter(c => c.id !== item.id);
-  }
-};
-
-// Dummy Data
-const stats = ref([
-  { id: 1, label: 'KELUHAN HARI INI', value: 3, icon: 'chat-bubble', circleClass: 'teal-circle' },
-  { id: 2, label: 'BELUM DITINDAK', value: 1, icon: 'exclamation', circleClass: 'red-circle' },
-  { id: 3, label: 'PRIORITAS TINGGI', value: 1, icon: 'alert-triangle', circleClass: 'orange-circle' },
-  { id: 4, label: 'SEDANG DIPROSES', value: 1, icon: 'refresh', circleClass: 'teal-circle' },
-  { id: 5, label: 'SELESAI', value: 1, icon: 'check-circle', circleClass: 'green-circle' }
-])
-
-const complaints = ref([
-  {
-    id: 1,
-    patientName: 'Budi Kusuma',
-    initials: 'BK',
-    avatarColor: '#f87171',
-    nik: '327504***',
-    time: '08:15 WIB, 28 Jul 2026',
-    complaintName: 'Sesak Napas Berat',
-    severity: 'BERAT',
-    status: 'Urgent'
-  },
-  {
-    id: 2,
-    patientName: 'Surya Ardi',
-    initials: 'SA',
-    avatarColor: '#14b8a6',
-    nik: '327508***',
-    time: '09:45 WIB, 28 Jul 2026',
-    complaintName: 'Mual & Muntah',
-    severity: 'SEDANG',
-    status: 'Normal'
-  },
-  {
-    id: 3,
-    patientName: 'Rudi Prasetyo',
-    initials: 'RP',
-    avatarColor: '#9ca3af',
-    nik: '327501***',
-    time: '11:20 WIB, 27 Jul 2026',
-    complaintName: 'Demam Ringan',
-    severity: 'RINGAN',
-    status: 'Diproses'
-  },
-  {
-    id: 4,
-    patientName: 'Ahmad Fauzi',
-    initials: 'AF',
-    avatarColor: '#14b8a6',
-    nik: '327503***',
-    time: '13:00 WIB, 27 Jul 2026',
-    complaintName: 'Ruam Kulit',
-    severity: 'SEDANG',
-    status: 'Normal'
-  },
-  {
-    id: 5,
-    patientName: 'Dewi Lestari',
-    initials: 'DL',
-    avatarColor: '#f87171',
-    nik: '327507***',
-    time: '14:30 WIB, 26 Jul 2026',
-    complaintName: 'Pusing Berkepanjangan',
-    severity: 'BERAT',
-    status: 'Urgent'
-  }
-])
-
-const chartData = ref([
-  { day: 'Sen', height: 40, count: 8, active: false },
-  { day: 'Sel', height: 60, count: 12, active: false },
-  { day: 'Rab', height: 30, count: 6, active: false },
-  { day: 'Kam', height: 85, count: 17, active: true },
-  { day: 'Jum', height: 50, count: 10, active: false },
-  { day: 'Sab', height: 20, count: 4, active: false },
-  { day: 'Min', height: 10, count: 2, active: false }
-])
-
-const distributionData = ref([
-  { label: 'Efek Samping Obat (ESO)', percent: 65, color: '#006591' },
-  { label: 'Kondisi Klinis (Penyakit)', percent: 25, color: '#006591' },
-  { label: 'Logistik / Stok Obat', percent: 10, color: '#ef4444' }
-])
-</script>
-
 <template>
-  <div class="complaint-list">
+  <div class="complaint-list-page">
     <!-- Header -->
     <header class="page-header">
-      <h1>Daftar Keluhan Pasien</h1>
-      <p>Monitoring keluhan klinis real-time untuk penanganan TB terintegrasi.</p>
+      <div class="header-content">
+        <h1 class="page-title">Laporan Keluhan & Efek Samping (ESO)</h1>
+        <p class="page-subtitle">Monitoring dan penanganan keluhan klinis pasien TB secara cepat dan tepat.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" @click="openAddModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Catat Keluhan Baru
+        </button>
+      </div>
     </header>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div v-for="stat in stats" :key="stat.id" class="stat-card">
-        <div class="stat-icon-wrapper" :class="stat.circleClass">
-          <!-- Icons -->
-          <svg v-if="stat.icon === 'chat-bubble'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          <svg v-if="stat.icon === 'exclamation'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          <svg v-if="stat.icon === 'alert-triangle'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          <svg v-if="stat.icon === 'refresh'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-          <svg v-if="stat.icon === 'check-circle'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <!-- Toast Alert -->
+    <div v-if="alertMessage" class="toast-alert" :class="'toast-' + alertType">
+      <span>{{ alertMessage }}</span>
+      <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
+    </div>
+
+    <!-- Stats Row -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper blue-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">{{ stat.label }}</span>
-          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">TOTAL KELUHAN</span>
+          <span class="stat-value">{{ complaints.length }}</span>
         </div>
       </div>
-    </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper red-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">MENUNGGU RESPON</span>
+          <span class="stat-value text-danger">{{ pendingCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper teal-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">SEDANG DIPROSES</span>
+          <span class="stat-value">{{ inProgressCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper green-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">SELESAI / TERATASI</span>
+          <span class="stat-value text-success">{{ resolvedCount }}</span>
+        </div>
+      </div>
+    </section>
 
     <!-- Filter Section -->
     <section class="filter-section card">
       <div class="filter-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
         </svg>
-        <h2>Filter Keluhan Pasien</h2>
+        <h2>Filter Laporan Keluhan</h2>
       </div>
 
-      <div class="filter-grid-simple">
-        <!-- 1. Search Name / NIK -->
+      <div class="filter-grid-3">
+        <!-- 1. Search Name / NIK / Category / Description -->
         <div class="form-group">
           <label>Pencarian</label>
           <input 
             type="text" 
-            placeholder="Cari Nama / NIK Pasien..." 
+            v-model="searchQuery" 
+            placeholder="Cari Nama Pasien, NIK, Kategori, atau Deskripsi..." 
             class="form-control"
           />
         </div>
 
-        <!-- 2. Kategori Keluhan -->
+        <!-- 2. Filter Status -->
         <div class="form-group">
-          <label>Kategori Keluhan</label>
-          <select class="form-control">
-            <option value="">Semua Kategori</option>
-            <option value="eso">Efek Samping Obat (ESO)</option>
-            <option value="klinis">Kondisi Klinis</option>
-            <option value="logistik">Logistik / Stok Obat</option>
+          <label>Status Penanganan</label>
+          <select v-model="filterStatus" class="form-control">
+            <option value="">Semua Status</option>
+            <option value="pending">Menunggu Respon (Pending)</option>
+            <option value="in_progress">Sedang Diproses (In Progress)</option>
+            <option value="resolved">Selesai (Resolved)</option>
           </select>
         </div>
 
-        <!-- 3. Tingkat Keparahan -->
+        <!-- 3. Filter Category -->
         <div class="form-group">
-          <label>Tingkat Keparahan</label>
-          <select class="form-control">
-            <option value="">Semua Keparahan</option>
-            <option value="BERAT">BERAT (Urgent)</option>
-            <option value="SEDANG">SEDANG (Normal)</option>
-            <option value="RINGAN">RINGAN (Diproses)</option>
+          <label>Kategori Keluhan</label>
+          <select v-model="filterCategory" class="form-control">
+            <option value="">Semua Kategori</option>
+            <option value="Mual & Muntah">Mual & Muntah</option>
+            <option value="Pusing & Sakit Kepala">Pusing & Sakit Kepala</option>
+            <option value="Gatal & Ruam Kulit">Gatal & Ruam Kulit</option>
+            <option value="Nyeri Sendi">Nyeri Sendi</option>
+            <option value="Mata / Kulit Kuning">Mata / Kulit Kuning (Hepatotoksik)</option>
+            <option value="Gangguan Penglihatan">Gangguan Penglihatan</option>
+            <option value="Efek Samping Obat">Efek Samping Obat (ESO)</option>
+            <option value="Lainnya">Lainnya</option>
           </select>
         </div>
       </div>
     </section>
 
-    <!-- Table -->
+    <!-- Table Card -->
     <div class="table-card card">
-      <h2 class="card-title">Monitoring Real-Time</h2>
-      <div class="table-responsive">
-        <table class="complaint-table">
+      <div v-if="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Memuat laporan keluhan...</p>
+      </div>
+
+      <div v-else-if="filteredComplaints.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <h3>Belum Ada Laporan Keluhan</h3>
+        <p v-if="searchQuery || filterStatus || filterCategory">
+          Tidak ditemukan keluhan yang cocok dengan kriteria filter yang dipilih.
+        </p>
+        <p v-else>
+          Belum ada laporan keluhan atau efek samping dari pasien. Keluhan baru dapat dicatat melalui tombol di atas.
+        </p>
+        <button class="btn btn-primary mt-3" @click="openAddModal">
+          + Catat Keluhan Baru
+        </button>
+      </div>
+
+      <div v-else class="table-responsive">
+        <table class="data-table">
           <thead>
             <tr>
-              <th>PASIEN</th>
-              <th>WAKTU</th>
-              <th>JENIS KELUHAN</th>
-              <th>STATUS</th>
-              <th>AKSI</th>
+              <th>Pasien</th>
+              <th>Kategori Keluhan</th>
+              <th>Deskripsi Keluhan</th>
+              <th>Waktu Laporan</th>
+              <th>Status</th>
+              <th>Tanggapan Medis</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in complaints" :key="item.id">
+            <tr v-for="comp in paginatedComplaints" :key="comp.id">
               <td>
-                <div class="patient-cell">
-                  <div class="avatar" :style="{ backgroundColor: item.avatarColor }">
-                    {{ item.initials }}
+                <div class="patient-info">
+                  <div class="avatar" :class="'avatar-' + getAvatarColor(comp.id)">
+                    {{ getInitials(comp.treatment?.patient?.full_name || 'TB') }}
                   </div>
-                  <div class="patient-info">
-                    <span class="patient-name">{{ item.patientName }}</span>
-                    <span class="patient-nik">NIK: {{ item.nik }}</span>
+                  <div>
+                    <div class="patient-name font-semibold text-dark">
+                      {{ comp.treatment?.patient?.full_name || 'Pengobatan #' + comp.treatment_id }}
+                    </div>
+                    <div class="patient-meta text-xs text-muted">
+                      NIK: {{ comp.treatment?.patient?.nik || '-' }} | RM: {{ comp.treatment?.patient?.medical_record_number || '-' }}
+                    </div>
                   </div>
                 </div>
               </td>
-              <td><span class="time-text">{{ item.time }}</span></td>
               <td>
-                <div class="complaint-cell">
-                  <span class="complaint-name">{{ item.complaintName }}</span>
-                  <span class="badge" :class="'badge-' + item.severity.toLowerCase()">
-                    {{ item.severity }}
-                  </span>
+                <span class="category-badge">{{ comp.category }}</span>
+              </td>
+              <td>
+                <div class="desc-text" :title="comp.description">
+                  {{ truncate(comp.description, 60) }}
                 </div>
               </td>
               <td>
-                <span class="status-pill" :class="'status-' + item.status.toLowerCase()">
-                  <span class="status-dot"></span>
-                  {{ item.status }}
+                <div class="date-text text-sm">
+                  {{ formatDate(comp.created_at) }}
+                </div>
+                <div class="time-text text-xs text-muted">
+                  {{ formatTime(comp.created_at) }} WIB
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" :class="'status-' + comp.status">
+                  {{ formatStatus(comp.status) }}
                 </span>
               </td>
-              <td class="text-center relative">
+              <td>
+                <div v-if="comp.response" class="response-text" :title="comp.response">
+                  <span class="response-icon">✓</span>
+                  {{ truncate(comp.response, 45) }}
+                </div>
+                <div v-else class="text-xs text-muted italic">
+                  Belum ada tanggapan
+                </div>
+              </td>
+              <td class="text-center">
                 <div class="action-dropdown-wrapper">
-                  <button class="btn-more-actions" @click.stop="toggleDropdown(item.id)" title="Aksi">
+                  <button 
+                    class="btn-more-actions" 
+                    @click.stop="toggleDropdown(comp.id)" 
+                    title="Menu Aksi"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="19" cy="12" r="1"></circle>
                       <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                   </button>
-                  
-                  <div v-if="activeDropdown === item.id" class="dropdown-menu-floating" @click.stop>
-                    <button class="dropdown-item" @click="viewDetail(item.id); activeDropdown = null">
+
+                  <div v-if="activeDropdown === comp.id" class="dropdown-menu-floating" @click.stop>
+                    <button class="dropdown-item" @click="viewDetail(comp.id); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
@@ -250,20 +237,30 @@ const distributionData = ref([
                       <span>Lihat Detail</span>
                     </button>
 
-                    <button class="dropdown-item" @click="sendReply(item); activeDropdown = null">
+                    <button class="dropdown-item" @click="openResponseModal(comp); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                       </svg>
-                      <span>Kirim Balasan</span>
+                      <span>Beri Tanggapan / Update</span>
                     </button>
 
-                    <button class="dropdown-item text-danger" @click="deleteComplaint(item); activeDropdown = null">
+                    <button 
+                      v-if="comp.treatment?.patient?.phone" 
+                      class="dropdown-item" 
+                      @click="sendWhatsApp(comp); activeDropdown = null"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                      <span>Hubungi Pasien (WA)</span>
+                    </button>
+
+                    <button class="dropdown-item text-danger" @click="confirmDelete(comp); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                       </svg>
-                      <span>Hapus</span>
+                      <span>Hapus Keluhan</span>
                     </button>
                   </div>
                 </div>
@@ -274,105 +271,387 @@ const distributionData = ref([
       </div>
 
       <!-- Pagination -->
-      <div class="pagination-container">
-        <span class="pagination-info">Menampilkan 1-5 dari 5 entri</span>
+      <div v-if="filteredComplaints.length > 0" class="pagination-wrapper">
+        <div class="pagination-info">
+          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredComplaints.length) }} dari {{ filteredComplaints.length }} keluhan
+        </div>
         <div class="pagination-controls">
-          <button class="btn-page" disabled>Prev</button>
-          <button class="btn-page active">1</button>
-          <button class="btn-page">Next</button>
+          <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="btn-page" 
+            :class="{ active: currentPage === page }"
+            @click="currentPage = page"
+          >
+            {{ page }}
+          </button>
+          <button class="btn-page" :disabled="currentPage === totalPages || totalPages === 0" @click="currentPage++">Next</button>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Row -->
-    <div class="bottom-row">
-      <!-- Chart Card -->
-      <div class="chart-card card">
-        <div class="chart-header flex justify-between items-start mb-4">
-          <div>
-            <h3 class="card-title">Tren Keluhan Mingguan</h3>
-            <p class="text-xs text-secondary mt-1">Jumlah laporan keluhan pasien per hari</p>
-          </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold" style="color: #1E293B;">59 <span class="text-xs font-normal" style="color: #64748B;">Laporan Keluhan</span></div>
-            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-              <span>+12.5% minggu ini</span>
-            </div>
-          </div>
+    <!-- MODAL: Catat Keluhan Baru -->
+    <div v-if="showAddModal" class="modal-backdrop" @click="showAddModal = false">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>Catat Keluhan Pasien Baru</h3>
+          <button class="modal-close" @click="showAddModal = false">&times;</button>
         </div>
-        
-        <div class="area-chart-container">
-          <div class="y-axis text-xs text-secondary flex flex-col justify-between pr-2">
-            <span>20</span>
-            <span>15</span>
-            <span>10</span>
-            <span>5</span>
-            <span>0</span>
-          </div>
-          <div class="chart-area-wrapper flex-1 relative">
-            <div class="chart-grid-lines absolute inset-0 flex flex-col justify-between pointer-events-none">
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-              <div class="grid-line border-b border-dashed border-gray-200"></div>
-            </div>
-            
-            <svg viewBox="0 0 480 160" class="w-full h-full relative z-10 overflow-visible">
-              <defs>
-                <linearGradient id="complaintAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#006591" stop-opacity="0.4" />
-                  <stop offset="100%" stop-color="#006591" stop-opacity="0.02" />
-                </linearGradient>
-              </defs>
-              
-              <!-- Area fill under curve -->
-              <path d="M 30 100 C 65 100, 65 68, 100 68 C 135 68, 135 116, 170 116 C 205 116, 205 28, 240 28 C 275 28, 275 84, 310 84 C 345 84, 345 132, 380 132 C 415 132, 415 148, 450 148 L 450 160 L 30 160 Z" fill="url(#complaintAreaGradient)" />
-              
-              <!-- Smooth Curve Line -->
-              <path d="M 30 100 C 65 100, 65 68, 100 68 C 135 68, 135 116, 170 116 C 205 116, 205 28, 240 28 C 275 28, 275 84, 310 84 C 345 84, 345 132, 380 132 C 415 132, 415 148, 450 148" fill="none" stroke="#006591" stroke-width="3" stroke-linecap="round" />
-              
-              <!-- Data Points with Tooltips -->
-              <g class="chart-point-group" v-for="(pt, i) in [
-                {x: 30, y: 100, day: 'Sen', val: 8},
-                {x: 100, y: 68, day: 'Sel', val: 12},
-                {x: 170, y: 116, day: 'Rab', val: 6},
-                {x: 240, y: 28, day: 'Kam', val: 17, active: true},
-                {x: 310, y: 84, day: 'Jum', val: 10},
-                {x: 380, y: 132, day: 'Sab', val: 4},
-                {x: 450, y: 148, day: 'Min', val: 2}
-              ]" :key="i">
-                <circle :cx="pt.x" :cy="pt.y" r="5" fill="#FFFFFF" stroke="#006591" stroke-width="3" class="chart-point cursor-pointer transition-transform hover:scale-125" />
-                <circle v-if="pt.active" :cx="pt.x" :cy="pt.y" r="8" fill="none" stroke="#6DF5E1" stroke-width="2.5" class="animate-pulse" />
-              </g>
-            </svg>
 
-            <!-- X Axis Labels -->
-            <div class="x-axis-row flex justify-between px-4 mt-2 text-xs text-secondary font-medium" style="margin-left: 20px; margin-right: 15px;">
-              <span v-for="pt in ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']" :key="pt" :class="{ 'text-primary font-bold': pt === 'Kam' }">{{ pt }}</span>
+        <form @submit.prevent="submitAddComplaint">
+          <div class="modal-body">
+            <div class="form-group mb-3">
+              <label>Pilih Pasien / Pengobatan <span class="text-danger">*</span></label>
+              <select v-model="addForm.treatment_id" class="form-control" required>
+                <option value="" disabled>-- Pilih Pasien & Pengobatan Terdaftar --</option>
+                <option v-for="t in availableTreatments" :key="t.id" :value="t.id">
+                  {{ t.patient?.full_name || 'Pasien #' + t.patient_id }} (NIK: {{ t.patient?.nik || '-' }} | RM: {{ t.patient?.medical_record_number || '-' }})
+                </option>
+              </select>
+              <small v-if="availableTreatments.length === 0" class="text-muted">
+                Belum ada data pengobatan aktif.
+              </small>
+            </div>
+
+            <div class="form-group mb-3">
+              <label>Kategori Keluhan / Gejala <span class="text-danger">*</span></label>
+              <select v-model="addForm.category" class="form-control" required>
+                <option value="Mual & Muntah">Mual & Muntah</option>
+                <option value="Pusing & Sakit Kepala">Pusing & Sakit Kepala</option>
+                <option value="Gatal & Ruam Kulit">Gatal & Ruam Kulit</option>
+                <option value="Nyeri Sendi">Nyeri Sendi</option>
+                <option value="Mata / Kulit Kuning">Mata / Kulit Kuning (Hepatotoksik)</option>
+                <option value="Gangguan Penglihatan">Gangguan Penglihatan</option>
+                <option value="Efek Samping Obat">Efek Samping Obat (ESO Lainnya)</option>
+                <option value="Kondisi Klinis TB">Kondisi Klinis TB (Batuk Darah/Sesak)</option>
+                <option value="Lainnya">Keluhan Lainnya</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Deskripsi Keluhan Pasien <span class="text-danger">*</span></label>
+              <textarea 
+                v-model="addForm.description" 
+                rows="4" 
+                placeholder="Jelaskan secara detail gejala yang dirasakan pasien, durasi keluhan, dan faktor yang memperberat..."
+                class="form-control"
+                required
+              ></textarea>
             </div>
           </div>
-        </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="showAddModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>Simpan Keluhan</span>
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <!-- Distribution Card -->
-      <div class="distribution-card card">
-        <h3 class="card-title">Distribusi Keluhan</h3>
-        <div class="distribution-list">
-          <div v-for="(item, index) in distributionData" :key="index" class="dist-item">
-            <div class="dist-header">
-              <span class="dist-label">{{ item.label }}</span>
-              <span class="dist-percent">{{ item.percent }}%</span>
+    <!-- MODAL: Beri Tanggapan / Update Status -->
+    <div v-if="showResponseModal" class="modal-backdrop" @click="showResponseModal = false">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>Tanggapan Medis & Update Status</h3>
+          <button class="modal-close" @click="showResponseModal = false">&times;</button>
+        </div>
+
+        <form @submit.prevent="submitResponseForm">
+          <div class="modal-body">
+            <div class="complaint-summary mb-3">
+              <div class="text-xs font-bold text-muted">KELUHAN PASIEN:</div>
+              <div class="font-semibold text-dark">{{ selectedComplaint?.treatment?.patient?.full_name || 'Pasien' }}</div>
+              <div class="text-sm text-muted mt-1 italic">"{{ selectedComplaint?.description }}"</div>
             </div>
-            <div class="dist-progress-bg">
-              <div class="dist-progress-fill" :style="{ width: item.percent + '%', backgroundColor: item.color }"></div>
+
+            <div class="form-group mb-3">
+              <label>Status Penanganan <span class="text-danger">*</span></label>
+              <select v-model="responseForm.status" class="form-control" required>
+                <option value="pending">Menunggu Respon (Pending)</option>
+                <option value="in_progress">Sedang Diproses / Observasi (In Progress)</option>
+                <option value="resolved">Selesai / Teratasi (Resolved)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tanggapan Medis / Rekomendasi Klinis</label>
+              <textarea 
+                v-model="responseForm.response" 
+                rows="4" 
+                placeholder="Tuliskan instruksi penanganan, resep simtomatis, atau anjuran kontrol ke faskes..."
+                class="form-control"
+              ></textarea>
             </div>
           </div>
-        </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="showResponseModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>Simpan Tanggapan</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import complaintService from '../../services/complaint.service'
+import treatmentService from '../../services/treatment.service'
+
+const router = useRouter()
+
+// Data State
+const complaints = ref([])
+const availableTreatments = ref([])
+const isLoading = ref(true)
+const isSubmitting = ref(false)
+
+// Alert Toast
+const alertMessage = ref('')
+const alertType = ref('success')
+
+const showAlert = (msg, type = 'success') => {
+  alertMessage.value = msg
+  alertType.value = type
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 4000)
+}
+
+// Search & Filter
+const searchQuery = ref('')
+const filterStatus = ref('')
+const filterCategory = ref('')
+
+// Pagination
+const currentPage = ref(1)
+const pageSize = 10
+
+// Dropdown
+const activeDropdown = ref(null)
+
+const toggleDropdown = (id) => {
+  activeDropdown.value = activeDropdown.value === id ? null : id
+}
+
+const handleDocumentClick = () => {
+  activeDropdown.value = null
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick)
+  loadComplaints()
+  loadTreatments()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick)
+})
+
+// Load Complaints from API
+const loadComplaints = async () => {
+  isLoading.value = true
+  try {
+    const res = await complaintService.getAll()
+    complaints.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load complaints:', error)
+    showAlert('Gagal memuat daftar keluhan pasien', 'danger')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load Treatments for Selector
+const loadTreatments = async () => {
+  try {
+    const res = await treatmentService.getAll()
+    availableTreatments.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load treatments:', error)
+  }
+}
+
+// Computed Statistics
+const pendingCount = computed(() => complaints.value.filter(c => c.status === 'pending').length)
+const inProgressCount = computed(() => complaints.value.filter(c => c.status === 'in_progress').length)
+const resolvedCount = computed(() => complaints.value.filter(c => c.status === 'resolved').length)
+
+// Filtered & Paginated
+const filteredComplaints = computed(() => {
+  return complaints.value.filter(c => {
+    const q = searchQuery.value.toLowerCase().trim()
+    const pName = c.treatment?.patient?.full_name?.toLowerCase() || ''
+    const pNik = c.treatment?.patient?.nik || ''
+    const pRm = c.treatment?.patient?.medical_record_number?.toLowerCase() || ''
+    const cat = c.category?.toLowerCase() || ''
+    const desc = c.description?.toLowerCase() || ''
+
+    const matchSearch = !q || pName.includes(q) || pNik.includes(q) || pRm.includes(q) || cat.includes(q) || desc.includes(q)
+    const matchStatus = !filterStatus.value || c.status === filterStatus.value
+    const matchCategory = !filterCategory.value || c.category?.toLowerCase().includes(filterCategory.value.toLowerCase())
+
+    return matchSearch && matchStatus && matchCategory
+  })
+})
+
+const totalPages = computed(() => Math.ceil(filteredComplaints.value.length / pageSize) || 1)
+
+const paginatedComplaints = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredComplaints.value.slice(start, start + pageSize)
+})
+
+// Helpers
+const formatStatus = (status) => {
+  if (status === 'pending') return 'Menunggu Respon'
+  if (status === 'in_progress') return 'Sedang Diproses'
+  if (status === 'resolved') return 'Selesai'
+  return status || '-'
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+const formatTime = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+}
+
+const truncate = (text, maxLen = 60) => {
+  if (!text) return '-'
+  return text.length > maxLen ? text.slice(0, maxLen) + '...' : text
+}
+
+const getInitials = (name) => {
+  if (!name) return 'TB'
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+}
+
+const getAvatarColor = (id) => {
+  const colors = ['teal', 'primary', 'orange', 'green', 'purple']
+  return colors[id % colors.length]
+}
+
+// Navigation & Actions
+const viewDetail = (id) => {
+  router.push(`/dashboard/complaints/${id}`)
+}
+
+const sendWhatsApp = (comp) => {
+  const phone = comp.treatment?.patient?.phone
+  if (!phone) {
+    showAlert('Nomor WhatsApp pasien tidak tersedia', 'warning')
+    return
+  }
+  const cleanPhone = phone.replace(/^0/, '62').replace(/\D/g, '')
+  const msg = encodeURIComponent(`Halo Bpk/Ibu ${comp.treatment?.patient?.full_name}, kami dari tim medis SITARA telah menerima keluhan Anda mengenai "${comp.category}". ${comp.response ? 'Rekomendasi dokter: ' + comp.response : 'Mohon menunggu, tim kami sedang menindaklanjuti keluhan Anda.'}`)
+  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
+}
+
+// Modal Add Complaint
+const showAddModal = ref(false)
+const addForm = ref({
+  treatment_id: '',
+  category: 'Mual & Muntah',
+  description: ''
+})
+
+const openAddModal = () => {
+  addForm.value = {
+    treatment_id: availableTreatments.value[0]?.id || '',
+    category: 'Mual & Muntah',
+    description: ''
+  }
+  showAddModal.value = true
+}
+
+const submitAddComplaint = async () => {
+  if (!addForm.value.treatment_id) {
+    showAlert('Pilih pasien pengobatan terlebih dahulu', 'warning')
+    return
+  }
+  isSubmitting.value = true
+  try {
+    await complaintService.create({
+      treatment_id: Number(addForm.value.treatment_id),
+      category: addForm.value.category,
+      description: addForm.value.description
+    })
+    showAlert('Keluhan pasien berhasil dicatat!')
+    showAddModal.value = false
+    await loadComplaints()
+  } catch (error) {
+    console.error('Failed to create complaint:', error)
+    showAlert('Gagal mencatat keluhan baru', 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Modal Response
+const showResponseModal = ref(false)
+const selectedComplaint = ref(null)
+const responseForm = ref({
+  status: 'in_progress',
+  response: ''
+})
+
+const openResponseModal = (comp) => {
+  selectedComplaint.value = comp
+  responseForm.value = {
+    status: comp.status || 'in_progress',
+    response: comp.response || ''
+  }
+  showResponseModal.value = true
+}
+
+const submitResponseForm = async () => {
+  if (!selectedComplaint.value) return
+  isSubmitting.value = true
+  try {
+    await complaintService.update(selectedComplaint.value.id, {
+      status: responseForm.value.status,
+      response: responseForm.value.response || null
+    })
+    showAlert('Tanggapan keluhan berhasil disimpan!')
+    showResponseModal.value = false
+    await loadComplaints()
+  } catch (error) {
+    console.error('Failed to update complaint response:', error)
+    showAlert('Gagal memperbarui tanggapan keluhan', 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Delete Complaint
+const confirmDelete = async (comp) => {
+  const name = comp.treatment?.patient?.full_name || 'Pasien'
+  if (confirm(`Apakah Anda yakin ingin menghapus keluhan [${comp.category}] dari ${name}?`)) {
+    try {
+      await complaintService.delete(comp.id)
+      showAlert('Keluhan berhasil dihapus!')
+      await loadComplaints()
+    } catch (error) {
+      console.error('Failed to delete complaint:', error)
+      showAlert('Gagal menghapus keluhan', 'danger')
+    }
+  }
+}
+</script>
 
 <style scoped src="./ComplaintListView.css"></style>

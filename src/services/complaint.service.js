@@ -7,10 +7,13 @@ export default {
   getById(id) {
     return api.get(`/complaints/${id}`);
   },
-  updateStatus(id, data) {
-    return api.patch(`/complaints/${id}/status`, data);
+  create(data) {
+    return api.post('/complaints', data);
   },
-  addFollowUp(id, data) {
-    return api.post(`/complaints/${id}/follow-up`, data);
+  update(id, data) {
+    return api.put(`/complaints/${id}`, data);
+  },
+  delete(id) {
+    return api.delete(`/complaints/${id}`);
   }
 };

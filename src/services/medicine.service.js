@@ -13,10 +13,7 @@ export default {
   update(id, data) {
     return api.put(`/medicines/${id}`, data);
   },
-  getDistributionHistory(params) {
-    return api.get('/medicines/distribution-history', { params });
-  },
-  getStockWarnings() {
-    return api.get('/medicines/stock-warnings');
+  delete(id) {
+    return api.delete(`/medicines/${id}`);
   }
 };

@@ -1,372 +1,982 @@
 <template>
-  <div class="page-container">
-    <div class="page-header">
-      <h1 class="page-title">Logistik OAT - SITARA TB</h1>
-      <p class="page-subtitle">Manajemen stok dan permintaan obat anti-tuberkulosis.</p>
+  <div class="medicine-page">
+    <!-- 1. Header -->
+    <header class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">Obat & Jadwal Minum Obat (OAT)</h1>
+        <p class="page-subtitle">Kelola master data obat anti-tuberkulosis dan jadwal minum obat harian pasien TB.</p>
+      </div>
+      <div class="header-actions">
+        <button v-if="activeTab === 'medicines'" class="btn btn-primary" @click="openAddMedicineModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Tambah Obat Baru
+        </button>
+        <button v-else class="btn btn-primary" @click="openAddScheduleModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Atur Jadwal Minum Obat
+        </button>
+      </div>
+    </header>
+
+    <!-- Toast Alert -->
+    <div v-if="alertMessage" class="toast-alert" :class="'toast-' + alertType">
+      <span>{{ alertMessage }}</span>
+      <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
     </div>
 
-    <!-- Statistic Cards Row -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon-wrapper teal-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">TOTAL STOK OAT</span>
-          <span class="stat-value">2,450 <span class="stat-unit">Tabs</span></span>
-        </div>
-      </div>
+    <!-- 2. Tab Navigation Switcher -->
+    <div class="tab-switcher-wrapper mb-4">
+      <div class="tab-switcher">
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'medicines' }"
+          @click="activeTab = 'medicines'"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.5 20.5l10-10a4.95 4.95 0 10-7-7l-10 10a4.95 4.95 0 107 7z"></path>
+            <path d="M8.5 8.5l7 7"></path>
+          </svg>
+          <span>Master Data Obat OAT ({{ medicines.length }})</span>
+        </button>
 
-      <div class="stat-card">
-        <div class="stat-icon-wrapper teal-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">PERMINTAAN HARI INI</span>
-          <span class="stat-value">4</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper orange-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">MENUNGGU SETUJU</span>
-          <span class="stat-value">1</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper green-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">DISETUJUI</span>
-          <span class="stat-value">3</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper red-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">DITOLAK</span>
-          <span class="stat-value">0</span>
-        </div>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'schedules' }"
+          @click="activeTab = 'schedules'"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Jadwal Minum Obat Pasien ({{ schedules.length }})</span>
+        </button>
       </div>
     </div>
 
-    <!-- Filter Section -->
-    <section class="filter-section card mb-6">
-      <div class="filter-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-        </svg>
-        <h2>Filter Permintaan Obat</h2>
-      </div>
-
-      <div class="filter-grid-simple">
-        <!-- 1. Search Name / NIK -->
-        <div class="form-group">
-          <label>Pencarian</label>
-          <input 
-            type="text" 
-            placeholder="Cari Nama / NIK Pasien..." 
-            class="form-control"
-          />
+    <!-- ========================================================================= -->
+    <!-- TAB 1: MASTER DATA OBAT OAT -->
+    <!-- ========================================================================= -->
+    <div v-if="activeTab === 'medicines'">
+      <!-- Stats Cards Row -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper teal-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.5 20.5l10-10a4.95 4.95 0 10-7-7l-10 10a4.95 4.95 0 107 7z"></path>
+              <path d="M8.5 8.5l7 7"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">TOTAL JENIS OBAT</span>
+            <span class="stat-value">{{ medicines.length }}</span>
+          </div>
         </div>
 
-        <!-- 2. Tipe Obat -->
-        <div class="form-group">
-          <label>Tipe Obat OAT</label>
-          <select class="form-control">
-            <option value="">Semua Tipe Obat</option>
-            <option value="Kategori I">Kategori I</option>
-            <option value="Kategori II">Kategori II</option>
-            <option value="Anak">Anak</option>
-          </select>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper blue-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">OAT LINI 1 (FDC / TUNGGAL)</span>
+            <span class="stat-value">{{ oatLini1Count }}</span>
+          </div>
         </div>
 
-        <!-- 3. Status Permintaan -->
-        <div class="form-group">
-          <label>Status Permintaan</label>
-          <select class="form-control">
-            <option value="">Semua Status</option>
-            <option value="Pending">Pending (Menunggu)</option>
-            <option value="Disetujui">Disetujui</option>
-            <option value="Ditolak">Ditolak</option>
-          </select>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper orange-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">OAT LINI 2 / TB-RO</span>
+            <span class="stat-value">{{ oatLini2Count }}</span>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Main Table Section -->
-    <div class="card table-card">
-      <div class="card-header flex-between">
-        <h2 class="card-title">Permintaan Pengambilan OAT</h2>
-        <div class="pill-buttons">
-          <button class="pill-btn active">Semua</button>
-          <button class="pill-btn">Baru</button>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper green-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">OBAT AKTIF</span>
+            <span class="stat-value">{{ activeMedicinesCount }}</span>
+          </div>
         </div>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Nama Pasien</th>
-              <th>Nama PMO</th>
-              <th>Tipe Obat</th>
-              <th>Alasan</th>
-              <th>Tgl Permintaan</th>
-              <th>Status</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="req in requests" :key="req.id">
-              <td>
-                <div class="font-medium">{{ req.pasien }}</div>
-                <div class="text-xs text-muted">{{ req.pasienId }}</div>
-              </td>
-              <td>{{ req.pmo }}</td>
-              <td><span :class="['type-pill', req.typeClass]">{{ req.tipeObat }}</span></td>
-              <td>{{ req.alasan }}</td>
-              <td>{{ req.tglPermintaan }}</td>
-              <td>
-                <span :class="['status-pill', req.statusClass]">
-                  <span class="status-dot"></span>
-                  {{ req.status }}
-                </span>
-              </td>
-              <td class="actions relative text-center">
-                <div class="action-dropdown-wrapper">
-                  <button class="btn-more-actions" @click.stop="toggleDropdown(req.id)" title="Aksi">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="1"></circle>
-                      <circle cx="19" cy="12" r="1"></circle>
-                      <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                  </button>
-                  
-                  <div v-if="activeDropdown === req.id" class="dropdown-menu-floating" @click.stop>
-                    <button class="dropdown-item" @click="viewDetail(); activeDropdown = null">
+      </section>
+
+      <!-- Filter Section -->
+      <section class="filter-section card">
+        <div class="filter-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <h2>Filter Master Obat</h2>
+        </div>
+
+        <div class="filter-grid-2">
+          <div class="form-group">
+            <label>Pencarian</label>
+            <input 
+              type="text" 
+              v-model="medSearchQuery" 
+              placeholder="Cari Kode, Nama Obat, atau Deskripsi..." 
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Kategori Obat</label>
+            <select v-model="medFilterCategory" class="form-control">
+              <option value="">Semua Kategori</option>
+              <option value="Lini 1">Lini 1 (Utama)</option>
+              <option value="Lini 2">Lini 2 (TB-RO)</option>
+              <option value="FDC">Kombinasi Dosis Tetap (FDC)</option>
+              <option value="Tunggal">Obat Tunggal</option>
+              <option value="Anak">Pediatrik / Anak</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table Card -->
+      <div class="table-card card">
+        <div v-if="isLoadingMedicines" class="loading-state">
+          <div class="spinner"></div>
+          <p>Memuat data obat...</p>
+        </div>
+
+        <div v-else-if="filteredMedicines.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.5 20.5l10-10a4.95 4.95 0 10-7-7l-10 10a4.95 4.95 0 107 7z"></path>
+              <path d="M8.5 8.5l7 7"></path>
+            </svg>
+          </div>
+          <h3>Belum Ada Data Obat</h3>
+          <p>Tambahkan master data obat OAT yang digunakan untuk terapi pasien TB.</p>
+          <button class="btn btn-primary mt-3" @click="openAddMedicineModal">
+            + Tambah Obat Baru
+          </button>
+        </div>
+
+        <div v-else class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Kode Obat</th>
+                <th>Nama Obat</th>
+                <th>Kategori</th>
+                <th>Kekuatan / Dosis</th>
+                <th>Satuan</th>
+                <th>Keterangan</th>
+                <th class="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="med in filteredMedicines" :key="med.id">
+                <td>
+                  <span class="code-badge font-mono font-bold">{{ med.code }}</span>
+                </td>
+                <td>
+                  <div class="font-semibold text-dark">{{ med.name }}</div>
+                </td>
+                <td>
+                  <span class="category-pill">{{ med.category }}</span>
+                </td>
+                <td>
+                  <span class="font-medium">{{ med.strength }}</span>
+                </td>
+                <td>
+                  <span class="unit-badge">{{ med.unit }}</span>
+                </td>
+                <td>
+                  <span class="text-sm text-muted">{{ med.description || '-' }}</span>
+                </td>
+                <td class="text-center">
+                  <div class="table-actions">
+                    <button class="btn-action-icon" title="Edit Obat" @click="openEditMedicineModal(med)">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                       </svg>
-                      <span>Lihat Detail</span>
                     </button>
-
-                    <button class="dropdown-item" @click="sendNotify(req); activeDropdown = null">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                      </svg>
-                      <span>Kirim Notifikasi</span>
-                    </button>
-
-                    <button class="dropdown-item text-danger" @click="deleteRequest(req); activeDropdown = null">
+                    <button class="btn-action-icon text-danger" title="Hapus Obat" @click="confirmDeleteMedicine(med)">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                       </svg>
-                      <span>Hapus</span>
                     </button>
                   </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Pagination -->
-      <div class="pagination-section">
-        <span class="pagination-info">Menampilkan 1-10 dari 20 entri</span>
-        <div class="pagination-controls">
-          <button class="btn-page" disabled>Prev</button>
-          <button class="btn-page active">1</button>
-          <button class="btn-page">2</button>
-          <button class="btn-page">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Row -->
-    <div class="bottom-grid">
-      <!-- Level Stok OAT -->
-      <div class="card">
-        <h2 class="card-title mb-4">Level Stok OAT</h2>
-        <div class="stock-list">
-          <div v-for="stock in stocks" :key="stock.name" class="stock-item">
-            <div class="stock-header">
-              <span class="stock-name">{{ stock.name }}</span>
-              <span :class="['stock-badge', stock.badgeClass]">{{ stock.status }}</span>
-            </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar" :style="{ width: stock.percentage + '%', backgroundColor: stock.color }"></div>
-            </div>
-            <div class="stock-footer">
-              <span class="stock-subtext">{{ stock.subtext }}</span>
-              <span class="stock-percentage">{{ stock.percentage }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Riwayat Distribusi -->
-      <div class="card">
-        <h2 class="card-title mb-4">Riwayat Distribusi</h2>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Pasien</th>
-                <th>Tipe Obat</th>
-                <th>Jumlah</th>
-                <th>Petugas</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="hist in histories" :key="hist.id">
-                <td class="whitespace-nowrap">{{ hist.tanggal }}</td>
-                <td>{{ hist.pasien }}</td>
-                <td>{{ hist.tipeObat }}</td>
-                <td>{{ hist.jumlah }}</td>
-                <td>{{ hist.petugas }}</td>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: JADWAL MINUM OBAT PASIEN -->
+    <!-- ========================================================================= -->
+    <div v-else>
+      <!-- Stats Cards Row -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper teal-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">TOTAL JADWAL AKTIF</span>
+            <span class="stat-value">{{ schedules.length }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper blue-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">JADWAL PAGI HARI</span>
+            <span class="stat-value">{{ morningSchedulesCount }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper orange-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">JADWAL SIANG / SORE</span>
+            <span class="stat-value">{{ afternoonSchedulesCount }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper purple-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">JADWAL MALAM HARI</span>
+            <span class="stat-value">{{ nightSchedulesCount }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter Section -->
+      <section class="filter-section card">
+        <div class="filter-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <h2>Filter Jadwal Minum Obat</h2>
+        </div>
+
+        <div class="filter-grid-2">
+          <div class="form-group">
+            <label>Pencarian</label>
+            <input 
+              type="text" 
+              v-model="schedSearchQuery" 
+              placeholder="Cari Nama Pasien, NIK, No RM, atau Nama Obat..." 
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Filter Waktu Minum</label>
+            <select v-model="schedFilterTime" class="form-control">
+              <option value="">Semua Waktu</option>
+              <option value="morning">Pagi (05:00 - 11:59)</option>
+              <option value="afternoon">Siang / Sore (12:00 - 17:59)</option>
+              <option value="night">Malam (18:00 - 23:59)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table Card -->
+      <div class="table-card card">
+        <div v-if="isLoadingSchedules" class="loading-state">
+          <div class="spinner"></div>
+          <p>Memuat jadwal minum obat...</p>
+        </div>
+
+        <div v-else-if="filteredSchedules.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Belum Ada Jadwal Minum Obat</h3>
+          <p>Atur jadwal minum obat harian untuk pasien yang sedang dalam masa pengobatan TB.</p>
+          <button class="btn btn-primary mt-3" @click="openAddScheduleModal">
+            + Atur Jadwal Minum Obat
+          </button>
+        </div>
+
+        <div v-else class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pasien</th>
+                <th>Obat Terjadwal</th>
+                <th>Dosis & Aturan</th>
+                <th>Jam Minum</th>
+                <th>Sisa / Diberikan</th>
+                <th>Progres Sisa</th>
+                <th class="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="sched in filteredSchedules" :key="sched.id">
+                <td>
+                  <div class="patient-cell">
+                    <div class="patient-name font-semibold text-dark">
+                      {{ sched.treatment?.patient?.full_name || 'Pengobatan #' + sched.treatment_id }}
+                    </div>
+                    <div class="patient-meta text-xs text-muted">
+                      NIK: {{ sched.treatment?.patient?.nik || '-' }} | RM: {{ sched.treatment?.patient?.medical_record_number || '-' }}
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="med-cell">
+                    <span class="med-name font-medium">{{ sched.medicine?.name || 'Obat #' + sched.medicine_id }}</span>
+                    <span class="med-code text-xs text-muted">({{ sched.medicine?.code || '-' }})</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="dosage-badge font-semibold">{{ sched.dosage }}</span>
+                </td>
+                <td>
+                  <span class="time-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{ formatTime(sched.drink_time) }} WIB
+                  </span>
+                </td>
+                <td>
+                  <div class="quantity-cell">
+                    <span class="qty-num font-bold" :class="getQtyColor(sched)">
+                      {{ sched.quantity_remaining }}
+                    </span>
+                    <span class="text-muted text-xs">/ {{ sched.quantity_initial }} {{ sched.medicine?.unit || 'Tab' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="progress-wrapper">
+                    <div class="progress-bar-container">
+                      <div 
+                        class="progress-bar" 
+                        :class="getQtyBarClass(sched)" 
+                        :style="{ width: calculateRemainingPercentage(sched) + '%' }"
+                      ></div>
+                    </div>
+                    <div class="progress-text text-xs">
+                      <span>{{ calculateRemainingPercentage(sched) }}% tersisa</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <div class="table-actions">
+                    <button class="btn-action-icon" title="Edit Jadwal" @click="openEditScheduleModal(sched)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button class="btn-action-icon text-danger" title="Hapus Jadwal" @click="confirmDeleteSchedule(sched)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: TAMBAH / EDIT MASTER OBAT -->
+    <!-- ========================================================================= -->
+    <div v-if="showMedicineModal" class="modal-backdrop" @click="showMedicineModal = false">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>{{ isEditingMedicine ? 'Edit Master Obat OAT' : 'Tambah Master Obat OAT' }}</h3>
+          <button class="modal-close" @click="showMedicineModal = false">&times;</button>
+        </div>
+
+        <form @submit.prevent="submitMedicineForm">
+          <div class="modal-body">
+            <div class="grid-2-cols mb-3">
+              <div class="form-group">
+                <label>Kode Obat <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  v-model="medForm.code" 
+                  placeholder="Contoh: R-450, FDC-1" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Kategori Obat <span class="text-danger">*</span></label>
+                <select v-model="medForm.category" class="form-control" required>
+                  <option value="Lini 1">Lini 1 (Utama)</option>
+                  <option value="Lini 2">Lini 2 (TB-RO)</option>
+                  <option value="FDC">Kombinasi FDC</option>
+                  <option value="Tunggal">Obat Tunggal</option>
+                  <option value="Anak">Pediatrik / Anak</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label>Nama Obat Lengkap <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                v-model="medForm.name" 
+                placeholder="Contoh: Rifampisin, FDC Kategori 1 (4FDC)" 
+                class="form-control" 
+                required 
+              />
+            </div>
+
+            <div class="grid-2-cols mb-3">
+              <div class="form-group">
+                <label>Kekuatan / Sediaan <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  v-model="medForm.strength" 
+                  placeholder="Contoh: 450 mg, 150/75/400/275 mg" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Satuan <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  v-model="medForm.unit" 
+                  placeholder="Contoh: Tablet, Kapsul, Botol" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Keterangan / Aturan Khusus</label>
+              <textarea 
+                v-model="medForm.description" 
+                rows="2" 
+                placeholder="Instruksi konsumsi, efek samping umum, atau penyimpanan..."
+                class="form-control"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="showMedicineModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>{{ isEditingMedicine ? 'Simpan Perubahan' : 'Tambah Obat' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: ATUR / EDIT JADWAL MINUM OBAT -->
+    <!-- ========================================================================= -->
+    <div v-if="showScheduleModal" class="modal-backdrop" @click="showScheduleModal = false">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>{{ isEditingSchedule ? 'Edit Jadwal Minum Obat' : 'Atur Jadwal Minum Obat Pasien' }}</h3>
+          <button class="modal-close" @click="showScheduleModal = false">&times;</button>
+        </div>
+
+        <form @submit.prevent="submitScheduleForm">
+          <div class="modal-body">
+            <!-- Pilih Pengobatan Pasien (hanya jika mode tambah) -->
+            <div class="form-group mb-3" v-if="!isEditingSchedule">
+              <label>Pilih Pengobatan Pasien <span class="text-danger">*</span></label>
+              <select v-model="schedForm.treatment_id" class="form-control" required>
+                <option value="" disabled>-- Pilih Pasien & Pengobatan Aktif --</option>
+                <option v-for="t in availableTreatments" :key="t.id" :value="t.id">
+                  {{ t.patient?.full_name || 'Pasien #' + t.patient_id }} (NIK: {{ t.patient?.nik || '-' }} | {{ formatPhase(t.phase) }})
+                </option>
+              </select>
+              <small v-if="availableTreatments.length === 0" class="text-muted">
+                Belum ada data pengobatan aktif.
+              </small>
+            </div>
+
+            <!-- Pilih Obat (hanya jika mode tambah) -->
+            <div class="form-group mb-3" v-if="!isEditingSchedule">
+              <label>Pilih Obat OAT <span class="text-danger">*</span></label>
+              <select v-model="schedForm.medicine_id" class="form-control" required>
+                <option value="" disabled>-- Pilih Obat OAT --</option>
+                <option v-for="m in medicines" :key="m.id" :value="m.id">
+                  [{{ m.code }}] {{ m.name }} - {{ m.strength }} ({{ m.unit }})
+                </option>
+              </select>
+            </div>
+
+            <div class="grid-2-cols mb-3">
+              <div class="form-group">
+                <label>Dosis / Aturan Minum <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  v-model="schedForm.dosage" 
+                  placeholder="Contoh: 3 Tablet, 1 Kapsul" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Jam Minum Obat <span class="text-danger">*</span></label>
+                <input 
+                  type="time" 
+                  v-model="schedForm.drink_time" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+            </div>
+
+            <div class="grid-2-cols">
+              <div class="form-group">
+                <label>Jumlah Obat Awal Diberikan <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  v-model.number="schedForm.quantity_initial" 
+                  placeholder="Contoh: 60" 
+                  min="1" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Jumlah Obat Tersisa <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  v-model.number="schedForm.quantity_remaining" 
+                  placeholder="Contoh: 60" 
+                  min="0" 
+                  class="form-control" 
+                  required 
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="showScheduleModal = false">Batal</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-sm"></span>
+              <span v-else>{{ isEditingSchedule ? 'Simpan Jadwal' : 'Buat Jadwal' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
+import { ref, computed, onMounted } from 'vue'
+import medicineService from '../../services/medicine.service'
+import medicineScheduleService from '../../services/medicine-schedule.service'
+import treatmentService from '../../services/treatment.service'
 
-const router = useRouter();
-const activeDropdown = ref(null);
+// Active Tab
+const activeTab = ref('medicines')
 
-const toggleDropdown = (id) => {
-  activeDropdown.value = activeDropdown.value === id ? null : id;
-};
+// Data State
+const medicines = ref([])
+const schedules = ref([])
+const availableTreatments = ref([])
 
-const handleDocumentClick = () => {
-  activeDropdown.value = null;
-};
+const isLoadingMedicines = ref(true)
+const isLoadingSchedules = ref(true)
+const isSubmitting = ref(false)
+
+// Alert Toast
+const alertMessage = ref('')
+const alertType = ref('success')
+
+const showAlert = (msg, type = 'success') => {
+  alertMessage.value = msg
+  alertType.value = type
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 4000)
+}
+
+// Filters - Medicines
+const medSearchQuery = ref('')
+const medFilterCategory = ref('')
+
+// Filters - Schedules
+const schedSearchQuery = ref('')
+const schedFilterTime = ref('')
 
 onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
+  loadMedicines()
+  loadSchedules()
+  loadTreatments()
+})
 
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
-
-const viewDetail = () => {
-  router.push('/dashboard/refill-requests');
-};
-
-const sendNotify = (req) => {
-  alert(`Mengirim notifikasi pengingat stok ke ${req.pasien}`);
-};
-
-const deleteRequest = (req) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus permintaan OAT ${req.pasien}?`)) {
-    requests.value = requests.value.filter(r => r.id !== req.id);
+// Load Master Medicines
+const loadMedicines = async () => {
+  isLoadingMedicines.value = true
+  try {
+    const res = await medicineService.getAll()
+    medicines.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load medicines:', error)
+    showAlert('Gagal memuat master data obat', 'danger')
+  } finally {
+    isLoadingMedicines.value = false
   }
-};
+}
 
-const requests = ref([
-  {
-    id: 1,
-    pasien: 'Budi Santoso',
-    pasienId: 'ID: TB-2026-089',
-    pmo: 'Surya',
-    tipeObat: 'Kategori I',
-    typeClass: 'type-cat-1',
-    alasan: 'Stok Habis',
-    tglPermintaan: '28 Jul 2026',
-    status: 'Pending',
-    statusClass: 'status-pending'
-  },
-  {
-    id: 2,
-    pasien: 'Ratna Sari',
-    pasienId: 'ID: TB-2026-112',
-    pmo: 'Andi Wijaya',
-    tipeObat: 'Kategori II',
-    typeClass: 'type-cat-2',
-    alasan: 'Kontrol Rutin',
-    tglPermintaan: '28 Jul 2026',
-    status: 'Disetujui',
-    statusClass: 'status-approved'
-  },
-  {
-    id: 3,
-    pasien: 'Dedi Kurniawan',
-    pasienId: 'ID: TB-2026-045',
-    pmo: 'Lina Marlina',
-    tipeObat: 'Kategori I',
-    typeClass: 'type-cat-1',
-    alasan: 'Stok Habis',
-    tglPermintaan: '27 Jul 2026',
-    status: 'Disetujui',
-    statusClass: 'status-approved'
-  },
-  {
-    id: 4,
-    pasien: 'Ahmad Faisal',
-    pasienId: 'ID: TB-2026-156',
-    pmo: 'Rudi Hermawan',
-    tipeObat: 'Anak',
-    typeClass: 'type-child',
-    alasan: 'Kontrol Rutin',
-    tglPermintaan: '27 Jul 2026',
-    status: 'Ditolak',
-    statusClass: 'status-rejected'
+// Load Medicine Schedules
+const loadSchedules = async () => {
+  isLoadingSchedules.value = true
+  try {
+    const res = await medicineScheduleService.getAll()
+    schedules.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load medicine schedules:', error)
+    showAlert('Gagal memuat jadwal minum obat', 'danger')
+  } finally {
+    isLoadingSchedules.value = false
   }
-]);
+}
 
-const stocks = ref([
-  {
-    name: 'Rifampisin',
-    status: 'Safe',
-    badgeClass: 'badge-safe',
-    percentage: 85,
-    color: '#22C55E',
-    subtext: '1,200 / 1,410 Tablet'
-  },
-  {
-    name: 'Isoniazid',
-    status: 'Thinning',
-    badgeClass: 'badge-thinning',
-    percentage: 42,
-    color: '#F59E0B',
-    subtext: '580 / 1,380 Tablet'
-  },
-  {
-    name: 'Pirazinamid',
-    status: 'Critical',
-    badgeClass: 'badge-critical',
-    percentage: 15,
-    color: '#EF4444',
-    subtext: '165 / 1,100 Tablet'
+// Load Treatments for Schedule Setup
+const loadTreatments = async () => {
+  try {
+    const res = await treatmentService.getAll()
+    availableTreatments.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load treatments for schedules:', error)
   }
-]);
+}
 
-const histories = ref([
-  { id: 1, tanggal: '28 Jul, 10:15', pasien: 'Ratna Sari', tipeObat: 'Kategori II', jumlah: '28 Tablet', petugas: 'Ns. Hendra' },
-  { id: 2, tanggal: '27 Jul, 14:30', pasien: 'Dedi Kurniawan', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Ns. Hendra' },
-  { id: 3, tanggal: '27 Jul, 09:20', pasien: 'Slamet Riyadi', tipeObat: 'Kategori I', jumlah: '56 Tablet', petugas: 'Dr. Anisa' },
-  { id: 4, tanggal: '26 Jul, 16:45', pasien: 'Maya Putri', tipeObat: 'Anak', jumlah: '14 Tablet', petugas: 'Ns. Hendra' }
-]);
+// ==========================================
+// MEDICINES COMPUTED & METHODS
+// ==========================================
+const oatLini1Count = computed(() => {
+  return medicines.value.filter(m => m.category?.toLowerCase().includes('lini 1') || m.category?.toLowerCase().includes('fdc')).length
+})
+
+const oatLini2Count = computed(() => {
+  return medicines.value.filter(m => m.category?.toLowerCase().includes('lini 2') || m.category?.toLowerCase().includes('tb-ro')).length
+})
+
+const activeMedicinesCount = computed(() => {
+  return medicines.value.filter(m => m.is_active !== false).length
+})
+
+const filteredMedicines = computed(() => {
+  return medicines.value.filter(m => {
+    const q = medSearchQuery.value.toLowerCase().trim()
+    const matchSearch = !q || m.code?.toLowerCase().includes(q) || m.name?.toLowerCase().includes(q) || m.description?.toLowerCase().includes(q)
+    const matchCat = !medFilterCategory.value || m.category?.toLowerCase().includes(medFilterCategory.value.toLowerCase())
+    return matchSearch && matchCat
+  })
+})
+
+// Medicine Modal
+const showMedicineModal = ref(false)
+const isEditingMedicine = ref(false)
+const selectedMedicineId = ref(null)
+
+const medForm = ref({
+  code: '',
+  name: '',
+  category: 'Lini 1',
+  strength: '',
+  unit: 'Tablet',
+  description: ''
+})
+
+const openAddMedicineModal = () => {
+  isEditingMedicine.value = false
+  selectedMedicineId.value = null
+  medForm.value = {
+    code: '',
+    name: '',
+    category: 'Lini 1',
+    strength: '',
+    unit: 'Tablet',
+    description: ''
+  }
+  showMedicineModal.value = true
+}
+
+const openEditMedicineModal = (med) => {
+  isEditingMedicine.value = true
+  selectedMedicineId.value = med.id
+  medForm.value = {
+    code: med.code,
+    name: med.name,
+    category: med.category,
+    strength: med.strength,
+    unit: med.unit,
+    description: med.description || ''
+  }
+  showMedicineModal.value = true
+}
+
+const submitMedicineForm = async () => {
+  isSubmitting.value = true
+  try {
+    if (isEditingMedicine.value) {
+      await medicineService.update(selectedMedicineId.value, medForm.value)
+      showAlert('Master data obat berhasil diperbarui!')
+    } else {
+      await medicineService.create(medForm.value)
+      showAlert('Obat baru berhasil ditambahkan!')
+    }
+    showMedicineModal.value = false
+    await loadMedicines()
+  } catch (error) {
+    console.error('Failed to save medicine:', error)
+    const detail = error.response?.data?.detail || 'Gagal menyimpan obat'
+    showAlert(detail, 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const confirmDeleteMedicine = async (med) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus master obat [${med.code}] ${med.name}?`)) {
+    try {
+      await medicineService.delete(med.id)
+      showAlert('Obat berhasil dihapus!')
+      await loadMedicines()
+    } catch (error) {
+      console.error('Failed to delete medicine:', error)
+      showAlert('Gagal menghapus obat', 'danger')
+    }
+  }
+}
+
+// ==========================================
+// SCHEDULES COMPUTED & METHODS
+// ==========================================
+const morningSchedulesCount = computed(() => {
+  return schedules.value.filter(s => {
+    const h = parseInt((s.drink_time || '').split(':')[0], 10)
+    return h >= 5 && h < 12
+  }).length
+})
+
+const afternoonSchedulesCount = computed(() => {
+  return schedules.value.filter(s => {
+    const h = parseInt((s.drink_time || '').split(':')[0], 10)
+    return h >= 12 && h < 18
+  }).length
+})
+
+const nightSchedulesCount = computed(() => {
+  return schedules.value.filter(s => {
+    const h = parseInt((s.drink_time || '').split(':')[0], 10)
+    return h >= 18 || h < 5
+  }).length
+})
+
+const filteredSchedules = computed(() => {
+  return schedules.value.filter(s => {
+    const q = schedSearchQuery.value.toLowerCase().trim()
+    const patientName = s.treatment?.patient?.full_name?.toLowerCase() || ''
+    const patientNik = s.treatment?.patient?.nik || ''
+    const patientRm = s.treatment?.patient?.medical_record_number?.toLowerCase() || ''
+    const medName = s.medicine?.name?.toLowerCase() || ''
+    const medCode = s.medicine?.code?.toLowerCase() || ''
+
+    const matchSearch = !q || patientName.includes(q) || patientNik.includes(q) || patientRm.includes(q) || medName.includes(q) || medCode.includes(q)
+
+    let matchTime = true
+    if (schedFilterTime.value) {
+      const h = parseInt((s.drink_time || '').split(':')[0], 10)
+      if (schedFilterTime.value === 'morning') matchTime = h >= 5 && h < 12
+      else if (schedFilterTime.value === 'afternoon') matchTime = h >= 12 && h < 18
+      else if (schedFilterTime.value === 'night') matchTime = h >= 18 || h < 5
+    }
+
+    return matchSearch && matchTime
+  })
+})
+
+const formatTime = (timeStr) => {
+  if (!timeStr) return '-'
+  return timeStr.slice(0, 5) // "08:00:00" -> "08:00"
+}
+
+const formatPhase = (phase) => {
+  if (phase === 'intensive') return 'Fase Intensif'
+  if (phase === 'continuation') return 'Fase Lanjutan'
+  return phase || '-'
+}
+
+const calculateRemainingPercentage = (sched) => {
+  if (!sched.quantity_initial || sched.quantity_initial <= 0) return 0
+  const pct = Math.round((sched.quantity_remaining / sched.quantity_initial) * 100)
+  return Math.max(0, Math.min(100, pct))
+}
+
+const getQtyColor = (sched) => {
+  const pct = calculateRemainingPercentage(sched)
+  if (pct <= 20) return 'text-danger'
+  if (pct <= 40) return 'text-warning'
+  return 'text-success'
+}
+
+const getQtyBarClass = (sched) => {
+  const pct = calculateRemainingPercentage(sched)
+  if (pct <= 20) return 'bg-danger'
+  if (pct <= 40) return 'bg-warning'
+  return 'bg-success'
+}
+
+// Schedule Modal
+const showScheduleModal = ref(false)
+const isEditingSchedule = ref(false)
+const selectedScheduleId = ref(null)
+
+const schedForm = ref({
+  treatment_id: '',
+  medicine_id: '',
+  dosage: '3 Tablet Sekaligus',
+  quantity_initial: 60,
+  quantity_remaining: 60,
+  drink_time: '08:00'
+})
+
+const openAddScheduleModal = () => {
+  isEditingSchedule.value = false
+  selectedScheduleId.value = null
+  schedForm.value = {
+    treatment_id: availableTreatments.value[0]?.id || '',
+    medicine_id: medicines.value[0]?.id || '',
+    dosage: '3 Tablet Sekaligus',
+    quantity_initial: 60,
+    quantity_remaining: 60,
+    drink_time: '08:00'
+  }
+  showScheduleModal.value = true
+}
+
+const openEditScheduleModal = (sched) => {
+  isEditingSchedule.value = true
+  selectedScheduleId.value = sched.id
+  schedForm.value = {
+    treatment_id: sched.treatment_id,
+    medicine_id: sched.medicine_id,
+    dosage: sched.dosage,
+    quantity_initial: sched.quantity_initial,
+    quantity_remaining: sched.quantity_remaining,
+    drink_time: formatTime(sched.drink_time)
+  }
+  showScheduleModal.value = true
+}
+
+const submitScheduleForm = async () => {
+  isSubmitting.value = true
+  try {
+    // Format drink_time with seconds for backend Time type
+    const formattedTime = schedForm.value.drink_time.length === 5 ? `${schedForm.value.drink_time}:00` : schedForm.value.drink_time
+
+    if (isEditingSchedule.value) {
+      await medicineScheduleService.update(selectedScheduleId.value, {
+        dosage: schedForm.value.dosage,
+        quantity_initial: schedForm.value.quantity_initial,
+        quantity_remaining: schedForm.value.quantity_remaining,
+        drink_time: formattedTime
+      })
+      showAlert('Jadwal minum obat berhasil diperbarui!')
+    } else {
+      await medicineScheduleService.create({
+        treatment_id: Number(schedForm.value.treatment_id),
+        medicine_id: Number(schedForm.value.medicine_id),
+        dosage: schedForm.value.dosage,
+        quantity_initial: Number(schedForm.value.quantity_initial),
+        quantity_remaining: Number(schedForm.value.quantity_remaining),
+        drink_time: formattedTime
+      })
+      showAlert('Jadwal minum obat berhasil dibuat!')
+    }
+    showScheduleModal.value = false
+    await loadSchedules()
+  } catch (error) {
+    console.error('Failed to save schedule:', error)
+    const detail = error.response?.data?.detail || 'Gagal menyimpan jadwal minum obat'
+    showAlert(detail, 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const confirmDeleteSchedule = async (sched) => {
+  const patient = sched.treatment?.patient?.full_name || 'Pasien'
+  const med = sched.medicine?.name || 'Obat'
+  if (confirm(`Apakah Anda yakin ingin menghapus jadwal obat [${med}] untuk ${patient}?`)) {
+    try {
+      await medicineScheduleService.delete(sched.id)
+      showAlert('Jadwal minum obat berhasil dihapus!')
+      await loadSchedules()
+    } catch (error) {
+      console.error('Failed to delete schedule:', error)
+      showAlert('Gagal menghapus jadwal', 'danger')
+    }
+  }
+}
 </script>
 
 <style scoped src="./MedicineListView.css"></style>
