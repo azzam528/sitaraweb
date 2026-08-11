@@ -1,87 +1,115 @@
+/* Report & Rekapitulasi Styles */
+:root {
+  --primary: #006591;
+  --accent: #6DF5E1;
+  --success: #16A34A;
+  --warning: #EA580C;
+  --danger: #DC2626;
+  --bg-color: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --text-dark: #0F172A;
+  --text-muted: #64748B;
+  --border-color: #CBD5E1;
+}
+
 .report-view {
-  padding: 24px;
+  padding: 1.5rem;
   background-color: #F8FAFC;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
-  color: #1e293b;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1E293B;
 }
 
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 8px 0;
+  color: #0F172A;
+  margin: 0 0 0.25rem;
 }
 
 .subtitle {
-  color: #64748b;
+  color: #64748B;
   margin: 0;
   font-size: 0.875rem;
 }
 
 .card {
-  background: white;
+  background: #FFFFFF;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 24px;
-  margin-bottom: 24px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
+/* Filter Card */
 .filter-card {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-.filter-group {
-  display: flex;
-  gap: 16px;
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.375rem;
 }
 
 .form-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: #475569;
 }
 
-.form-select {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
+.form-select,
+.form-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 0.875rem;
+  border: 1px solid #CBD5E1;
   border-radius: 8px;
   font-size: 0.875rem;
-  font-family: inherit;
-  min-width: 200px;
-  background-color: white;
+  color: #1E293B;
+  background-color: #FFFFFF;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-.form-select:focus {
-  outline: none;
+.form-select:focus,
+.form-input:focus {
   border-color: #006591;
+  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.1);
+}
+
+.action-buttons-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #F1F5F9;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
   border-radius: 8px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  border: none;
-  font-family: inherit;
+  border: 1px solid transparent;
   transition: all 0.2s;
 }
 
@@ -91,125 +119,203 @@
 }
 
 .btn-primary:hover {
-  background-color: #005378;
+  background-color: #004D6E;
 }
 
-/* Printable Report Styles */
+.btn-outline {
+  background-color: white;
+  border-color: #CBD5E1;
+  color: #334155;
+}
+
+.btn-outline:hover {
+  background-color: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+/* Printable Document Section */
 .printable-report {
-  padding: 40px;
+  padding: 2.5rem;
+  background-color: #FFFFFF;
 }
 
+.report-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748B;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #E2E8F0;
+  border-top-color: #006591;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Report Header */
 .report-header {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 24px;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.report-logo {
+  flex-shrink: 0;
+}
+
+.report-title-section {
+  flex: 1;
 }
 
 .report-title-section h2 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 800;
-  margin: 0 0 4px 0;
-  color: #0f172a;
+  margin: 0 0 0.25rem;
+  color: #006591;
   letter-spacing: 0.5px;
 }
 
 .report-title-section h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: #334155;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: #0F172A;
 }
 
-.report-title-section p {
-  font-size: 0.875rem;
-  margin: 0;
+.report-subtitle {
+  font-size: 0.8125rem;
   color: #475569;
+  margin: 0;
+}
+
+.report-meta-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #64748B;
+}
+
+.report-date {
+  font-weight: 600;
+  color: #334155;
 }
 
 .report-divider {
   border: none;
   border-top: 2px solid #006591;
-  margin-bottom: 24px;
+  margin: 0 0 1.5rem;
 }
 
+/* Summary Grid */
 .report-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .summary-box {
-  padding: 16px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   text-align: center;
 }
 
 .summary-label {
   display: block;
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.6875rem;
+  color: #64748B;
   text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
 }
 
 .summary-value {
   display: block;
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.2;
 }
 
-.text-success { color: #16a34a; }
-.text-danger { color: #dc2626; }
-.text-primary { color: #006591; }
-
+/* Tables */
 .report-table-container {
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
+  overflow-x: auto;
 }
 
 .report-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.8125rem;
 }
 
-.report-table th, .report-table td {
-  padding: 12px 16px;
-  border: 1px solid #cbd5e1;
+.report-table th,
+.report-table td {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #CBD5E1;
   text-align: left;
-  font-size: 0.875rem;
+  vertical-align: middle;
 }
 
 .report-table th {
-  background-color: #f1f5f9;
-  font-weight: 600;
-  color: #334155;
+  background-color: #F1F5F9;
+  font-weight: 700;
+  color: #1E293B;
+  white-space: nowrap;
 }
 
-.fw-600 {
-  font-weight: 600;
+.report-table tbody tr:nth-child(even) {
+  background-color: #F8FAFC;
 }
 
+/* Status Badges in Table */
+.status-cell {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cell-active { background-color: #E0F2FE; color: #0284C7; }
+.cell-completed { background-color: #DCFCE7; color: #16A34A; }
+.cell-defaulted { background-color: #FEE2E2; color: #DC2626; }
+.cell-pending { background-color: #FEF3C7; color: #D97706; }
+.cell-approved { background-color: #DCFCE7; color: #16A34A; }
+.cell-rejected { background-color: #FEE2E2; color: #DC2626; }
+.cell-in_progress { background-color: #E0F2FE; color: #0284C7; }
+.cell-resolved { background-color: #DCFCE7; color: #16A34A; }
+
+/* Signatures */
 .report-signatures {
   display: flex;
   justify-content: space-between;
-  margin-top: 60px;
-  padding-left: 20px;
-  padding-right: 20px;
+  margin-top: 3.5rem;
+  padding: 0 2rem;
 }
 
 .signature-box {
   text-align: center;
-  width: 250px;
+  width: 260px;
 }
 
 .signature-box p {
-  margin: 0 0 4px 0;
-  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  color: #1E293B;
 }
 
 .signature-box .role {
@@ -217,7 +323,7 @@
 }
 
 .signature-space {
-  height: 80px; /* Space for signature */
+  height: 70px;
 }
 
 .signature-box .name {
@@ -227,27 +333,52 @@
 
 .signature-box .nip {
   font-size: 0.75rem;
-  color: #475569;
+  color: #64748B;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-primary { color: #006591; }
+.text-success { color: #16A34A; }
+.text-warning { color: #D97706; }
+.text-danger { color: #DC2626; }
+.text-muted { color: #64748B; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.text-xs { font-size: 0.75rem; }
+.italic { font-style: italic; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+/* Responsive (Screen) */
+@media (max-width: 1024px) {
+  .filter-grid { grid-template-columns: repeat(2, 1fr); }
+  .report-summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .filter-grid { grid-template-columns: 1fr; }
+  .report-summary { grid-template-columns: 1fr; }
+  .printable-report { padding: 1.25rem; }
+  .report-header { flex-direction: column; align-items: flex-start; }
+  .report-meta-right { align-items: flex-start; text-align: left; }
+  .report-signatures { flex-direction: column; gap: 2rem; padding: 0; align-items: center; }
 }
 
 /* 
-  Print CSS Media Query
-  This section controls how the page looks when printed (CTRL+P)
+  PRINT MEDIA STYLES 
 */
 @media print {
-  /* Hide all non-printable elements */
   .no-print {
     display: none !important;
   }
-  
-  /* Reset background and padding for the page */
+
   body, .report-view {
     background-color: white !important;
     padding: 0 !important;
     margin: 0 !important;
   }
 
-  /* Force the printable card to act as the full page */
   .printable-report {
     border: none !important;
     box-shadow: none !important;
@@ -256,17 +387,16 @@
     width: 100% !important;
   }
 
-  /* Ensure colors and backgrounds print correctly */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  
-  /* You may need to hide the global sidebar and navbar if they are outside this component.
-     Since Vue scoped CSS won't affect global elements easily, 
-     it's usually better to put a global print CSS in index.css. 
-     But we can try doing it by targeting the global classes if they are not scoped. */
-  :deep(.sidebar), :deep(.navbar) {
-    display: none !important;
+
+  .report-table th {
+    background-color: #E2E8F0 !important;
+  }
+
+  .summary-box {
+    border: 1px solid #94A3B8 !important;
   }
 }

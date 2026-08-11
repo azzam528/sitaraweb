@@ -1,22 +1,4 @@
-<script setup>
-import { ref } from 'vue'
-
-const profileData = ref({
-  name: 'Admin Puskesmas',
-  role: 'Administrator',
-  facility: 'Puskesmas Sukajadi',
-  nip: '19850212 201001 2 003',
-  email: 'admin.sukajadi@sitaratb.id',
-  phone: '081234567890'
-})
-
-const isEditing = ref(false)
-
-const saveProfile = () => {
-  isEditing.value = false
-  // Dummy save
-}
-</script>
+<script src="./ProfileView.js"></script>
 
 <template>
   <div class="profile-page">

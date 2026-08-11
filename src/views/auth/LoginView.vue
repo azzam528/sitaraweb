@@ -1,74 +1,11 @@
-<script setup>
-import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
-
-const authStore = useAuthStore()
-const router = useRouter()
-
-// Form state
-const username = ref('')
-const password = ref('')
-const rememberMe = ref(false)
-const showPassword = ref(false)
-const isLoading = ref(false)
-const errors = ref({})
-
-// Validation
-const validateForm = () => {
-  const newErrors = {}
-
-  if (!username.value.trim()) {
-    newErrors.username = 'Username wajib diisi'
-  }
-
-  if (!password.value) {
-    newErrors.password = 'Password wajib diisi'
-  } else if (password.value.length < 6) {
-    newErrors.password = 'Password minimal 6 karakter'
-  }
-
-  errors.value = newErrors
-
-  return Object.keys(newErrors).length === 0
-}
-
-// Handle login
-const handleLogin = async () => {
-  if (!validateForm()) return
-
-  isLoading.value = true
-  errors.value = {}
-
-  try {
-    await authStore.login({
-      username: username.value,
-      password: password.value
-    })
-
-    router.push('/dashboard')
-
-  } catch (error) {
-    console.error('Login error:', error)
-
-    errors.value = {
-      general:
-        error.response?.data?.detail ||
-        'Username atau password salah'
-    }
-
-  } finally {
-    isLoading.value = false
-  }
-}
-</script>
+<script src="./LoginView.js"></script>
 
 <template>
   <div class="login-fields">
     <!-- Login Form Fields -->
     <form @submit.prevent="handleLogin" class="auth-form" novalidate>
-      <!-- Email -->
-      <div class="form-group" :class="{ 'has-error': errors.email }">
+      <!-- Username -->
+      <div class="form-group" :class="{ 'has-error': errors.username }">
         <label for="login-username">Username</label>
         <div class="input-wrapper">
           <span class="input-icon">
@@ -84,7 +21,7 @@ const handleLogin = async () => {
             placeholder="Masukkan username Anda"
           />
         </div>
-        <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
+        <span v-if="errors.username" class="error-text">{{ errors.username }}</span>
       </div>
 
       <!-- Password -->

@@ -328,12 +328,6 @@
   </div>
 </template>
 
-<script setup>
-import { useRoute, RouterLink } from 'vue-router'
-
-const route = useRoute()
-// Optional: Use route.params.id if you need to fetch real data
-// const patientId = route.params.id
-</script>
+<script src="./PatientDetailView.js"></script>
 
 <style scoped src="./PatientDetailView.css"></style>

@@ -1,6 +1,4 @@
-<script setup>
-import { RouterLink } from 'vue-router'
-</script>
+<script src="./NotFoundView.js"></script>
 
 <template>
   <div class="not-found-view">

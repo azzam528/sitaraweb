@@ -1,3 +1,5 @@
+<script src="./TermsView.js"></script>
+
 <template>
   <div class="legal-page">
     <div class="legal-container card">

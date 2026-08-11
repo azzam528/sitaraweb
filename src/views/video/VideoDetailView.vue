@@ -233,12 +233,6 @@
   </div>
 </template>
 
-<script setup>
-import { useRoute, RouterLink } from 'vue-router'
-
-// Get video ID from route params
-const route = useRoute()
-const videoId = route.params.id || '123'
-</script>
+<script src="./VideoDetailView.js"></script>
 
 <style scoped src="./VideoDetailView.css"></style>

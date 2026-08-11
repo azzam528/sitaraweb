@@ -1,173 +1,13 @@
-<script setup>
-import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import authService from '../../services/auth.service'
-
-const router = useRouter()
-
-// ============================
-// Form
-// ============================
-
-const form = ref({
-  username: '',
-  email: '',
-  password: '',
-  passwordConfirm: '',
-  role: 'nakes'
-})
-
-// ============================
-// UI State
-// ============================
-
-const showPassword = ref(false)
-const showPasswordConfirm = ref(false)
-const isLoading = ref(false)
-const agreeTerms = ref(false)
-
-const errors = ref({})
-
-// ============================
-// Clear Error
-// ============================
-
-const clearError = (field) => {
-  if (errors.value[field]) {
-    errors.value[field] = ''
-  }
-}
-
-// ============================
-// Validation
-// ============================
-
-const validateForm = () => {
-  const newErrors = {}
-
-  // Username
-  if (!form.value.username.trim()) {
-    newErrors.username = 'Username wajib diisi'
-  } else if (form.value.username.trim().length < 3) {
-    newErrors.username = 'Username minimal 3 karakter'
-  }
-
-  // Email
-  if (!form.value.email.trim()) {
-    newErrors.email = 'Email wajib diisi'
-  } else if (
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())
-  ) {
-    newErrors.email = 'Format email tidak valid'
-  }
-
-  // Password
-  if (!form.value.password) {
-    newErrors.password = 'Password wajib diisi'
-  } else if (form.value.password.length < 6) {
-    newErrors.password = 'Password minimal 6 karakter'
-  }
-
-  // Confirm Password
-  if (!form.value.passwordConfirm) {
-    newErrors.passwordConfirm = 'Konfirmasi password wajib diisi'
-  } else if (
-    form.value.password !== form.value.passwordConfirm
-  ) {
-    newErrors.passwordConfirm = 'Konfirmasi password tidak sama'
-  }
-
-  // Terms
-  if (!agreeTerms.value) {
-    newErrors.terms = 'Anda harus menyetujui Syarat & Ketentuan'
-  }
-
-  errors.value = newErrors
-
-  return Object.keys(newErrors).length === 0
-}
-
-// ============================
-// Register
-// ============================
-
-const handleRegister = async () => {
-  if (!validateForm()) {
-    return
-  }
-
-  isLoading.value = true
-
-  try {
-    const payload = {
-      username: form.value.username.trim(),
-      email: form.value.email.trim(),
-      password: form.value.password,
-      role: 'nakes'
-    }
-
-    console.log('Register payload:', payload)
-
-    const response = await authService.register(payload)
-
-    console.log('Register success:', response.data)
-
-    alert('Registrasi berhasil. Silakan login.')
-
-    // Bersihkan form
-    form.value = {
-      username: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      role: 'nakes'
-    }
-
-    agreeTerms.value = false
-    errors.value = {}
-
-    // Redirect ke login
-    router.push('/login')
-
-  } catch (error) {
-    console.error('Register error:', error)
-
-    const status = error.response?.status
-    const detail = error.response?.data?.detail
-
-    // Error dari backend
-    if (status === 400 || status === 409) {
-      if (typeof detail === 'string') {
-        alert(detail)
-      } else {
-        alert('Username atau email sudah digunakan.')
-      }
-    } else if (status === 422) {
-      alert('Data registrasi tidak sesuai dengan format yang diminta backend.')
-      console.error('Validation error:', error.response?.data)
-    } else {
-      alert('Registrasi gagal. Silakan coba lagi.')
-    }
-
-  } finally {
-    isLoading.value = false
-  }
-}
-</script>
+<script src="./RegisterView.js"></script>
 
 <template>
   <div class="register-fields">
-
     <form
       @submit.prevent="handleRegister"
       class="auth-form"
       novalidate
     >
-
-      <!-- ============================ -->
       <!-- Username -->
-      <!-- ============================ -->
-
       <div
         class="form-group"
         :class="{ 'has-error': errors.username }"
@@ -210,11 +50,7 @@ const handleRegister = async () => {
         </span>
       </div>
 
-
-      <!-- ============================ -->
       <!-- Email -->
-      <!-- ============================ -->
-
       <div
         class="form-group"
         :class="{ 'has-error': errors.email }"
@@ -257,15 +93,9 @@ const handleRegister = async () => {
         </span>
       </div>
 
-
-      <!-- ============================ -->
       <!-- Password + Confirm Password -->
-      <!-- ============================ -->
-
       <div class="form-row">
-
         <!-- Password -->
-
         <div
           class="form-group"
           :class="{ 'has-error': errors.password }"
@@ -275,7 +105,6 @@ const handleRegister = async () => {
           </label>
 
           <div class="input-wrapper">
-
             <span class="input-icon">
               <svg
                 viewBox="0 0 24 24"
@@ -293,7 +122,6 @@ const handleRegister = async () => {
                   rx="2"
                   ry="2"
                 />
-
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </span>
@@ -314,7 +142,6 @@ const handleRegister = async () => {
               @click="showPassword = !showPassword"
               tabindex="-1"
             >
-
               <svg
                 v-if="!showPassword"
                 viewBox="0 0 24 24"
@@ -343,9 +170,7 @@ const handleRegister = async () => {
                   y2="23"
                 />
               </svg>
-
             </button>
-
           </div>
 
           <span
@@ -354,23 +179,18 @@ const handleRegister = async () => {
           >
             {{ errors.password }}
           </span>
-
         </div>
 
-
         <!-- Confirm Password -->
-
         <div
           class="form-group"
           :class="{ 'has-error': errors.passwordConfirm }"
         >
-
           <label for="reg-password-confirm">
             Konfirmasi Password
           </label>
 
           <div class="input-wrapper">
-
             <span class="input-icon">
               <svg
                 viewBox="0 0 24 24"
@@ -400,7 +220,6 @@ const handleRegister = async () => {
               @click="showPasswordConfirm = !showPasswordConfirm"
               tabindex="-1"
             >
-
               <svg
                 v-if="!showPasswordConfirm"
                 viewBox="0 0 24 24"
@@ -429,9 +248,7 @@ const handleRegister = async () => {
                   y2="23"
                 />
               </svg>
-
             </button>
-
           </div>
 
           <span
@@ -440,29 +257,19 @@ const handleRegister = async () => {
           >
             {{ errors.passwordConfirm }}
           </span>
-
         </div>
-
       </div>
 
-
-      <!-- ============================ -->
       <!-- Terms -->
-      <!-- ============================ -->
-
       <div class="form-group">
-
         <label class="checkbox-wrapper">
-
           <input
             type="checkbox"
             v-model="agreeTerms"
             @change="clearError('terms')"
           />
-
           <span class="checkbox-label">
             Saya menyetujui
-
             <RouterLink
               to="/terms"
               class="terms-link"
@@ -470,9 +277,7 @@ const handleRegister = async () => {
             >
               Syarat & Ketentuan
             </RouterLink>
-
             serta
-
             <RouterLink
               to="/privacy"
               class="terms-link"
@@ -481,7 +286,6 @@ const handleRegister = async () => {
               Kebijakan Privasi
             </RouterLink>
           </span>
-
         </label>
 
         <span
@@ -490,51 +294,34 @@ const handleRegister = async () => {
         >
           {{ errors.terms }}
         </span>
-
       </div>
 
-
-      <!-- ============================ -->
       <!-- Submit -->
-      <!-- ============================ -->
-
       <button
         type="submit"
         class="btn-register"
         :disabled="isLoading"
       >
-
         <span
           v-if="isLoading"
           class="btn-spinner"
         ></span>
-
         <span v-else>
           Daftar Akun
         </span>
-
       </button>
-
     </form>
 
-
-    <!-- ============================ -->
     <!-- Footer -->
-    <!-- ============================ -->
-
     <p class="auth-footer-text">
-
       Sudah punya akun?
-
       <RouterLink
         to="/login"
         class="signin-link"
       >
         Login
       </RouterLink>
-
     </p>
-
   </div>
 </template>
 
