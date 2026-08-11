@@ -9,6 +9,10 @@ export default {
     return api.get(`/patients/${patientId}`)
   },
 
+    getDetail(id) {
+    return api.get(`/patients/${id}/detail`)
+  },
+
   createPatient(data) {
     return api.post('/patients', data)
   },
