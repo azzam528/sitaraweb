@@ -16,47 +16,84 @@
     </div>
 
     <div class="navbar-right">
+      <!-- Notification Dropdown Menu -->
       <div class="notification-menu" ref="notificationMenuRef">
-        <button class="notification-btn" @click="toggleNotification" aria-label="Notifications" :class="{ 'is-active': notificationOpen }">
+        <button 
+          class="notification-btn" 
+          @click="toggleNotification" 
+          aria-label="Notifications" 
+          :class="{ 'is-active': notificationOpen }"
+        >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          <span class="notification-badge">3</span>
+          <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
         </button>
 
         <transition name="dropdown-fade">
           <div class="notification-dropdown" v-if="notificationOpen">
             <div class="notification-header">
-              <h3>Notifikasi Terbaru</h3>
-              <button class="mark-read-btn">Tandai dibaca</button>
+              <h3>Notifikasi</h3>
+              <button 
+                v-if="unreadCount > 0" 
+                class="mark-read-btn" 
+                @click="handleMarkAllAsRead"
+              >
+                Tandai dibaca
+              </button>
             </div>
-            <div class="notification-list">
-              <div class="notification-item unread">
-                <div class="notif-icon warning">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+
+            <!-- Loading State -->
+            <div v-if="isLoadingNotifications" class="notif-empty">
+              <span class="text-xs text-muted">Memuat notifikasi...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else-if="notifications.length === 0" class="notif-empty">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <p>Tidak ada notifikasi baru</p>
+            </div>
+
+            <!-- Notification Items List -->
+            <div v-else class="notification-list">
+              <div 
+                v-for="notif in notifications" 
+                :key="notif.id" 
+                class="notification-item" 
+                :class="{ unread: !notif.is_read }"
+                @click="handleNotificationClick(notif)"
+              >
+                <div class="notif-icon" :class="getNotifIconClass(notif.type)">
+                  <!-- Complaint / Warning -->
+                  <svg v-if="notif.type === 'complaint'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <!-- Refill -->
+                  <svg v-else-if="notif.type === 'refill'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <!-- Video Verification -->
+                  <svg v-else-if="notif.type === 'video'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                  </svg>
+                  <!-- Medicine Schedule / Other -->
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
                 </div>
                 <div class="notif-content">
-                  <p><strong>Pasien TB-2026-089</strong> terlambat mengambil obat lebih dari 3 hari.</p>
-                  <span class="notif-time">10 menit yang lalu</span>
-                </div>
-              </div>
-              <div class="notification-item unread">
-                <div class="notif-icon danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                </div>
-                <div class="notif-content">
-                  <p>Laporan keluhan efek samping berat dari <strong>Siti Ayu</strong>.</p>
-                  <span class="notif-time">1 jam yang lalu</span>
-                </div>
-              </div>
-              <div class="notification-item">
-                <div class="notif-icon success">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                </div>
-                <div class="notif-content">
-                  <p>Video minum obat <strong>Ahmad Subarjo</strong> telah terverifikasi oleh AI.</p>
-                  <span class="notif-time">3 jam yang lalu</span>
+                  <p class="notif-title font-semibold">{{ notif.title }}</p>
+                  <p class="notif-msg">{{ notif.message }}</p>
+                  <span class="notif-time">{{ formatTimeAgo(notif.created_at) }}</span>
                 </div>
               </div>
             </div>
@@ -64,14 +101,15 @@
         </transition>
       </div>
 
+      <!-- User Profile Menu -->
       <div class="profile-menu" ref="profileMenuRef">
         <button class="profile-btn" @click="toggleDropdown">
           <div class="avatar">
-            <span>AP</span>
+            <span>{{ userInitials }}</span>
           </div>
           <div class="profile-info">
-            <span class="profile-name">Admin Puskesmas</span>
-            <span class="profile-subtitle">Puskesmas Sukajadi</span>
+            <span class="profile-name">{{ userName }}</span>
+            <span class="profile-subtitle">{{ userRoleLabel }}</span>
           </div>
           <svg class="chevron" :class="{ 'is-open': dropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -82,12 +120,8 @@
           <div class="dropdown-content" v-if="dropdownOpen">
             <RouterLink to="/dashboard/profile" class="dropdown-item" @click="dropdownOpen = false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              Profil
+              Profil Saya
             </RouterLink>
-            <a href="#" class="dropdown-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              Ubah Password
-            </a>
             <div class="dropdown-divider"></div>
             <a href="#" class="dropdown-item text-danger" @click.prevent="handleLogout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -102,19 +136,125 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
+import notificationService from '../../services/notification.service'
 
 const route = useRoute()
+const router = useRouter()
 const uiStore = useUiStore()
+
 const dropdownOpen = ref(false)
 const profileMenuRef = ref(null)
 const notificationOpen = ref(false)
 const notificationMenuRef = ref(null)
 
+const notifications = ref([])
+const isLoadingNotifications = ref(false)
+
 const pageTitle = computed(() => {
   return route.meta?.breadcrumb || 'Dashboard'
 })
+
+// Current User info from Local Storage
+const currentUser = ref(null)
+
+const loadCurrentUser = () => {
+  try {
+    const userStr = localStorage.getItem('sitara_user')
+    if (userStr) {
+      currentUser.value = JSON.parse(userStr)
+    }
+  } catch (e) {
+    currentUser.value = null
+  }
+}
+
+const userName = computed(() => {
+  return currentUser.value?.name || currentUser.value?.username || 'Tenaga Kesehatan'
+})
+
+const userRoleLabel = computed(() => {
+  const role = currentUser.value?.role
+  if (role === 'doctor') return 'Dokter Spesialis / PJ'
+  if (role === 'nurse') return 'Perawat TB'
+  if (role === 'admin') return 'Admin Puskesmas'
+  if (role === 'kader') return 'Kader TB'
+  return 'Petugas Kesehatan'
+})
+
+const userInitials = computed(() => {
+  const name = userName.value
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+})
+
+// Load Notifications from backend
+const loadNotifications = async () => {
+  try {
+    const token = localStorage.getItem('sitara_token')
+    if (!token) return
+    const res = await notificationService.getAll()
+    notifications.value = res.data || []
+  } catch (error) {
+    // If error, keep notifications empty
+    notifications.value = []
+  }
+}
+
+const unreadCount = computed(() => {
+  return notifications.value.filter(n => !n.is_read).length
+})
+
+const handleMarkAllAsRead = async () => {
+  try {
+    await notificationService.markAllAsRead()
+    notifications.value.forEach(n => { n.is_read = true })
+  } catch (error) {
+    console.error('Failed to mark notifications as read:', error)
+  }
+}
+
+const handleNotificationClick = async (notif) => {
+  if (!notif.is_read) {
+    try {
+      await notificationService.markAsRead(notif.id)
+      notif.is_read = true
+    } catch (error) {
+      console.error('Failed to mark single notification as read:', error)
+    }
+  }
+  notificationOpen.value = false
+
+  // Navigate based on type or reference_type
+  if (notif.type === 'complaint' || notif.reference_type === 'complaint') {
+    router.push('/dashboard/complaints')
+  } else if (notif.type === 'refill' || notif.reference_type === 'refill') {
+    router.push('/dashboard/refill-requests')
+  } else if (notif.type === 'video' || notif.reference_type === 'video_verification') {
+    router.push('/dashboard/video-verification')
+  } else if (notif.type === 'medicine' || notif.reference_type === 'medicine_schedule') {
+    router.push('/dashboard/medicines')
+  }
+}
+
+const getNotifIconClass = (type) => {
+  if (type === 'complaint') return 'danger'
+  if (type === 'refill') return 'warning'
+  if (type === 'video') return 'info'
+  return 'success'
+}
+
+const formatTimeAgo = (dateStr) => {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffSec = Math.floor((now - date) / 1000)
+
+  if (diffSec < 60) return 'Baru saja'
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} menit yang lalu`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} jam yang lalu`
+  return `${Math.floor(diffSec / 86400)} hari yang lalu`
+}
 
 const toggleSidebar = () => {
   if (window.innerWidth < 768) {
@@ -129,9 +269,12 @@ const toggleDropdown = () => {
   if (dropdownOpen.value) notificationOpen.value = false
 }
 
-const toggleNotification = () => {
+const toggleNotification = async () => {
   notificationOpen.value = !notificationOpen.value
-  if (notificationOpen.value) dropdownOpen.value = false
+  if (notificationOpen.value) {
+    dropdownOpen.value = false
+    await loadNotifications()
+  }
 }
 
 const handleLogout = () => {
@@ -150,12 +293,19 @@ const closeDropdownOnOutsideClick = (e) => {
   }
 }
 
+let notifPollInterval = null
+
 onMounted(() => {
+  loadCurrentUser()
+  loadNotifications()
   document.addEventListener('click', closeDropdownOnOutsideClick)
+  // Poll notifications every 30 seconds
+  notifPollInterval = setInterval(loadNotifications, 30000)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', closeDropdownOnOutsideClick)
+  if (notifPollInterval) clearInterval(notifPollInterval)
 })
 </script>
 
@@ -291,7 +441,7 @@ onUnmounted(() => {
 .avatar {
   width: 40px;
   height: 40px;
-  background-color: var(--color-primary, #006591);
+  background: linear-gradient(135deg, #006591 0%, #004D6E 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -335,7 +485,7 @@ onUnmounted(() => {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 220px;
+  width: 200px;
   background-color: #FFFFFF;
   border: 1px solid var(--color-border, #E2E8F0);
   border-radius: 12px;
@@ -394,18 +544,6 @@ onUnmounted(() => {
   transform: translateY(-10px);
 }
 
-@media (max-width: 767.98px) {
-  .profile-info {
-    display: none;
-  }
-  .chevron {
-    display: none;
-  }
-  .page-title {
-    display: none;
-  }
-}
-
 /* Notification Dropdown Styles */
 .notification-menu {
   position: relative;
@@ -429,14 +567,14 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--color-border, #E2E8F0);
   background-color: var(--color-bg, #F8FAFC);
 }
 
 .notification-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text-primary, #1E293B);
 }
@@ -446,13 +584,29 @@ onUnmounted(() => {
   border: none;
   color: var(--color-primary, #006591);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   padding: 0;
 }
 
 .mark-read-btn:hover {
   text-decoration: underline;
+}
+
+.notif-empty {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #64748B;
+  font-size: 0.875rem;
+}
+
+.notif-empty p {
+  margin: 0;
 }
 
 .notification-list {
@@ -463,10 +617,14 @@ onUnmounted(() => {
 .notification-item {
   display: flex;
   gap: 12px;
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--color-border, #E2E8F0);
   transition: background-color 0.2s;
   cursor: pointer;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
 }
 
 .notification-item:hover {
@@ -501,6 +659,11 @@ onUnmounted(() => {
   color: #DC2626;
 }
 
+.notif-icon.info {
+  background-color: #E0F2FE;
+  color: #0284C7;
+}
+
 .notif-icon.success {
   background-color: #DCFCE7;
   color: #16A34A;
@@ -510,15 +673,27 @@ onUnmounted(() => {
   flex: 1;
 }
 
-.notif-content p {
-  margin: 0 0 6px 0;
-  font-size: 0.875rem;
-  color: var(--color-text-primary, #1E293B);
-  line-height: 1.4;
+.notif-title {
+  margin: 0 0 2px 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-primary, #0F172A);
+}
+
+.notif-msg {
+  margin: 0 0 4px 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-primary, #334155);
+  line-height: 1.35;
 }
 
 .notif-time {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--color-text-muted, #64748B);
+}
+
+@media (max-width: 767.98px) {
+  .profile-info { display: none; }
+  .chevron { display: none; }
+  .page-title { display: none; }
 }
 </style>
