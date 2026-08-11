@@ -13,10 +13,27 @@ export default defineComponent({
     const medicines = ref([])
     const isLoading = ref(true)
 
+    // Alert feedback
+    const alertMessage = ref('')
+    const alertType = ref('success')
+
+    const showAlert = (msg, type = 'success') => {
+      alertMessage.value = msg
+      alertType.value = type
+      setTimeout(() => {
+        alertMessage.value = ''
+      }, 4000)
+    }
+
+    // Search & Filter
     const searchQuery = ref('')
     const filterCategory = ref('')
     const filterStatus = ref('')
     const filterStatusPill = ref('')
+
+    // Pagination
+    const currentPage = ref(1)
+    const pageSize = 10
 
     const toggleDropdown = (id) => {
       activeDropdown.value = activeDropdown.value === id ? null : id
@@ -46,6 +63,7 @@ export default defineComponent({
         if (mRes.status === 'fulfilled') medicines.value = mRes.value.data || []
       } catch (error) {
         console.error('Failed to load medicine logistik data:', error)
+        showAlert('Gagal memuat data logistik OAT', 'danger')
       } finally {
         isLoading.value = false
       }
@@ -78,6 +96,13 @@ export default defineComponent({
       })
     })
 
+    const totalPages = computed(() => Math.ceil(filteredRequests.value.length / pageSize) || 1)
+
+    const paginatedRequests = computed(() => {
+      const start = (currentPage.value - 1) * pageSize
+      return filteredRequests.value.slice(start, start + pageSize)
+    })
+
     const distributionHistory = computed(() => {
       return requests.value.filter(r => r.status === 'approved' || r.status === 'rejected').slice(0, 5)
     })
@@ -94,19 +119,20 @@ export default defineComponent({
         const msg = encodeURIComponent(`Halo Bpk/Ibu ${pName}, pengingat dari SITARA mengenai stok obat ${req.medicine?.name || 'OAT'}. Mohon pastikan obat diminum teratur sesuai jadwal.`)
         window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
       } else {
-        alert(`Mengirim notifikasi pengingat stok ke ${pName}`)
+        showAlert(`Nomor telepon ${pName} tidak tersedia`, 'warning')
       }
     }
 
     const deleteRequest = async (req) => {
       const pName = req.treatment?.patient?.full_name || 'Pasien'
-      if (confirm(`Apakah Anda yakin ingin menghapus permintaan OAT ${pName}?`)) {
+      if (confirm(`Apakah Anda yakin ingin menghapus permintaan OAT untuk ${pName}?`)) {
         try {
           await refillService.delete(req.id)
           requests.value = requests.value.filter(r => r.id !== req.id)
+          showAlert('Permintaan obat berhasil dihapus!')
         } catch (error) {
           console.error('Failed to delete request:', error)
-          alert('Gagal menghapus permintaan')
+          showAlert('Gagal menghapus permintaan', 'danger')
         }
       }
     }
@@ -117,11 +143,27 @@ export default defineComponent({
       return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
     }
 
+    const formatTime = (dateStr) => {
+      if (!dateStr) return '-'
+      const d = new Date(dateStr)
+      return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    }
+
     const formatStatus = (status) => {
-      if (status === 'pending') return 'Pending'
+      if (status === 'pending') return 'Menunggu'
       if (status === 'approved') return 'Disetujui'
       if (status === 'rejected') return 'Ditolak'
       return status || '-'
+    }
+
+    const getInitials = (name) => {
+      if (!name) return 'TB'
+      return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+    }
+
+    const getAvatarColor = (id) => {
+      const colors = ['teal', 'primary', 'orange', 'green', 'purple']
+      return colors[id % colors.length]
     }
 
     const getTypeClass = (cat) => {
@@ -141,10 +183,17 @@ export default defineComponent({
       requests,
       medicines,
       isLoading,
+      alertMessage,
+      alertType,
+      showAlert,
       searchQuery,
       filterCategory,
       filterStatus,
       filterStatusPill,
+      currentPage,
+      pageSize,
+      totalPages,
+      paginatedRequests,
       activeDropdown,
       toggleDropdown,
       pendingCount,
@@ -156,7 +205,10 @@ export default defineComponent({
       sendNotify,
       deleteRequest,
       formatDate,
+      formatTime,
       formatStatus,
+      getInitials,
+      getAvatarColor,
       getTypeClass,
       getStatusClass
     }
