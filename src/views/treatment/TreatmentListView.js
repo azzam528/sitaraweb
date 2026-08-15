@@ -160,13 +160,24 @@ export default defineComponent({
       }
     }
 
+    const getProgressColor = (treatment) => {
+      if (treatment.status === 'dropped' || treatment.status === 'defaulted') return '#DC2626'
+      if (treatment.status === 'completed') return '#16A34A'
+      const pct = calculateProgress(treatment).percentage
+      if (pct >= 100) return '#16A34A' // 100% Hijau Sempurna
+      if (pct >= 75) return '#10B981'  // 75%-99% Hijau Emerald
+      if (pct >= 50) return '#0D9488'  // 50%-74% Tosca / Hijau Kebiruan
+      if (pct >= 25) return '#0284C7'  // 25%-49% Biru
+      return '#38BDF8'                 // 0%-24% Biru Muda (Awal)
+    }
+
     const getProgressColorClass = (treatment) => {
       if (treatment.status === 'completed') return 'bg-success'
-      if (treatment.status === 'defaulted') return 'bg-danger'
+      if (treatment.status === 'dropped' || treatment.status === 'defaulted') return 'bg-danger'
       const pct = calculateProgress(treatment).percentage
-      if (pct > 75) return 'bg-success'
-      if (pct > 30) return 'bg-primary'
-      return 'bg-warning'
+      if (pct >= 80) return 'bg-success'
+      if (pct >= 40) return 'bg-primary'
+      return 'bg-teal'
     }
 
     // Navigation & Interaction
@@ -270,6 +281,7 @@ export default defineComponent({
       getInitials,
       getAvatarColor,
       calculateProgress,
+      getProgressColor,
       getProgressColorClass,
       viewDetail,
       sendWhatsApp,

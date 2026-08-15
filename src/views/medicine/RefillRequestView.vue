@@ -159,8 +159,6 @@
             <tr>
               <th>Pasien</th>
               <th>Obat Diminta</th>
-              <th>Jumlah</th>
-              <th>Alasan & Catatan</th>
               <th>Tgl Permintaan</th>
               <th>Status</th>
               <th class="text-center">Aksi Verifikasi</th>
@@ -170,7 +168,7 @@
             <tr v-for="refill in paginatedRefills" :key="refill.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(refill.id)">
+                  <div class="avatar">
                     {{ getInitials(refill.treatment?.patient?.full_name || 'TB') }}
                   </div>
                   <div>
@@ -178,7 +176,7 @@
                       {{ refill.treatment?.patient?.full_name || 'Pengobatan #' + refill.treatment_id }}
                     </div>
                     <div class="patient-meta text-xs text-muted">
-                      NIK: {{ refill.treatment?.patient?.nik || '-' }} | PMO: {{ refill.treatment?.patient?.pmo_name || '-' }}
+                      NIK: {{ refill.treatment?.patient?.nik || '-' }}
                     </div>
                   </div>
                 </div>
@@ -186,20 +184,7 @@
               <td>
                 <div class="med-info">
                   <span class="font-medium text-dark">{{ refill.medicine?.name || 'Obat #' + refill.medicine_id }}</span>
-                  <span class="text-xs text-muted block">{{ refill.medicine?.strength }} ({{ refill.medicine?.category }})</span>
-                </div>
-              </td>
-              <td>
-                <span class="qty-pill font-bold">
-                  {{ refill.quantity }} {{ refill.medicine?.unit || 'Tablet' }}
-                </span>
-              </td>
-              <td>
-                <div class="reason-cell">
-                  <span class="reason-badge">{{ refill.reason }}</span>
-                  <p v-if="refill.description" class="desc-text text-xs text-muted mt-1" :title="refill.description">
-                    {{ truncate(refill.description, 40) }}
-                  </p>
+                  <span class="text-xs text-muted block font-semibold">{{ refill.quantity }} {{ refill.medicine?.unit || 'Tablet' }} • {{ refill.reason }}</span>
                 </div>
               </td>
               <td>
@@ -214,9 +199,6 @@
                 <span class="status-badge" :class="'status-' + refill.status">
                   {{ formatStatus(refill.status) }}
                 </span>
-                <div v-if="refill.nurse_note" class="nurse-note-text text-xs text-muted mt-1" :title="refill.nurse_note">
-                  Ket: {{ truncate(refill.nurse_note, 25) }}
-                </div>
               </td>
               <td class="text-center">
                 <!-- Action Buttons for Pending Requests -->
@@ -309,7 +291,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredRefills.length > 0" class="pagination-wrapper">
+      <div v-if="filteredRefills.length > 0" class="pagination-section">
         <div class="pagination-info">
           Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRefills.length) }} dari {{ filteredRefills.length }} permintaan
         </div>

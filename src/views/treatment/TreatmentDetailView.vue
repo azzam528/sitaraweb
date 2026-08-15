@@ -82,8 +82,10 @@
             <div class="progress-bar-container">
               <div 
                 class="progress-bar" 
-                :class="getProgressColorClass(treatment)" 
-                :style="{ width: progressData.percentage + '%' }"
+                :style="{ 
+                  width: Math.max(6, progressData.percentage) + '%', 
+                  backgroundColor: getProgressColor(treatment) 
+                }"
               ></div>
             </div>
           </div>

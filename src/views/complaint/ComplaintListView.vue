@@ -148,10 +148,8 @@
             <tr>
               <th>Pasien</th>
               <th>Kategori Keluhan</th>
-              <th>Deskripsi Keluhan</th>
               <th>Waktu Laporan</th>
               <th>Status</th>
-              <th>Tanggapan Medis</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
@@ -159,7 +157,7 @@
             <tr v-for="comp in paginatedComplaints" :key="comp.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(comp.id)">
+                  <div class="avatar">
                     {{ getInitials(comp.treatment?.patient?.full_name || 'TB') }}
                   </div>
                   <div>
@@ -167,7 +165,7 @@
                       {{ comp.treatment?.patient?.full_name || 'Pengobatan #' + comp.treatment_id }}
                     </div>
                     <div class="patient-meta text-xs text-muted">
-                      NIK: {{ comp.treatment?.patient?.nik || '-' }} | RM: {{ comp.treatment?.patient?.medical_record_number || '-' }}
+                      NIK: {{ comp.treatment?.patient?.nik || '-' }}
                     </div>
                   </div>
                 </div>
@@ -176,12 +174,7 @@
                 <span class="category-badge">{{ comp.category }}</span>
               </td>
               <td>
-                <div class="desc-text" :title="comp.description">
-                  {{ truncate(comp.description, 60) }}
-                </div>
-              </td>
-              <td>
-                <div class="date-text text-sm">
+                <div class="date-text text-sm font-medium">
                   {{ formatDate(comp.created_at) }}
                 </div>
                 <div class="time-text text-xs text-muted">
@@ -192,15 +185,6 @@
                 <span class="status-badge" :class="'status-' + comp.status">
                   {{ formatStatus(comp.status) }}
                 </span>
-              </td>
-              <td>
-                <div v-if="comp.response" class="response-text" :title="comp.response">
-                  <span class="response-icon">✓</span>
-                  {{ truncate(comp.response, 45) }}
-                </div>
-                <div v-else class="text-xs text-muted italic">
-                  Belum ada tanggapan
-                </div>
               </td>
               <td class="text-center">
                 <div class="action-dropdown-wrapper">
@@ -259,7 +243,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredComplaints.length > 0" class="pagination-wrapper">
+      <div v-if="filteredComplaints.length > 0" class="pagination-section">
         <div class="pagination-info">
           Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredComplaints.length) }} dari {{ filteredComplaints.length }} keluhan
         </div>

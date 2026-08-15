@@ -30,7 +30,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">PASIEN AKTIF</span>
-          <span class="stat-value">20</span>
+          <span class="stat-value">{{ stats.active }}</span>
         </div>
       </div>
       <div class="stat-card">
@@ -42,7 +42,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">SEDANG TERAPI</span>
-          <span class="stat-value">16</span>
+          <span class="stat-value">{{ stats.inTherapy }}</span>
         </div>
       </div>
       <div class="stat-card">
@@ -54,7 +54,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">SELESAI TERAPI</span>
-          <span class="stat-value">3</span>
+          <span class="stat-value">{{ stats.completed }}</span>
         </div>
       </div>
       <div class="stat-card">
@@ -67,7 +67,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">PUTUS OBAT</span>
-          <span class="stat-value">1</span>
+          <span class="stat-value">{{ stats.dropOut }}</span>
         </div>
       </div>
       <div class="stat-card">
@@ -80,7 +80,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">RISIKO TINGGI</span>
-          <span class="stat-value">1</span>
+          <span class="stat-value">{{ stats.highRisk }}</span>
         </div>
       </div>
     </section>
@@ -109,6 +109,7 @@
             <option value="Fase Awal">Fase Awal</option>
             <option value="Fase Intensif">Fase Intensif</option>
             <option value="Fase Lanjutan">Fase Lanjutan</option>
+            <option value="Selesai Terapi">Selesai Terapi</option>
           </select>
         </div>
 
@@ -131,16 +132,20 @@
         <table class="custom-table">
           <thead>
             <tr>
-              <th>PASIEN & NIK</th>
-              <th>INFO TB</th>
-              <th>KEPATUHAN</th>
-              <th>PMO / KADER</th>
-              <th>STATUS</th>
-              <th class="text-center">AKSI</th>
+              <th>Pasien & NIK</th>
+              <th>Info TB</th>
+              <th>Kepatuhan</th>
+              <th>Status Risiko</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="patient in filteredPatients" :key="patient.id">
+            <tr v-if="filteredPatients.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                {{ isLoading ? 'Memuat data pasien...' : 'Tidak ada data pasien yang cocok.' }}
+              </td>
+            </tr>
+            <tr v-for="patient in paginatedPatients" :key="patient.id">
               <!-- PASIEN & NIK -->
               <td>
                 <div class="patient-profile">
@@ -148,7 +153,6 @@
                   <div class="patient-details">
                     <span class="patient-name">{{ patient.name }}</span>
                     <span class="patient-nik">{{ patient.nik }}</span>
-                    <span class="patient-age">{{ patient.age }} Thn</span>
                   </div>
                 </div>
               </td>
@@ -159,8 +163,7 @@
                   <span class="badge" :class="patient.tbType === 'TB SO' ? 'badge-green' : 'badge-red'">
                     {{ patient.tbType }}
                   </span>
-                  <span class="phase-text">{{ patient.phase }}</span>
-                  <span class="month-text">(Bln {{ patient.month }})</span>
+                  <span class="phase-text">{{ patient.phase }} (Bln {{ patient.month }})</span>
                 </div>
               </td>
               
@@ -173,17 +176,6 @@
                   <div class="progress-bar-bg">
                     <div class="progress-bar-fill" :style="{ width: `${patient.compliance}%`, backgroundColor: getComplianceColor(patient.compliance) }"></div>
                   </div>
-                </div>
-              </td>
-              
-              <!-- PMO / KADER -->
-              <td>
-                <div class="pmo-info">
-                  <span class="pmo-name">
-                    {{ patient.pmo }} 
-                    <span v-if="patient.pmoRelation" class="pmo-relation">({{ patient.pmoRelation }})</span>
-                  </span>
-                  <span class="kader-name">{{ patient.kader }}</span>
                 </div>
               </td>
               
@@ -223,7 +215,7 @@
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                       </svg>
-                      <span>Edit User</span>
+                      <span>Edit Pasien</span>
                     </button>
 
                     <button class="dropdown-item" @click="sendEmail(patient); activeDropdown = null">
@@ -231,7 +223,7 @@
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22,6 12,13 2,6"></polyline>
                       </svg>
-                      <span>Kirim Email</span>
+                      <span>Hubungi PMO</span>
                     </button>
 
                     <button class="dropdown-item text-danger" @click="deletePatient(patient); activeDropdown = null">
@@ -252,9 +244,9 @@
       <!-- 5. Pagination -->
       <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan 1-10 dari 20 pasien
+          Menampilkan {{ filteredPatients.length === 0 ? 0 : (currentPage - 1) * 8 + 1 }} - {{ Math.min(currentPage * 8, filteredPatients.length) }} dari {{ filteredPatients.length }} pasien
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button class="btn-page" @click="prevPage" :disabled="currentPage === 1">Prev</button>
           
           <button v-for="page in totalPages" :key="page" 

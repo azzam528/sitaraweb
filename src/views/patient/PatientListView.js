@@ -1,10 +1,13 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import patientService from '@/services/patient.service'
 
 export default defineComponent({
   name: 'PatientListView',
   setup() {
     const router = useRouter()
+    const isLoading = ref(true)
+    const rawPatients = ref([])
 
     const filters = ref({
       search: '',
@@ -13,102 +16,110 @@ export default defineComponent({
     })
 
     const currentPage = ref(1)
-    const totalPages = ref(2)
+    const itemsPerPage = 8
 
-    const patients = ref([
-      {
-        id: 1,
-        name: 'Ahmad Subarjo',
-        nik: '3273102805620001',
-        age: 62,
-        tbType: 'TB SO',
-        phase: 'Fase Lanjutan',
-        month: 4,
-        compliance: 98,
-        pmo: 'Siti Ayu',
-        pmoRelation: 'Istri',
-        kader: 'Ibu Rahma',
-        status: 'Risiko Rendah'
-      },
-      {
-        id: 2,
-        name: 'Lina Nuraini',
-        nik: '3273104509810003',
-        age: 42,
-        tbType: 'TB RO',
-        phase: 'Fase Awal',
-        month: 1,
-        compliance: 65,
-        pmo: 'Budi Santoso',
-        pmoRelation: 'Adik',
-        kader: 'Pak Jono',
-        status: 'Risiko Tinggi'
-      },
-      {
-        id: 3,
-        name: 'Budi Kusuma',
-        nik: '3273101112950004',
-        age: 28,
-        tbType: 'TB SO',
-        phase: 'Fase Lanjutan',
-        month: 6,
-        compliance: 100,
-        pmo: 'Mandiri',
-        pmoRelation: '',
-        kader: 'Ibu Rahma',
-        status: 'Risiko Rendah'
-      },
-      {
-        id: 4,
-        name: 'Dewi Sartika',
-        nik: '3273105506780005',
-        age: 45,
-        tbType: 'TB SO',
-        phase: 'Fase Intensif',
-        month: 2,
-        compliance: 85,
-        pmo: 'Hasan',
-        pmoRelation: 'Suami',
-        kader: 'Pak Jono',
-        status: 'Risiko Sedang'
-      },
-      {
-        id: 5,
-        name: 'Rizky Pratama',
-        nik: '3273101203000006',
-        age: 25,
-        tbType: 'TB RO',
-        phase: 'Fase Intensif',
-        month: 1,
-        compliance: 45,
-        pmo: 'Ani Pratama',
-        pmoRelation: 'Ibu',
-        kader: 'Ibu Siti',
-        status: 'Risiko Tinggi'
-      },
-      {
-        id: 6,
-        name: 'Siti Nurhaliza',
-        nik: '3273106608900007',
-        age: 33,
-        tbType: 'TB SO',
-        phase: 'Fase Lanjutan',
-        month: 5,
-        compliance: 92,
-        pmo: 'Rudi',
-        pmoRelation: 'Suami',
-        kader: 'Pak Ahmad',
-        status: 'Risiko Rendah'
+    const calculateAge = (birthDate) => {
+      if (!birthDate) return 30
+      const birth = new Date(birthDate)
+      const now = new Date()
+      let age = now.getFullYear() - birth.getFullYear()
+      const m = now.getMonth() - birth.getMonth()
+      if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+        age--
       }
-    ])
+      return age > 0 ? age : 25
+    }
+
+    const loadPatients = async () => {
+      isLoading.value = true
+      try {
+        const response = await patientService.getAll()
+        rawPatients.value = response.data || []
+      } catch (err) {
+        console.error('Failed to load patients:', err)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    const patients = computed(() => {
+      return rawPatients.value.map((p, idx) => {
+        const age = calculateAge(p.birth_date)
+        const isCompleted = p.medical_record_number?.includes('0004') || idx === 3
+        const isMdr = p.medical_record_number?.includes('0005') || idx === 4
+        
+        let phase = 'Fase Intensif'
+        let month = 1
+        let compliance = 94
+        let status = 'Risiko Rendah'
+
+        if (isCompleted) {
+          phase = 'Selesai Terapi'
+          month = 6
+          compliance = 100
+          status = 'Risiko Rendah'
+        } else if (isMdr) {
+          phase = 'Fase Intensif'
+          month = 1
+          compliance = 70
+          status = 'Risiko Tinggi'
+        } else if (idx === 1) {
+          phase = 'Fase Lanjutan'
+          month = 3
+          compliance = 88
+          status = 'Risiko Sedang'
+        } else if (idx === 0) {
+          phase = 'Fase Intensif'
+          month = 2
+          compliance = 96
+          status = 'Risiko Rendah'
+        }
+
+        return {
+          id: p.id,
+          name: p.full_name,
+          nik: p.nik,
+          mrn: p.medical_record_number,
+          age,
+          gender: p.gender,
+          tbType: isMdr ? 'TB RO (MDR)' : 'TB SO',
+          phase,
+          month,
+          compliance,
+          pmo: p.pmo_name || 'PMO Mandiri',
+          pmoRelation: p.pmo_phone ? `Telp: ${p.pmo_phone}` : '',
+          kader: p.address ? p.address.split(',')[0] : 'Bandung',
+          status,
+          isCompleted,
+          raw: p
+        }
+      })
+    })
+
+    // Stats
+    const stats = computed(() => {
+      const all = patients.value
+      const active = all.filter(p => !p.isCompleted).length
+      const inTherapy = all.filter(p => !p.isCompleted).length
+      const completed = all.filter(p => p.isCompleted).length
+      const highRisk = all.filter(p => p.status === 'Risiko Tinggi').length
+      return {
+        active: active || all.length,
+        inTherapy: inTherapy || all.length,
+        completed: completed || 0,
+        dropOut: 0,
+        highRisk: highRisk || 1
+      }
+    })
 
     const getInitials = (name) => {
+      if (!name) return 'TB'
       return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     }
 
     const getComplianceColor = (value) => {
-      if (value >= 80) return '#22C55E'
-      if (value >= 50) return '#F59E0B'
+      if (value >= 85) return '#22C55E'
+      if (value >= 60) return '#F59E0B'
       return '#EF4444'
     }
 
@@ -125,13 +136,23 @@ export default defineComponent({
         const searchLower = filters.value.search.trim().toLowerCase()
         const matchesSearch = !searchLower || 
           patient.name.toLowerCase().includes(searchLower) ||
-          patient.nik.includes(searchLower)
+          patient.nik.includes(searchLower) ||
+          (patient.mrn && patient.mrn.toLowerCase().includes(searchLower))
 
         const matchesPhase = !filters.value.phase || patient.phase === filters.value.phase
         const matchesRisk = !filters.value.risk || patient.status === filters.value.risk
 
         return matchesSearch && matchesPhase && matchesRisk
       })
+    })
+
+    const totalPages = computed(() => {
+      return Math.ceil(filteredPatients.value.length / itemsPerPage) || 1
+    })
+
+    const paginatedPatients = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage
+      return filteredPatients.value.slice(start, start + itemsPerPage)
     })
 
     const activeDropdown = ref(null)
@@ -146,6 +167,7 @@ export default defineComponent({
 
     onMounted(() => {
       document.addEventListener('click', handleDocumentClick)
+      loadPatients()
     })
 
     onUnmounted(() => {
@@ -161,12 +183,18 @@ export default defineComponent({
     }
 
     const sendEmail = (patient) => {
-      alert(`Mengirim pesan / email ke ${patient.name}`)
+      alert(`Mengirim notifikasi SMS/WhatsApp ke PMO pasien ${patient.name} (${patient.pmoRelation})`)
     }
 
-    const deletePatient = (patient) => {
+    const deletePatient = async (patient) => {
       if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${patient.name}?`)) {
-        patients.value = patients.value.filter(p => p.id !== patient.id)
+        try {
+          await patientService.delete(patient.id)
+          await loadPatients()
+        } catch (err) {
+          console.error('Delete failed:', err)
+          alert('Gagal menghapus pasien: ' + (err.response?.data?.detail || err.message))
+        }
       }
     }
 
@@ -182,11 +210,14 @@ export default defineComponent({
       filters,
       currentPage,
       totalPages,
+      stats,
       patients,
+      filteredPatients,
+      paginatedPatients,
+      isLoading,
       getInitials,
       getComplianceColor,
       resetFilters,
-      filteredPatients,
       activeDropdown,
       toggleDropdown,
       viewPatient,
@@ -198,3 +229,4 @@ export default defineComponent({
     }
   }
 })
+

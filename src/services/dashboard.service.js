@@ -1,25 +1,13 @@
 import api from './api';
 
 export default {
+  getDashboard() {
+    return api.get('/dashboard');
+  },
   getStatistics() {
-    return api.get('/dashboard/statistics');
-  },
-  getComplianceChart() {
-    return api.get('/dashboard/compliance-chart');
-  },
-  getTreatmentChart() {
-    return api.get('/dashboard/treatment-chart');
+    return api.get('/dashboard');
   },
   getRecentActivities() {
-    return api.get('/dashboard/recent-activities');
-  },
-  getPendingVideos() {
-    return api.get('/dashboard/pending-videos');
-  },
-  getRecentComplaints() {
-    return api.get('/dashboard/recent-complaints');
-  },
-  getMedicineWarnings() {
-    return api.get('/dashboard/medicine-warnings');
+    return api.get('/dashboard');
   }
 };

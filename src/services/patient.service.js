@@ -7,6 +7,9 @@ export default {
   getById(id) {
     return api.get(`/patients/${id}`);
   },
+  getDetail(id) {
+    return api.get(`/patients/${id}/detail`);
+  },
   create(data) {
     return api.post('/patients', data);
   },

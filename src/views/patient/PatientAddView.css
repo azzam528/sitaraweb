@@ -1,13 +1,10 @@
 .patient-add-page {
-  padding: 24px;
-  background-color: #F8FAFC;
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  padding: 0 0 32px 0;
   color: #1e293b;
 }
 
 .header-nav {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .back-link {
@@ -16,12 +13,13 @@
   gap: 8px;
   color: #64748b;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: 600;
+  font-size: 13.5px;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  transition: color 0.15s;
 }
 
 .back-link:hover {
@@ -33,16 +31,17 @@
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 22px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: #64748b;
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 13.5px;
 }
 
 .grid-layout {
@@ -53,25 +52,26 @@
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 .card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   margin: 0 0 20px 0;
   color: #0f172a;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 /* Account Configuration Card */
 .account-card {
-  background: linear-gradient(145deg, #f0f9ff, #ffffff);
+  background: linear-gradient(145deg, #f0f9ff 0%, #ffffff 100%);
   border: 1px solid #bae6fd;
 }
 
@@ -84,9 +84,9 @@
 .account-icon {
   width: 48px;
   height: 48px;
-  background-color: #006591;
+  background: linear-gradient(135deg, #006591 0%, #0080B5 100%);
   color: white;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,13 +99,14 @@
 
 .account-text h3 {
   margin: 0 0 4px 0;
-  font-size: 1.125rem;
+  font-size: 15px;
+  font-weight: 700;
   color: #0f172a;
 }
 
 .account-text p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 13px;
   color: #475569;
 }
 
@@ -113,8 +114,8 @@
 .switch {
   position: relative;
   display: inline-block;
-  width: 50px;
-  height: 28px;
+  width: 48px;
+  height: 26px;
 }
 
 .switch input { 
@@ -131,7 +132,7 @@
   right: 0;
   bottom: 0;
   background-color: #cbd5e1;
-  transition: .4s;
+  transition: .3s;
 }
 
 .slider:before {
@@ -139,10 +140,11 @@
   content: "";
   height: 20px;
   width: 20px;
-  left: 4px;
-  bottom: 4px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: .3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 input:checked + .slider {
@@ -165,7 +167,7 @@ input:checked + .slider:before {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 16px;
 }
 
@@ -181,8 +183,8 @@ input:checked + .slider:before {
 }
 
 label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #475569;
 }
 
@@ -191,17 +193,17 @@ label {
 }
 
 .mt-1 { margin-top: 4px; }
-.d-block { display: block; font-size: 0.75rem; }
+.d-block { display: block; font-size: 12px; }
 .text-primary { color: #006591; }
 
 .form-control, .form-select {
-  padding: 10px 14px;
+  padding: 9px 13px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 13.5px;
   font-family: inherit;
-  transition: border-color 0.2s;
-  background-color: white;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background-color: #ffffff;
   color: #1e293b;
   width: 100%;
   box-sizing: border-box;
@@ -214,18 +216,19 @@ textarea.form-control {
 .form-control:focus, .form-select:focus {
   outline: none;
   border-color: #006591;
-  box-shadow: 0 0 0 2px rgba(0, 101, 145, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.12);
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
+  gap: 12px;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   margin-bottom: 40px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .btn {
@@ -233,49 +236,57 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 9px 18px;
   border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
   font-family: inherit;
 }
 
 .btn-lg {
-  padding: 12px 24px;
-  font-size: 1rem;
+  padding: 11px 22px;
+  font-size: 14.5px;
 }
 
 .btn-block {
   width: 100%;
-  padding: 14px;
-  font-size: 1rem;
+  padding: 12px;
+  font-size: 14.5px;
 }
 
 .btn-primary {
-  background-color: #006591;
-  color: white;
+  background: linear-gradient(135deg, #006591 0%, #0080B5 100%);
+  color: #ffffff !important;
+  border-color: #006591;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
-  background-color: #005378;
+  background: linear-gradient(135deg, #004D6E 0%, #006591 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 101, 145, 0.25);
 }
 
 .btn-primary:disabled {
-  background-color: #94a3b8;
+  background: #94a3b8;
+  border-color: #94a3b8;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-outline {
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
 }
 
 .btn-outline:hover:not(:disabled) {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
+  border-color: #94a3b8;
   color: #0f172a;
 }
 
@@ -296,7 +307,7 @@ textarea.form-control {
 }
 
 .modal-content {
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
   padding: 32px;
   width: 100%;
@@ -307,13 +318,13 @@ textarea.form-control {
 }
 
 .modal-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
 }
 
 .modal-icon.success {
@@ -322,47 +333,49 @@ textarea.form-control {
 }
 
 .modal-content h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
 }
 
 .modal-content p {
   color: #475569;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   line-height: 1.5;
+  font-size: 13.5px;
 }
 
 .whatsapp-success {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   background-color: #f0fdf4;
   border: 1px solid #bbf7d0;
-  padding: 16px;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
   text-align: left;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .wa-icon {
   color: #16a34a;
   background: white;
-  padding: 10px;
+  padding: 8px;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .whatsapp-success h4 {
-  margin: 0 0 4px 0;
+  margin: 0 0 3px 0;
   color: #166534;
-  font-size: 0.95rem;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .whatsapp-success p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 12px;
   color: #15803d;
 }
 

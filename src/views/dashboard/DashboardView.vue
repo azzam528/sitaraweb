@@ -48,15 +48,15 @@
             <div class="donut-chart-container">
               <div class="donut-chart">
                 <div class="donut-inner-text">
-                  <span class="donut-percent">20</span>
+                  <span class="donut-percent">{{ summary.active_patients }}</span>
                   <span class="donut-label">TOTAL PASIEN</span>
                 </div>
               </div>
             </div>
             <div class="risk-legend">
-              <div class="legend-item"><span class="dot dot-danger"></span>Tinggi: 1 (5%)</div>
-              <div class="legend-item"><span class="dot dot-warning"></span>Sedang: 3 (15%)</div>
-              <div class="legend-item"><span class="dot dot-primary"></span>Rendah: 16 (80%)</div>
+              <div class="legend-item"><span class="dot dot-danger"></span>Tinggi: {{ riskData.high }}</div>
+              <div class="legend-item"><span class="dot dot-warning"></span>Sedang: {{ riskData.medium }}</div>
+              <div class="legend-item"><span class="dot dot-primary"></span>Rendah: {{ riskData.low }}</div>
             </div>
           </div>
 
@@ -92,10 +92,10 @@
             <p class="chart-subtitle text-xs text-secondary mt-1">Persentase kepatuhan harian (7 Hari Terakhir)</p>
           </div>
           <div class="text-right">
-            <div class="text-2xl font-bold" style="color: #1E293B;">80.4% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></div>
+            <div class="text-2xl font-bold" style="color: #1E293B;">{{ summary.medication_adherence }}% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></div>
             <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-              <span>+2.4% minggu ini</span>
+              <span>Target &ge; 90%</span>
             </div>
           </div>
         </div>
@@ -154,10 +154,13 @@
         </div>
       </div>
 
-      <!-- Center: Aktivitas Terbaru -->
+      <!-- Right: Aktivitas Terbaru -->
       <div class="card timeline-card">
         <div class="card-title mb-4">Aktivitas Terbaru</div>
         <div class="timeline">
+          <div v-if="recentActivities.length === 0" class="text-sm text-secondary py-4 text-center">
+            Belum ada aktivitas terbaru hari ini.
+          </div>
           <div v-for="act in recentActivities" :key="act.id" class="timeline-item">
             <div class="timeline-dot" :class="'bg-' + act.type"></div>
             <div class="timeline-content">
@@ -167,29 +170,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Right: Stok OAT -->
-      <div class="card stock-card">
-        <div class="card-title mb-4">Stok OAT</div>
-        <div class="stock-list">
-          <div v-for="(stock, index) in oatStocks" :key="index" class="stock-item">
-            <div class="stock-header">
-              <span class="stock-name">{{ stock.name }}</span>
-              <span class="stock-status" :class="'text-' + stock.colorClass.replace('bg-', '')">{{ stock.status }}</span>
-            </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar" :class="stock.colorClass" :style="{ width: stock.percent + '%' }"></div>
-            </div>
-            <div class="text-xs text-secondary flex justify-between mt-0.5 font-medium">
-              <span>{{ stock.subtext }}</span>
-              <span>{{ stock.percent }}%</span>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-full mt-auto" @click="goToMedicines">Permintaan Restock OAT</button>
-      </div>
     </div>
   </div>
 </template>
 
 <style scoped src="./DashboardView.css"></style>
+

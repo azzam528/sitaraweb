@@ -1,103 +1,145 @@
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import mobiledoctorIMG from '@/assets/images/mobile-doctor.png'
+import dashboardService from '@/services/dashboard.service'
+import patientService from '@/services/patient.service'
 
 export default defineComponent({
   name: 'DashboardView',
   setup() {
     const router = useRouter()
+    const isLoading = ref(true)
 
     const goToPatients = () => router.push('/dashboard/patients')
     const goToNewPatient = () => router.push('/dashboard/patients/add')
     const goToReports = () => router.push('/dashboard/reports')
-    const goToMedicines = () => router.push('/dashboard/medicines')
     const goToPatientDetail = (id) => router.push(`/dashboard/patients/${id}`)
 
-    const patientStats = ref([
+    const summary = ref({
+      active_patients: 6,
+      medication_adherence: 95.0,
+      high_risk_patients: 1,
+      today_complaints: 0
+    })
+
+    const riskData = ref({
+      high: 1,
+      medium: 1,
+      low: 4
+    })
+
+    const patientStats = computed(() => [
       {
         label: 'Pasien Aktif',
-        value: '20',
+        value: String(summary.value.active_patients),
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
         color: '#006591',
         bgColor: '#e6f0f4'
       },
       {
         label: 'Kepatuhan Obat',
-        value: '94.2%',
+        value: `${summary.value.medication_adherence}%`,
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 11"></polyline></svg>`,
         color: '#22C55E',
         bgColor: '#dcfce7'
       },
       {
         label: 'Risiko Tinggi',
-        value: '1',
+        value: String(summary.value.high_risk_patients),
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
         color: '#EF4444',
         bgColor: '#fee2e2'
       },
       {
         label: 'Keluhan Hari Ini',
-        value: '8',
+        value: String(summary.value.today_complaints),
         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>`,
         color: '#F59E0B',
         bgColor: '#fef3c7'
-      },
-      {
-        label: 'Stok OAT Kritis',
-        value: '3 Items',
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`,
-        color: '#EF4444',
-        bgColor: '#fee2e2'
       }
     ])
 
     const riskPatients = ref([
-      { id: 1, name: 'Sumardi', level: 'Risiko Tinggi', reason: 'Mangkir >3 hari', levelColor: 'danger' },
-      { id: 2, name: 'Budi Santoso', level: 'Risiko Sedang', reason: 'Efek Samping Berat', levelColor: 'warning' },
-      { id: 3, name: 'Agus Salim', level: 'Risiko Tinggi', reason: 'Lokasi Tidak Terdeteksi', levelColor: 'danger' }
+      { id: 2, name: 'Dewi Lestari', level: 'Risiko Tinggi', reason: 'Keluhan Ruam & Alergi Obat', levelColor: 'danger' },
+      { id: 1, name: 'Ahmad Fauzi', level: 'Risiko Sedang', reason: 'Fase Intensif 4FDC', levelColor: 'warning' },
+      { id: 5, name: 'Bambang Pratama', level: 'Risiko Tinggi', reason: 'TB Resistan Obat (MDR)', levelColor: 'danger' }
     ])
 
-    const aiVerificationRecent = ref([
-      { id: 1, name: 'Indra W.', time: '09:42', status: '96% Match', statusClass: 'success' },
-      { id: 2, name: 'Ratna Sari', time: '09:35', status: '95% Match', statusClass: 'success' },
-      { id: 3, name: 'Dwi Cahyo', time: '09:12', status: 'Verifying...', statusClass: 'primary' }
-    ])
-
-    const complianceTrend = ref([
-      { day: 'Sen', height: 75 },
-      { day: 'Sel', height: 85 },
-      { day: 'Rab', height: 95 },
-      { day: 'Kam', height: 60 },
-      { day: 'Jum', height: 80 },
-      { day: 'Sab', height: 90 },
-      { day: 'Min', height: 98 }
+    const adherencePoints = ref([
+      { x: 30, y: 35, val: 92, day: 'Sen' },
+      { x: 100, y: 45, val: 88, day: 'Sel' },
+      { x: 170, y: 20, val: 96, day: 'Rab' },
+      { x: 240, y: 28, val: 94, day: 'Kam' },
+      { x: 310, y: 40, val: 90, day: 'Jum' },
+      { x: 380, y: 15, val: 97, day: 'Sab' },
+      { x: 450, y: 25, val: 95, day: 'Min', active: true }
     ])
 
     const recentActivities = ref([
-      { id: 1, text: 'Ahmad Subarjo berhasil verifikasi dosis pagi.', time: '2 menit yang lalu', type: 'primary' },
-      { id: 2, text: 'Surya melaporkan efek samping pusing.', time: '15 menit yang lalu', type: 'danger' },
-      { id: 3, text: 'Stok Rifampisin 150mg diperbarui.', time: '45 menit yang lalu', type: 'success' }
+      { id: 1, text: 'Verifikasi video Ahmad Fauzi berhasil diverifikasi.', time: 'Baru saja', type: 'primary' },
+      { id: 2, text: 'Dewi Lestari melaporkan keluhan Gatal & Ruam Kulit.', time: '1 jam lalu', type: 'danger' },
+      { id: 3, text: 'Pengajuan Refill 2FDC oleh Dewi Lestari masuk ke sistem.', time: '3 jam lalu', type: 'success' }
     ])
 
-    const oatStocks = ref([
-      { name: 'Rifampisin', status: 'Aman 85%', percent: 85, colorClass: 'bg-success', subtext: '1,200 / 1,410 Tablet' },
-      { name: 'Isoniazid', status: 'Menipis 42%', percent: 42, colorClass: 'bg-warning', subtext: '580 / 1,380 Tablet' },
-      { name: 'Pirazinamid', status: 'Kritis 15%', percent: 15, colorClass: 'bg-danger', subtext: '165 / 1,100 Tablet' }
-    ])
+    const loadDashboardData = async () => {
+      isLoading.value = true
+      try {
+        const [dashRes, patRes] = await Promise.allSettled([
+          dashboardService.getDashboard(),
+          patientService.getAll()
+        ])
+
+        if (dashRes.status === 'fulfilled' && dashRes.value?.data) {
+          const d = dashRes.value.data
+          if (d.summary) summary.value = d.summary
+          if (d.risk) riskData.value = d.risk
+
+          if (d.recent_activities && d.recent_activities.length > 0) {
+            recentActivities.value = d.recent_activities.slice(0, 3).map((act, index) => ({
+              id: index + 1,
+              text: `${act.title}: ${act.description}`,
+              time: act.created_at || 'Hari ini',
+              type: act.type === 'complaint' ? 'danger' : act.type === 'refill' ? 'primary' : 'success'
+            }))
+          }
+        }
+
+        if (patRes.status === 'fulfilled' && patRes.value?.data && patRes.value.data.length > 0) {
+          const patients = patRes.value.data
+          riskPatients.value = patients.slice(0, 3).map((p, idx) => ({
+            id: p.id,
+            name: p.full_name,
+            reason: p.clinical_note ? p.clinical_note.slice(0, 45) + '...' : 'Pasien TB Paru Terpantau',
+            level: idx === 0 ? 'Risiko Tinggi' : idx === 1 ? 'Risiko Sedang' : 'Risiko Rendah',
+            levelColor: idx === 0 ? 'danger' : idx === 1 ? 'warning' : 'primary'
+          }))
+        }
+      } catch (err) {
+        console.error('Error loading dashboard:', err)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    onMounted(() => {
+      loadDashboardData()
+    })
 
     return {
       mobiledoctorIMG,
       goToPatients,
       goToNewPatient,
       goToReports,
-      goToMedicines,
       goToPatientDetail,
       patientStats,
+      summary,
+      riskData,
       riskPatients,
-      aiVerificationRecent,
-      complianceTrend,
+      adherencePoints,
       recentActivities,
-      oatStocks
+      isLoading
     }
   }
 })
+
+
