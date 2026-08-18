@@ -93,6 +93,11 @@ export default defineComponent({
     const pendingCount = computed(() => refills.value.filter(r => r.status === 'pending').length)
     const approvedCount = computed(() => refills.value.filter(r => r.status === 'approved').length)
     const rejectedCount = computed(() => refills.value.filter(r => r.status === 'rejected').length)
+    const approvalRate = computed(() => {
+      const processed = approvedCount.value + rejectedCount.value
+      if (processed === 0) return '100%'
+      return Math.round((approvedCount.value / processed) * 100) + '%'
+    })
 
     // Filtered Refills
     const filteredRefills = computed(() => {
@@ -288,6 +293,7 @@ export default defineComponent({
       pendingCount,
       approvedCount,
       rejectedCount,
+      approvalRate,
       filteredRefills,
       totalPages,
       paginatedRefills,

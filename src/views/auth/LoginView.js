@@ -1,5 +1,5 @@
-import { defineComponent, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { defineComponent, ref, onMounted } from 'vue'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 
 export default defineComponent({
@@ -10,6 +10,7 @@ export default defineComponent({
   setup() {
     const authStore = useAuthStore()
     const router = useRouter()
+    const route = useRoute()
 
     const username = ref('')
     const password = ref('')
@@ -17,6 +18,14 @@ export default defineComponent({
     const showPassword = ref(false)
     const isLoading = ref(false)
     const errors = ref({})
+
+    onMounted(() => {
+      if (route.query.error === 'patient_not_allowed') {
+        errors.value = {
+          general: 'Akses Ditolak: Akun pasien hanya dapat digunakan pada aplikasi Mobile SITARA.'
+        }
+      }
+    })
 
     const togglePassword = () => {
       showPassword.value = !showPassword.value
@@ -56,6 +65,7 @@ export default defineComponent({
         console.error('Login error:', error)
         errors.value = {
           general:
+            error.message ||
             error.response?.data?.detail ||
             'Username atau password salah'
         }
@@ -76,3 +86,4 @@ export default defineComponent({
     }
   }
 })
+

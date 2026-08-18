@@ -71,6 +71,10 @@ export default defineComponent({
     const pendingCount = computed(() => complaints.value.filter(c => c.status === 'pending').length)
     const inProgressCount = computed(() => complaints.value.filter(c => c.status === 'in_progress').length)
     const resolvedCount = computed(() => complaints.value.filter(c => c.status === 'resolved').length)
+    const resolutionRate = computed(() => {
+      if (complaints.value.length === 0) return '100%'
+      return Math.round((resolvedCount.value / complaints.value.length) * 100) + '%'
+    })
 
     // Filtered & Paginated
     const filteredComplaints = computed(() => {
@@ -216,6 +220,7 @@ export default defineComponent({
       pendingCount,
       inProgressCount,
       resolvedCount,
+      resolutionRate,
       filteredComplaints,
       totalPages,
       paginatedComplaints,

@@ -107,7 +107,28 @@ export default defineComponent({
       return requests.value.filter(r => r.status === 'approved' || r.status === 'rejected').slice(0, 5)
     })
 
-    const viewDetail = () => {
+    const showDetailModal = ref(false)
+    const selectedRequest = ref(null)
+
+    const openDetailModal = (req) => {
+      selectedRequest.value = req
+      showDetailModal.value = true
+    }
+
+    const closeDetailModal = () => {
+      showDetailModal.value = false
+      selectedRequest.value = null
+    }
+
+    const viewDetail = (req) => {
+      if (req) {
+        openDetailModal(req)
+      } else {
+        router.push('/dashboard/refill-requests')
+      }
+    }
+
+    const goToRefillPage = () => {
       router.push('/dashboard/refill-requests')
     }
 
@@ -201,6 +222,11 @@ export default defineComponent({
       rejectedCount,
       filteredRequests,
       distributionHistory,
+      showDetailModal,
+      selectedRequest,
+      openDetailModal,
+      closeDetailModal,
+      goToRefillPage,
       viewDetail,
       sendNotify,
       deleteRequest,

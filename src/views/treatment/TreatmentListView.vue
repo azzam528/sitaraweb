@@ -66,6 +66,20 @@
           <span class="stat-value">{{ completedCount }}</span>
         </div>
       </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper red-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">PUTUS OBAT</span>
+          <span class="stat-value">{{ droppedCount }}</span>
+        </div>
+      </div>
     </section>
 
     <!-- 3. Filter Section -->
@@ -125,51 +139,32 @@
 
     <!-- 4. Treatment Monitoring Table -->
     <div class="table-card card">
-      <!-- Loading State -->
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Memuat data pengobatan...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="filteredTreatments.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-        </div>
-        <h3>Belum Ada Data Pengobatan</h3>
-        <p v-if="searchQuery || filterPhase || filterStatus || filterRegimen">
-          Tidak ditemukan data pengobatan yang cocok dengan filter yang dipilih.
-        </p>
-        <p v-else>
-          Belum ada rekam pengobatan yang terdaftar di sistem.
-        </p>
-      </div>
-
-      <!-- Data Table -->
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Pasien</th>
-              <th>Fase & Regimen</th>
-              <th>Periode Terapi</th>
-              <th>Progres Hari</th>
-              <th>Dokter PJ</th>
+              <th>Fase Terapi</th>
+              <th>Progres Pengobatan</th>
               <th>Status</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="treatment in paginatedTreatments" :key="treatment.id">
+            <tr v-if="isLoading">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Memuat data pengobatan...
+              </td>
+            </tr>
+            <tr v-else-if="filteredTreatments.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data pengobatan yang cocok.
+              </td>
+            </tr>
+            <tr v-else v-for="treatment in paginatedTreatments" :key="treatment.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(treatment.id)">
+                  <div class="avatar">
                     {{ getInitials(treatment.patient?.full_name || 'Pasien ' + treatment.patient_id) }}
                   </div>
                   <div>
@@ -177,53 +172,35 @@
                       {{ treatment.patient?.full_name || 'Pasien #' + treatment.patient_id }}
                     </div>
                     <div class="patient-meta text-xs text-muted">
-                      NIK: {{ treatment.patient?.nik || '-' }} | RM: {{ treatment.patient?.medical_record_number || '-' }}
+                      NIK: {{ treatment.patient?.nik || '-' }}
                     </div>
                   </div>
                 </div>
               </td>
               <td>
-                <div class="phase-regimen">
-                  <span class="phase-badge" :class="'badge-' + treatment.phase">
-                    {{ formatPhase(treatment.phase) }}
-                  </span>
-                  <div class="regimen-text text-xs text-muted mt-1">
-                    {{ formatRegimen(treatment.regimen) }}
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="therapy-dates">
-                  <div class="date-range font-medium text-sm">
-                    {{ formatDate(treatment.therapy_start_date) }} - {{ formatDate(treatment.therapy_end_date) }}
-                  </div>
-                  <div class="diag-date text-xs text-muted">
-                    Diagnosis: {{ formatDate(treatment.diagnosis_date) }}
-                  </div>
-                </div>
+                <span class="phase-badge" :class="'badge-' + treatment.phase">
+                  {{ formatPhase(treatment.phase) }}
+                </span>
               </td>
               <td>
                 <div class="progress-wrapper">
                   <div class="progress-bar-container">
                     <div 
                       class="progress-bar" 
-                      :class="getProgressColorClass(treatment)" 
-                      :style="{ width: calculateProgress(treatment).percentage + '%' }"
+                      :style="{ 
+                        width: Math.max(6, calculateProgress(treatment).percentage) + '%', 
+                        backgroundColor: getProgressColor(treatment) 
+                      }"
                     ></div>
                   </div>
                   <div class="progress-text">
-                    <span class="progress-pct font-bold">
+                    <span class="progress-pct font-bold" :style="{ color: getProgressColor(treatment) }">
                       {{ calculateProgress(treatment).percentage }}%
                     </span>
                     <span class="progress-days text-muted">
                       Hari ke-{{ calculateProgress(treatment).daysPassed }}/{{ calculateProgress(treatment).totalDays }}
                     </span>
                   </div>
-                </div>
-              </td>
-              <td>
-                <div class="doctor-info">
-                  <span class="doctor-name font-medium">{{ treatment.doctor_name }}</span>
                 </div>
               </td>
               <td>
@@ -289,11 +266,11 @@
       </div>
 
       <!-- 5. Pagination -->
-      <div v-if="filteredTreatments.length > 0" class="pagination-wrapper">
+      <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredTreatments.length) }} dari {{ filteredTreatments.length }} pengobatan
+          Menampilkan {{ filteredTreatments.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredTreatments.length) }} dari {{ filteredTreatments.length }} pengobatan
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button 
             class="btn-page" 
             :disabled="currentPage === 1" 

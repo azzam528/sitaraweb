@@ -59,6 +59,17 @@ export default defineComponent({
       return { daysPassed, totalDays, percentage }
     })
 
+    const getProgressColor = (t) => {
+      if (t?.status === 'dropped' || t?.status === 'defaulted') return '#DC2626'
+      if (t?.status === 'completed') return '#16A34A'
+      const pct = progressData.value?.percentage || 0
+      if (pct >= 100) return '#16A34A' // 100% Hijau Sempurna
+      if (pct >= 75) return '#10B981'  // 75%-99% Hijau Emerald
+      if (pct >= 50) return '#0D9488'  // 50%-74% Tosca / Hijau Kebiruan
+      if (pct >= 25) return '#0284C7'  // 25%-49% Biru
+      return '#38BDF8'                 // 0%-24% Biru Muda (Awal)
+    }
+
     const getProgressColorClass = (t) => {
       if (t?.status === 'completed') return 'bg-success'
       if (t?.status === 'dropped') return 'bg-danger'
@@ -178,6 +189,7 @@ export default defineComponent({
       alertType,
       showAlert,
       progressData,
+      getProgressColor,
       getProgressColorClass,
       formatPhase,
       formatRegimen,

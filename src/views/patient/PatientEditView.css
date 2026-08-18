@@ -1,13 +1,10 @@
 .patient-edit-page {
-  padding: 24px;
-  background-color: #F8FAFC;
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  padding: 0 0 32px 0;
   color: #1e293b;
 }
 
 .header-nav {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .back-link {
@@ -16,12 +13,13 @@
   gap: 8px;
   color: #64748b;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: 600;
+  font-size: 13.5px;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  transition: color 0.15s;
 }
 
 .back-link:hover {
@@ -33,16 +31,17 @@
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 22px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: #64748b;
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 13.5px;
 }
 
 .grid-layout {
@@ -53,11 +52,12 @@
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 .card:last-child {
@@ -65,18 +65,18 @@
 }
 
 .card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   margin: 0 0 20px 0;
   color: #0f172a;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 16px;
 }
 
@@ -96,19 +96,27 @@
 }
 
 label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #475569;
 }
 
+.required {
+  color: #dc2626;
+}
+
+.mt-1 { margin-top: 4px; }
+.d-block { display: block; font-size: 12px; }
+.text-primary { color: #006591; }
+
 .form-control, .form-select {
-  padding: 10px 14px;
+  padding: 9px 13px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 13.5px;
   font-family: inherit;
-  transition: border-color 0.2s;
-  background-color: white;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background-color: #ffffff;
   color: #1e293b;
   width: 100%;
   box-sizing: border-box;
@@ -121,23 +129,19 @@ textarea.form-control {
 .form-control:focus, .form-select:focus {
   outline: none;
   border-color: #006591;
-  box-shadow: 0 0 0 2px rgba(0, 101, 145, 0.1);
-}
-
-.status-select {
-  font-weight: 600;
-  color: #006591;
+  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.12);
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
+  gap: 12px;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   margin-bottom: 40px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .btn {
@@ -145,38 +149,51 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 9px 18px;
   border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
   font-family: inherit;
 }
 
 .btn-lg {
-  padding: 12px 24px;
-  font-size: 1rem;
+  padding: 11px 22px;
+  font-size: 14.5px;
 }
 
 .btn-primary {
-  background-color: #006591;
-  color: white;
+  background: linear-gradient(135deg, #006591 0%, #0080B5 100%);
+  color: #ffffff !important;
+  border-color: #006591;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
-  background-color: #005378;
+  background: linear-gradient(135deg, #004D6E 0%, #006591 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 101, 145, 0.25);
+}
+
+.btn-primary:disabled {
+  background: #94a3b8;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-outline {
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
 }
 
-.btn-outline:hover {
-  background-color: #f1f5f9;
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
   color: #0f172a;
 }
 

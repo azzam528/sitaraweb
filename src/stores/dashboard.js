@@ -4,34 +4,15 @@ import dashboardService from '../services/dashboard.service'
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     dashboard: null,
+    data: null,
+    summary: null,
+    risk: null,
+    adherenceTrend: [],
+    recentActivities: [],
+    criticalStock: [],
     loading: false,
     error: null
   }),
-
-  getters: {
-    summary: (state) => state.dashboard?.summary || {
-      active_patients: 0,
-      medication_adherence: 0,
-      high_risk_patients: 0,
-      today_complaints: 0,
-      critical_stock_items: 0
-    },
-
-    risk: (state) => state.dashboard?.risk || {
-      high: 0,
-      medium: 0,
-      low: 0
-    },
-
-    adherenceTrend: (state) =>
-      state.dashboard?.adherence_trend || [],
-
-    recentActivities: (state) =>
-      state.dashboard?.recent_activities || [],
-
-    criticalStock: (state) =>
-      state.dashboard?.critical_stock || []
-  },
 
   actions: {
     async fetchDashboard() {
@@ -40,17 +21,32 @@ export const useDashboardStore = defineStore('dashboard', {
 
       try {
         const response = await dashboardService.getDashboard()
+        const resData = response.data || {}
 
-        this.dashboard = response.data
+        this.dashboard = resData
+        this.data = resData
+        this.summary = resData.summary || {
+          active_patients: 0,
+          medication_adherence: 0,
+          high_risk_patients: 0,
+          today_complaints: 0,
+          critical_stock_items: 0
+        }
+        this.risk = resData.risk || {
+          high: 0,
+          medium: 0,
+          low: 0
+        }
+        this.adherenceTrend = resData.adherence_trend || []
+        this.recentActivities = resData.recent_activities || []
+        this.criticalStock = resData.critical_stock || []
 
-        return response.data
+        return resData
       } catch (error) {
         console.error('Failed to fetch dashboard:', error)
-
         this.error =
           error.response?.data?.detail ||
           'Gagal mengambil data dashboard'
-
         throw error
       } finally {
         this.loading = false

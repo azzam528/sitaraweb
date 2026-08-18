@@ -27,7 +27,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">TOTAL JENIS OAT</span>
-          <span class="stat-value">{{ medicines.length }} <span class="stat-unit">Sediaan</span></span>
+          <span class="stat-value">{{ medicines.length }}</span>
         </div>
       </div>
 
@@ -55,7 +55,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">MENUNGGU RESPON</span>
-          <span class="stat-value text-warning">{{ pendingCount }}</span>
+          <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DISETUJUI</span>
-          <span class="stat-value text-success">{{ approvedCount }}</span>
+          <span class="stat-value">{{ approvedCount }}</span>
         </div>
       </div>
 
@@ -82,7 +82,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DITOLAK</span>
-          <span class="stat-value text-danger">{{ rejectedCount }}</span>
+          <span class="stat-value">{{ rejectedCount }}</span>
         </div>
       </div>
     </section>
@@ -155,51 +155,33 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Memuat data permintaan obat...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="filteredRequests.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-        </div>
-        <h3>Belum Ada Permintaan Obat</h3>
-        <p v-if="searchQuery || filterCategory || filterStatus || filterStatusPill">
-          Tidak ditemukan permintaan obat yang cocok dengan filter yang dipilih.
-        </p>
-        <p v-else>
-          Belum ada permohonan refill atau pengambilan obat OAT yang diajukan oleh pasien.
-        </p>
-      </div>
-
       <!-- Data Table -->
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Pasien</th>
-              <th>Pendamping (PMO)</th>
               <th>Obat Diminta</th>
-              <th>Jumlah</th>
-              <th>Alasan</th>
               <th>Waktu Pengajuan</th>
               <th>Status</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="req in paginatedRequests" :key="req.id">
+            <tr v-if="isLoading">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Memuat data permintaan obat...
+              </td>
+            </tr>
+            <tr v-else-if="filteredRequests.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data permintaan obat yang cocok.
+              </td>
+            </tr>
+            <tr v-else v-for="req in paginatedRequests" :key="req.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(req.id)">
+                  <div class="avatar">
                     {{ getInitials(req.treatment?.patient?.full_name) }}
                   </div>
                   <div class="patient-meta">
@@ -213,27 +195,16 @@
                 </div>
               </td>
               <td>
-                <span class="text-sm font-medium text-dark">
-                  {{ req.treatment?.patient?.pmo_name || '-' }}
-                </span>
-                <span v-if="req.treatment?.patient?.pmo_relation" class="text-xs text-muted block">
-                  ({{ req.treatment?.patient?.pmo_relation }})
-                </span>
-              </td>
-              <td>
-                <span :class="['type-pill', getTypeClass(req.medicine?.category)]">
-                  {{ req.medicine?.name || 'OAT' }}
-                </span>
-              </td>
-              <td>
-                <span class="font-bold text-dark">{{ req.quantity }}</span> {{ req.medicine?.unit || 'Tab' }}
-              </td>
-              <td>
-                <span class="text-xs text-muted italic">"{{ req.reason }}"</span>
+                <div class="med-requested">
+                  <span :class="['type-pill', getTypeClass(req.medicine?.category)]">
+                    {{ req.medicine?.name || 'OAT' }}
+                  </span>
+                  <span class="font-bold text-dark ml-2">{{ req.quantity }} {{ req.medicine?.unit || 'Tab' }}</span>
+                </div>
               </td>
               <td>
                 <div class="text-sm font-medium">{{ formatDate(req.created_at) }}</div>
-                <div class="text-xs text-muted">{{ formatTime(req.created_at) }}</div>
+                <div class="text-xs text-muted">{{ formatTime(req.created_at) }} WIB</div>
               </td>
               <td>
                 <span :class="['status-pill', getStatusClass(req.status)]">
@@ -252,12 +223,12 @@
                   </button>
                   
                   <div v-if="activeDropdown === req.id" class="dropdown-menu-floating" @click.stop>
-                    <button class="dropdown-item" @click="viewDetail(); activeDropdown = null">
+                    <button class="dropdown-item" @click="viewDetail(req); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
-                      <span>Verifikasi / Detail</span>
+                      <span>Lihat Rincian / Detail</span>
                     </button>
 
                     <button class="dropdown-item" @click="sendNotify(req); activeDropdown = null">
@@ -283,11 +254,11 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredRequests.length > 0" class="pagination-wrapper">
+      <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRequests.length) }} dari {{ filteredRequests.length }} permohonan
+          Menampilkan {{ filteredRequests.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRequests.length) }} dari {{ filteredRequests.length }} permohonan
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
           <button 
             v-for="page in totalPages" 
@@ -309,12 +280,8 @@
         <h2 class="card-title">Riwayat Distribusi OAT Terbaru</h2>
       </div>
 
-      <div v-if="distributionHistory.length === 0" class="empty-state-subtle">
-        <p>Belum ada riwayat distribusi obat yang telah disetujui atau ditolak.</p>
-      </div>
-
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Waktu Distribusi</th>
@@ -325,7 +292,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="hist in distributionHistory" :key="hist.id">
+            <tr v-if="distributionHistory.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Belum ada riwayat distribusi obat yang telah disetujui atau ditolak.
+              </td>
+            </tr>
+            <tr v-else v-for="hist in distributionHistory" :key="hist.id">
               <td class="whitespace-nowrap font-medium text-sm">{{ formatDate(hist.created_at) }}</td>
               <td>
                 <span class="font-semibold text-dark">{{ hist.treatment?.patient?.full_name || 'Pasien #' + hist.treatment_id }}</span>
@@ -346,6 +318,82 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- MODAL: Rincian Lengkap Permintaan Obat -->
+    <div v-if="showDetailModal" class="modal-backdrop" @click="closeDetailModal">
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-header">
+          <h3>Rincian Permintaan Refill OAT</h3>
+          <button class="modal-close" @click="closeDetailModal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-section mb-3">
+            <h4 class="detail-sec-title">Informasi Pasien</h4>
+            <div class="detail-list">
+              <div class="detail-row">
+                <span class="detail-label">Nama Pasien:</span>
+                <span class="detail-val font-semibold">{{ selectedRequest?.treatment?.patient?.full_name || 'Pasien' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">NIK / No. RM:</span>
+                <span class="detail-val">{{ selectedRequest?.treatment?.patient?.nik || '-' }} / {{ selectedRequest?.treatment?.patient?.medical_record_number || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">PMO (Pendamping):</span>
+                <span class="detail-val">{{ selectedRequest?.treatment?.patient?.pmo_name || '-' }} ({{ selectedRequest?.treatment?.patient?.pmo_phone || '-' }})</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section mb-3">
+            <h4 class="detail-sec-title">Rincian Obat & Permintaan</h4>
+            <div class="detail-list">
+              <div class="detail-row">
+                <span class="detail-label">Nama Obat:</span>
+                <span class="detail-val font-semibold">{{ selectedRequest?.medicine?.name }} ({{ selectedRequest?.medicine?.category }})</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Jumlah Diminta:</span>
+                <span class="detail-val font-bold text-primary">{{ selectedRequest?.quantity }} {{ selectedRequest?.medicine?.unit || 'Tablet' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Alasan Permintaan:</span>
+                <span class="detail-val">{{ selectedRequest?.reason }}</span>
+              </div>
+              <div class="detail-row" v-if="selectedRequest?.description">
+                <span class="detail-label">Catatan Tambahan:</span>
+                <span class="detail-val italic">"{{ selectedRequest?.description }}"</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Waktu Pengajuan:</span>
+                <span class="detail-val">{{ formatDate(selectedRequest?.created_at) }}, {{ formatTime(selectedRequest?.created_at) }} WIB</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Status:</span>
+                <span class="detail-val">
+                  <span class="status-pill" :class="getStatusClass(selectedRequest?.status)">
+                    <span class="status-dot"></span>
+                    {{ formatStatus(selectedRequest?.status) }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" @click="closeDetailModal">Tutup</button>
+          <button 
+            type="button" 
+            class="btn btn-primary" 
+            @click="goToRefillPage(); closeDetailModal()"
+          >
+            Buka Halaman Verifikasi
+          </button>
+        </div>
       </div>
     </div>
   </div>

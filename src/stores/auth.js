@@ -46,30 +46,28 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await authService.login(credentials);
-
         const data = response.data;
 
-        console.log('LOGIN RESPONSE:', data);
-
         const token = data.access_token;
-
         if (!token) {
           throw new Error('Access token tidak ditemukan');
         }
 
         this.setToken(token);
 
-        // Kalau backend mengembalikan user langsung
-        if (data.user) {
-          this.setUser(data.user);
-        } else {
-          // Ambil profile dari backend
-          const profileResponse =
-            await authService.getProfile();
-
-          this.setUser(profileResponse.data);
+        let userObj = data.user;
+        if (!userObj) {
+          const profileResponse = await authService.getProfile();
+          userObj = profileResponse.data;
         }
 
+        // Cek Role: Pasien dilarang masuk ke Web Admin
+        if (userObj && (userObj.role === 'patient' || userObj.role === 'PATIENT')) {
+          this.logout();
+          throw new Error('Akses Ditolak: Akun pasien hanya dapat digunakan pada aplikasi Mobile SITARA.');
+        }
+
+        this.setUser(userObj);
         return true;
 
       } catch (error) {
@@ -79,7 +77,6 @@ export const useAuthStore = defineStore('auth', {
         );
 
         this.logout();
-
         throw error;
 
       } finally {
@@ -104,8 +101,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async initAuth() {
-      const token =
-        localStorage.getItem('sitara_token');
+      const token = localStorage.getItem('sitara_token');
 
       if (!token) {
         this.logout();
@@ -115,10 +111,15 @@ export const useAuthStore = defineStore('auth', {
       try {
         this.setToken(token);
 
-        const response =
-          await authService.getProfile();
+        const response = await authService.getProfile();
+        const userObj = response.data;
 
-        this.setUser(response.data);
+        if (userObj && (userObj.role === 'patient' || userObj.role === 'PATIENT')) {
+          this.logout();
+          return;
+        }
+
+        this.setUser(userObj);
 
       } catch (error) {
         console.error(
@@ -130,4 +131,4 @@ export const useAuthStore = defineStore('auth', {
       }
     }
   }
-});
+});

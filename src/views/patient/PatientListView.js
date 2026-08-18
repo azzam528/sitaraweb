@@ -4,139 +4,87 @@ import {
   onMounted,
   onUnmounted
 } from 'vue'
-
 import { useRouter } from 'vue-router'
-import { usePatientStore } from '../../stores/patient'
+import { usePatientStore } from '@/stores/patient'
 
 export function usePatientListView() {
   const router = useRouter()
   const patientStore = usePatientStore()
 
-  // ========================================
-  // FILTER
-  // ========================================
-
+  // Filter
   const filters = ref({
     search: '',
     gender: ''
   })
 
-  // ========================================
-  // PAGINATION
-  // ========================================
-
+  // Pagination
   const currentPage = ref(1)
   const pageSize = 10
 
-  // ========================================
-  // DROPDOWN
-  // ========================================
-
+  // Dropdown
   const activeDropdown = ref(null)
 
-  // ========================================
-  // LOAD DATA
-  // ========================================
-
+  // Load Data
   const loadPatients = async () => {
     try {
       await patientStore.fetchPatients()
-
-      console.log(
-        'PATIENT DATA:',
-        patientStore.patients
-      )
     } catch (error) {
-      console.error(error)
+      console.error('Failed to load patients:', error)
     }
   }
 
-  // ========================================
-  // FILTERED PATIENTS
-  // ========================================
-
+  // Filtered Patients
   const filteredPatients = computed(() => {
-    const search =
-      filters.value.search
-        .trim()
-        .toLowerCase()
+    const search = filters.value.search.trim().toLowerCase()
 
-    return patientStore.patients.filter(
-      patient => {
-        const name =
-          patient.full_name
-            ?.toLowerCase() || ''
+    return patientStore.patients.filter(patient => {
+      const name = (patient.full_name || patient.name || '').toLowerCase()
+      const nik = patient.nik || ''
+      const mrn = (patient.medical_record_number || '').toLowerCase()
 
-        const nik =
-          patient.nik || ''
+      const matchesSearch =
+        !search ||
+        name.includes(search) ||
+        nik.includes(search) ||
+        mrn.includes(search)
 
-        const matchesSearch =
-          !search ||
-          name.includes(search) ||
-          nik.includes(search)
+      const matchesGender =
+        !filters.value.gender ||
+        patient.gender === filters.value.gender ||
+        (filters.value.gender === 'male' && (patient.gender === 'L' || patient.gender === 'male')) ||
+        (filters.value.gender === 'female' && (patient.gender === 'P' || patient.gender === 'female'))
 
-        const matchesGender =
-          !filters.value.gender ||
-          patient.gender ===
-            filters.value.gender
-
-        return (
-          matchesSearch &&
-          matchesGender
-        )
-      }
-    )
+      return matchesSearch && matchesGender
+    })
   })
 
-  // ========================================
-  // PAGINATION
-  // ========================================
-
+  // Pagination
   const totalPages = computed(() => {
-    return Math.max(
-      1,
-      Math.ceil(
-        filteredPatients.value.length /
-          pageSize
-      )
-    )
+    return Math.max(1, Math.ceil(filteredPatients.value.length / pageSize))
   })
 
   const paginatedPatients = computed(() => {
-    const start =
-      (currentPage.value - 1) *
-      pageSize
-
-    return filteredPatients.value.slice(
-      start,
-      start + pageSize
-    )
+    const start = (currentPage.value - 1) * pageSize
+    return filteredPatients.value.slice(start, start + pageSize)
   })
 
-  // ========================================
-  // STATISTICS
-  // ========================================
-
-  const totalPatients = computed(() =>
-    patientStore.patients.length
-  )
+  // Statistics
+  const totalPatients = computed(() => patientStore.patients.length)
 
   const activePatients = computed(() =>
-    patientStore.patients.filter(
-      patient =>
-        patient.is_active === true
-    ).length
+    patientStore.patients.filter(patient => patient.is_active !== false).length
   )
 
-  // ========================================
-  // HELPERS
-  // ========================================
+  const completedPatients = computed(() =>
+    patientStore.patients.filter(patient => patient.is_active === false).length
+  )
 
+  // Helpers
   const getInitials = (name) => {
-    if (!name) return '?'
-
+    if (!name) return 'TB'
     return name
       .split(' ')
+      .filter(Boolean)
       .map(word => word[0])
       .join('')
       .substring(0, 2)
@@ -145,210 +93,132 @@ export function usePatientListView() {
 
   const calculateAge = (birthDate) => {
     if (!birthDate) return '-'
-
-    const birth =
-      new Date(birthDate)
-
-    const today =
-      new Date()
-
-    let age =
-      today.getFullYear() -
-      birth.getFullYear()
-
-    const month =
-      today.getMonth() -
-      birth.getMonth()
-
-    if (
-      month < 0 ||
-      (
-        month === 0 &&
-        today.getDate() <
-          birth.getDate()
-      )
-    ) {
+    const birth = new Date(birthDate)
+    if (Number.isNaN(birth.getTime())) return '-'
+    const today = new Date()
+    let age = today.getFullYear() - birth.getFullYear()
+    const month = today.getMonth() - birth.getMonth()
+    if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) {
       age--
     }
-
-    return age
+    return age > 0 ? age : 0
   }
 
   const formatGender = (gender) => {
-    if (gender === 'male') {
-      return 'Laki-laki'
-    }
-
-    if (gender === 'female') {
-      return 'Perempuan'
-    }
-
-    return '-'
+    if (!gender) return '-'
+    const g = String(gender).toLowerCase()
+    if (g === 'male' || g === 'l') return 'Laki-laki'
+    if (g === 'female' || g === 'p') return 'Perempuan'
+    return gender
   }
 
-  // ========================================
-  // NAVIGATION
-  // ========================================
-
+  // Navigation
   const viewPatient = (id) => {
-    router.push(
-      `/dashboard/patients/${id}`
-    )
+    router.push(`/dashboard/patients/${id}`)
   }
 
   const editPatient = (id) => {
-    router.push(
-      `/dashboard/patients/${id}/edit`
-    )
+    router.push(`/dashboard/patients/${id}/edit`)
   }
 
-  // ========================================
-  // DELETE
-  // ========================================
+  const contactPmo = (patient) => {
+    const phone = patient.pmo_phone || patient.phone
+    if (phone) {
+      window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}`, '_blank')
+    } else {
+      alert('Nomor telepon PMO belum terdaftar.')
+    }
+  }
 
+  // Delete
   const deletePatient = async (patient) => {
     const confirmed = confirm(
-      `Apakah Anda yakin ingin menghapus data pasien ${patient.full_name}?`
+      `Apakah Anda yakin ingin menghapus data pasien ${patient.full_name || patient.name}?`
     )
 
     if (!confirmed) return
 
     try {
-      await patientStore.deletePatient(
-        patient.id
-      )
-
-      alert(
-        'Pasien berhasil dihapus'
-      )
-
-      // Pastikan dropdown ditutup
+      await patientStore.deletePatient(patient.id)
       activeDropdown.value = null
 
-      // Kalau setelah delete halaman
-      // menjadi kosong, kembali ke page sebelumnya
-      if (
-        paginatedPatients.value.length === 0 &&
-        currentPage.value > 1
-      ) {
+      if (paginatedPatients.value.length === 0 && currentPage.value > 1) {
         currentPage.value--
       }
-
     } catch (error) {
-      console.error(
-        'DELETE PATIENT ERROR:',
-        error
-      )
-
-      alert(
-        error.response?.data?.detail ||
-        'Gagal menghapus pasien'
-      )
+      console.error('DELETE PATIENT ERROR:', error)
+      alert(error.response?.data?.detail || 'Gagal menghapus pasien')
     }
   }
 
-  // ========================================
-  // RESET FILTER
-  // ========================================
-
+  // Reset Filter
   const resetFilters = () => {
     filters.value = {
       search: '',
       gender: ''
     }
-
     currentPage.value = 1
   }
 
-  // ========================================
-  // DROPDOWN
-  // ========================================
-
+  // Dropdown
   const toggleDropdown = (id) => {
-    activeDropdown.value =
-      activeDropdown.value === id
-        ? null
-        : id
+    activeDropdown.value = activeDropdown.value === id ? null : id
   }
 
   const handleDocumentClick = () => {
     activeDropdown.value = null
   }
 
-  // ========================================
-  // PAGINATION
-  // ========================================
-
+  // Pagination controls
   const prevPage = () => {
-    if (
-      currentPage.value > 1
-    ) {
+    if (currentPage.value > 1) {
       currentPage.value--
     }
   }
 
   const nextPage = () => {
-    if (
-      currentPage.value <
-      totalPages.value
-    ) {
+    if (currentPage.value < totalPages.value) {
       currentPage.value++
     }
   }
 
-  // ========================================
-  // LIFECYCLE
-  // ========================================
-
   onMounted(() => {
     loadPatients()
-
-    document.addEventListener(
-      'click',
-      handleDocumentClick
-    )
+    document.addEventListener('click', handleDocumentClick)
   })
 
   onUnmounted(() => {
-    document.removeEventListener(
-      'click',
-      handleDocumentClick
-    )
+    document.removeEventListener('click', handleDocumentClick)
   })
 
   return {
     patientStore,
-
     filters,
-
     currentPage,
     pageSize,
-
     activeDropdown,
-
     totalPatients,
     activePatients,
-
+    completedPatients,
     filteredPatients,
     totalPages,
     paginatedPatients,
-
     loadPatients,
-
     getInitials,
     calculateAge,
     formatGender,
-
     viewPatient,
     editPatient,
+    contactPmo,
     deletePatient,
-
     resetFilters,
-
     toggleDropdown,
     handleDocumentClick,
-
     prevPage,
     nextPage
   }
+}
+
+export default {
+  usePatientListView
 }

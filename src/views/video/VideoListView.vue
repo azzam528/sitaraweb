@@ -112,17 +112,6 @@
             <option value="Gagal">Gagal Verifikasi</option>
           </select>
         </div>
-
-        <!-- 3. Status AI Risk -->
-        <div class="form-group">
-          <label>Status AI Risk</label>
-          <select class="form-control">
-            <option value="">Semua Status Risk</option>
-            <option value="Risiko Tinggi">Risiko Tinggi</option>
-            <option value="Risiko Sedang">Risiko Sedang</option>
-            <option value="Risiko Rendah">Risiko Rendah</option>
-          </select>
-        </div>
       </div>
     </section>
 
@@ -132,39 +121,40 @@
         <table class="verification-table">
           <thead>
             <tr>
-              <th>NAMA PASIEN</th>
-              <th>WAKTU UNGGAH</th>
-              <th>STATUS AI</th>
-              <th>SKOR KEPERCAYAAN</th>
-              <th>STATUS REVIEW</th>
-              <th>AKSI</th>
+              <th>Pasien</th>
+              <th>Waktu Unggah</th>
+              <th>Skor AI</th>
+              <th>Status Verifikasi</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in tableData" :key="index">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="item.avatarColor">{{ item.initials }}</div>
+                  <div class="avatar">{{ item.initials }}</div>
                   <span class="patient-name">{{ item.name }}</span>
                 </div>
               </td>
               <td class="text-secondary">{{ item.time }}</td>
               <td>
-                <div class="status-ai">
-                  <span class="status-dot" :class="item.aiStatusColor"></span>
-                  <span>{{ item.aiStatus }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="progress-wrapper">
+                <div class="compliance-info">
+                  <span class="compliance-text" :style="{ color: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }">
+                    {{ item.score }}
+                  </span>
                   <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" :class="item.progressColor" :style="{ width: item.score }"></div>
+                    <div class="progress-bar-fill" :style="{ width: item.score, backgroundColor: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }"></div>
                   </div>
-                  <span class="score-text">{{ item.score }}</span>
                 </div>
               </td>
               <td>
-                <span class="pill" :class="item.reviewPillClass">{{ item.reviewStatus }}</span>
+                <span class="status-badge" :class="{
+                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi',
+                  'status-dropped': item.reviewStatus === 'Ditolak',
+                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan'
+                }">
+                  {{ item.reviewStatus }}
+                </span>
               </td>
               <td class="actions relative text-center">
                 <div class="action-dropdown-wrapper">
@@ -220,48 +210,64 @@
       </div>
     </div>
 
-    <!-- 5. Bottom Row - Two Cards -->
-    <div class="bottom-row">
-      <!-- Left (60%): Statistik Verifikasi AI -->
+    <!-- 5. Bottom Section: Statistik Verifikasi AI -->
+    <div class="stats-chart-section">
       <div class="stats-chart-card card">
-        <div class="card-header flex justify-between items-start mb-4">
+        <div class="card-header">
           <div>
             <h2 class="card-title">Statistik Verifikasi AI (30 Hari Terakhir)</h2>
-            <p class="text-xs text-secondary mt-1">Perbandingan jumlah video verifikasi yang berhasil vs gagal per periode.</p>
+            <p class="card-subtitle">Perbandingan jumlah video verifikasi yang berhasil vs gagal per periode.</p>
           </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold" style="color: #1E293B;">18 <span class="text-xs font-normal" style="color: #64748B;">Total Verifikasi</span></div>
-            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          <div class="stat-header-right">
+            <div class="stat-big-num">18 <span class="stat-unit">Total Verifikasi</span></div>
+            <div class="trend-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
               <span>+15.2% bulan ini</span>
             </div>
           </div>
         </div>
+
         <div class="css-bar-chart">
           <div class="chart-y-axis">
-            <span>100</span>
-            <span>75</span>
-            <span>50</span>
-            <span>25</span>
-            <span>0</span>
+            <span>100%</span>
+            <span>75%</span>
+            <span>50%</span>
+            <span>25%</span>
+            <span>0%</span>
           </div>
           <div class="chart-area">
+            <div class="grid-lines">
+              <div class="grid-line"></div>
+              <div class="grid-line"></div>
+              <div class="grid-line"></div>
+              <div class="grid-line"></div>
+              <div class="grid-line"></div>
+            </div>
             <div class="bar-group" v-for="(group, idx) in chartData" :key="idx">
               <div class="bars">
-                <div class="bar-success" :style="{ height: group.success + '%' }">
-                  <span class="bar-tooltip">{{ group.success }}</span>
+                <div class="bar-col bar-success" :style="{ height: group.success + '%' }" :title="'Berhasil: ' + group.success + '%'">
+                  <span class="bar-val">{{ group.success }}%</span>
                 </div>
-                <div class="bar-fail" :style="{ height: group.fail + '%' }">
-                  <span class="bar-tooltip">{{ group.fail }}</span>
+                <div class="bar-col bar-fail" :style="{ height: group.fail + '%' }" :title="'Gagal: ' + group.fail + '%'">
+                  <span class="bar-val">{{ group.fail }}%</span>
                 </div>
               </div>
               <div class="bar-label">{{ group.label }}</div>
             </div>
           </div>
         </div>
-        <div class="chart-legend flex justify-end gap-4 mt-3 pt-2 border-t border-gray-100">
-          <span class="legend-item flex items-center gap-1.5 text-xs text-secondary font-medium"><span class="legend-dot primary-dot"></span> Berhasil Verifikasi</span>
-          <span class="legend-item flex items-center gap-1.5 text-xs text-secondary font-medium"><span class="legend-dot red-dot"></span> Gagal Verifikasi</span>
+
+        <div class="chart-legend">
+          <span class="legend-item">
+            <span class="legend-dot dot-success"></span> 
+            Berhasil Verifikasi
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot dot-fail"></span> 
+            Gagal Verifikasi
+          </span>
         </div>
       </div>
     </div>

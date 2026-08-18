@@ -150,15 +150,37 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('sitara_token')
+  const userStr = localStorage.getItem('sitara_user')
+  let user = null
+  try {
+    user = userStr ? JSON.parse(userStr) : null
+  } catch (e) {}
+
+  const isPatient = user && (user.role === 'patient' || user.role === 'PATIENT')
   
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
+  if (to.meta.requiresAuth) {
+    if (!token) {
+      next('/login')
+    } else if (isPatient) {
+      localStorage.removeItem('sitara_token')
+      localStorage.removeItem('sitara_user')
+      next('/login?error=patient_not_allowed')
+    } else {
+      next()
+    }
   } else if ((to.path === '/login' || to.path === '/register') && token) {
-    next('/dashboard')
+    if (isPatient) {
+      localStorage.removeItem('sitara_token')
+      localStorage.removeItem('sitara_user')
+      next()
+    } else {
+      next('/dashboard')
+    }
   } else {
     next()
   }
 })
+
 
 router.afterEach((to) => {
   document.title = to.meta.title || 'SITARA'

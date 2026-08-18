@@ -38,7 +38,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">MENUNGGU RESPON</span>
-          <span class="stat-value text-danger">{{ pendingCount }}</span>
+          <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
 
@@ -65,7 +65,21 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">SELESAI / TERATASI</span>
-          <span class="stat-value text-success">{{ resolvedCount }}</span>
+          <span class="stat-value">{{ resolvedCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper blue-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">TINGKAT RESOLUSI</span>
+          <span class="stat-value">{{ resolutionRate }}</span>
         </div>
       </div>
     </section>
@@ -122,44 +136,32 @@
 
     <!-- Table Card -->
     <div class="table-card card">
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Memuat laporan keluhan...</p>
-      </div>
-
-      <div v-else-if="filteredComplaints.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-        </div>
-        <h3>Belum Ada Laporan Keluhan</h3>
-        <p v-if="searchQuery || filterStatus || filterCategory">
-          Tidak ditemukan keluhan yang cocok dengan kriteria filter yang dipilih.
-        </p>
-        <p v-else>
-          Belum ada laporan keluhan atau efek samping yang dikirimkan oleh pasien melalui aplikasi mobile.
-        </p>
-      </div>
-
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Pasien</th>
               <th>Kategori Keluhan</th>
-              <th>Deskripsi Keluhan</th>
               <th>Waktu Laporan</th>
               <th>Status</th>
-              <th>Tanggapan Medis</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="comp in paginatedComplaints" :key="comp.id">
+            <tr v-if="isLoading">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Memuat laporan keluhan...
+              </td>
+            </tr>
+            <tr v-else-if="filteredComplaints.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data keluhan yang cocok.
+              </td>
+            </tr>
+            <tr v-else v-for="comp in paginatedComplaints" :key="comp.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(comp.id)">
+                  <div class="avatar">
                     {{ getInitials(comp.treatment?.patient?.full_name || 'TB') }}
                   </div>
                   <div>
@@ -167,7 +169,7 @@
                       {{ comp.treatment?.patient?.full_name || 'Pengobatan #' + comp.treatment_id }}
                     </div>
                     <div class="patient-meta text-xs text-muted">
-                      NIK: {{ comp.treatment?.patient?.nik || '-' }} | RM: {{ comp.treatment?.patient?.medical_record_number || '-' }}
+                      NIK: {{ comp.treatment?.patient?.nik || '-' }}
                     </div>
                   </div>
                 </div>
@@ -176,12 +178,7 @@
                 <span class="category-badge">{{ comp.category }}</span>
               </td>
               <td>
-                <div class="desc-text" :title="comp.description">
-                  {{ truncate(comp.description, 60) }}
-                </div>
-              </td>
-              <td>
-                <div class="date-text text-sm">
+                <div class="date-text text-sm font-medium">
                   {{ formatDate(comp.created_at) }}
                 </div>
                 <div class="time-text text-xs text-muted">
@@ -192,15 +189,6 @@
                 <span class="status-badge" :class="'status-' + comp.status">
                   {{ formatStatus(comp.status) }}
                 </span>
-              </td>
-              <td>
-                <div v-if="comp.response" class="response-text" :title="comp.response">
-                  <span class="response-icon">✓</span>
-                  {{ truncate(comp.response, 45) }}
-                </div>
-                <div v-else class="text-xs text-muted italic">
-                  Belum ada tanggapan
-                </div>
               </td>
               <td class="text-center">
                 <div class="action-dropdown-wrapper">
@@ -219,7 +207,7 @@
                   <div v-if="activeDropdown === comp.id" class="dropdown-menu-floating" @click.stop>
                     <button class="dropdown-item" @click="viewDetail(comp.id); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                       <span>Lihat Detail</span>
@@ -259,11 +247,11 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredComplaints.length > 0" class="pagination-wrapper">
+      <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredComplaints.length) }} dari {{ filteredComplaints.length }} keluhan
+          Menampilkan {{ filteredComplaints.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredComplaints.length) }} dari {{ filteredComplaints.length }} keluhan
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
           <button 
             v-for="page in totalPages" 

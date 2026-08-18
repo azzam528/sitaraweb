@@ -49,7 +49,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">MENUNGGU VERIFIKASI</span>
-          <span class="stat-value text-warning">{{ pendingCount }}</span>
+          <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
 
@@ -62,7 +62,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DISETUJUI</span>
-          <span class="stat-value text-success">{{ approvedCount }}</span>
+          <span class="stat-value">{{ approvedCount }}</span>
         </div>
       </div>
 
@@ -76,7 +76,21 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DITOLAK</span>
-          <span class="stat-value text-danger">{{ rejectedCount }}</span>
+          <span class="stat-value">{{ rejectedCount }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper blue-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">TINGKAT PERSETUJUAN</span>
+          <span class="stat-value">{{ approvalRate }}</span>
         </div>
       </div>
     </section>
@@ -129,48 +143,32 @@
 
     <!-- Table Card -->
     <div class="table-card card">
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Memuat permintaan refill obat...</p>
-      </div>
-
-      <div v-else-if="filteredRefills.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-        </div>
-        <h3>Belum Ada Permintaan Refill</h3>
-        <p v-if="searchQuery || filterStatus || filterReason">
-          Tidak ditemukan permintaan refill yang cocok dengan filter yang dipilih.
-        </p>
-        <p v-else>
-          Belum ada riwayat permohonan isi ulang obat. Permintaan baru dapat dicatat melalui tombol di atas.
-        </p>
-        <button class="btn btn-primary mt-3" @click="openAddModal">
-          + Buat Permintaan Refill
-        </button>
-      </div>
-
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Pasien</th>
               <th>Obat Diminta</th>
-              <th>Jumlah</th>
-              <th>Alasan & Catatan</th>
               <th>Tgl Permintaan</th>
               <th>Status</th>
               <th class="text-center">Aksi Verifikasi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="refill in paginatedRefills" :key="refill.id">
+            <tr v-if="isLoading">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Memuat data permintaan refill...
+              </td>
+            </tr>
+            <tr v-else-if="filteredRefills.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data permintaan refill yang cocok.
+              </td>
+            </tr>
+            <tr v-else v-for="refill in paginatedRefills" :key="refill.id">
               <td>
                 <div class="patient-info">
-                  <div class="avatar" :class="'avatar-' + getAvatarColor(refill.id)">
+                  <div class="avatar">
                     {{ getInitials(refill.treatment?.patient?.full_name || 'TB') }}
                   </div>
                   <div>
@@ -178,7 +176,7 @@
                       {{ refill.treatment?.patient?.full_name || 'Pengobatan #' + refill.treatment_id }}
                     </div>
                     <div class="patient-meta text-xs text-muted">
-                      NIK: {{ refill.treatment?.patient?.nik || '-' }} | PMO: {{ refill.treatment?.patient?.pmo_name || '-' }}
+                      NIK: {{ refill.treatment?.patient?.nik || '-' }}
                     </div>
                   </div>
                 </div>
@@ -186,20 +184,7 @@
               <td>
                 <div class="med-info">
                   <span class="font-medium text-dark">{{ refill.medicine?.name || 'Obat #' + refill.medicine_id }}</span>
-                  <span class="text-xs text-muted block">{{ refill.medicine?.strength }} ({{ refill.medicine?.category }})</span>
-                </div>
-              </td>
-              <td>
-                <span class="qty-pill font-bold">
-                  {{ refill.quantity }} {{ refill.medicine?.unit || 'Tablet' }}
-                </span>
-              </td>
-              <td>
-                <div class="reason-cell">
-                  <span class="reason-badge">{{ refill.reason }}</span>
-                  <p v-if="refill.description" class="desc-text text-xs text-muted mt-1" :title="refill.description">
-                    {{ truncate(refill.description, 40) }}
-                  </p>
+                  <span class="text-xs text-muted block font-semibold">{{ refill.quantity }} {{ refill.medicine?.unit || 'Tablet' }} • {{ refill.reason }}</span>
                 </div>
               </td>
               <td>
@@ -214,9 +199,6 @@
                 <span class="status-badge" :class="'status-' + refill.status">
                   {{ formatStatus(refill.status) }}
                 </span>
-                <div v-if="refill.nurse_note" class="nurse-note-text text-xs text-muted mt-1" :title="refill.nurse_note">
-                  Ket: {{ truncate(refill.nurse_note, 25) }}
-                </div>
               </td>
               <td class="text-center">
                 <!-- Action Buttons for Pending Requests -->
@@ -248,7 +230,7 @@
                     class="btn-more-actions" 
                     @click.stop="toggleDropdown(refill.id)"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="19" cy="12" r="1"></circle>
                       <circle cx="5" cy="12" r="1"></circle>
@@ -309,11 +291,11 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredRefills.length > 0" class="pagination-wrapper">
+      <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRefills.length) }} dari {{ filteredRefills.length }} permintaan
+          Menampilkan {{ filteredRefills.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRefills.length) }} dari {{ filteredRefills.length }} permintaan
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
           <button 
             v-for="page in totalPages" 

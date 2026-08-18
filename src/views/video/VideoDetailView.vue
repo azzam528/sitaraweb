@@ -146,8 +146,8 @@
               </div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">RISIKO PUTUS OBAT</div>
-              <div class="badge risk-badge">LOW RISK</div>
+              <div class="stat-label">STATUS TERAPI</div>
+              <div class="badge risk-badge" style="background: #e0f2fe; color: #006591; border: 1px solid #bae6fd;">FASE INTENSIF</div>
             </div>
           </div>
         </div>

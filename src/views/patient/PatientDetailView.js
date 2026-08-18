@@ -1,6 +1,6 @@
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import api from '@/services/api'
+import patientService from '@/services/patient.service'
 
 export function usePatientDetailView() {
   const route = useRoute()
@@ -15,243 +15,135 @@ export function usePatientDetailView() {
 
   const patientId = route.params.id
 
-  // =====================================================
-  // FETCH DETAIL PASIEN
-  // =====================================================
-
   const fetchPatientDetail = async () => {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.get(
-        `/patients/${patientId}/detail`
-      )
-
-      const data = response.data
+      const response = await patientService.getDetail(patientId)
+      const data = response.data || {}
 
       patient.value = data.patient || null
       treatment.value = data.treatment || null
       nextControl.value = data.next_control || null
-
-      refills.value = Array.isArray(data.refills)
-        ? data.refills
-        : []
-
+      refills.value = Array.isArray(data.refills) ? data.refills : []
     } catch (err) {
-      console.error(
-        'Gagal mengambil detail pasien:',
-        err
-      )
-
-      error.value =
-        err.response?.data?.detail ||
-        'Gagal mengambil data pasien.'
-
+      console.warn('Gagal mengambil detail pasien, mencoba getById fallback:', err)
+      try {
+        const fallbackRes = await patientService.getById(patientId)
+        patient.value = fallbackRes.data || null
+      } catch (fErr) {
+        error.value = err.response?.data?.detail || 'Gagal mengambil data pasien.'
+      }
     } finally {
       loading.value = false
     }
   }
 
-  // =====================================================
-  // FORMAT DATA
-  // =====================================================
-
   const formatDate = (dateValue) => {
-    if (!dateValue) {
-      return '-'
-    }
-
+    if (!dateValue) return '-'
     const date = new Date(dateValue)
-
-    if (Number.isNaN(date.getTime())) {
-      return '-'
-    }
-
-    return new Intl.DateTimeFormat(
-      'id-ID',
-      {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }
-    ).format(date)
+    if (Number.isNaN(date.getTime())) return String(dateValue)
+    return new Intl.DateTimeFormat('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date)
   }
 
   const formatDateTime = (dateValue) => {
-    if (!dateValue) {
-      return '-'
-    }
-
+    if (!dateValue) return '-'
     const date = new Date(dateValue)
-
-    if (Number.isNaN(date.getTime())) {
-      return '-'
-    }
-
-    return new Intl.DateTimeFormat(
-      'id-ID',
-      {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }
-    ).format(date)
+    if (Number.isNaN(date.getTime())) return '-'
+    return new Intl.DateTimeFormat('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date)
   }
 
   const calculateAge = (birthDate) => {
-    if (!birthDate) {
-      return '-'
-    }
-
+    if (!birthDate) return '-'
     const birth = new Date(birthDate)
-
-    if (Number.isNaN(birth.getTime())) {
-      return '-'
-    }
-
+    if (Number.isNaN(birth.getTime())) return '-'
     const today = new Date()
-
-    let age =
-      today.getFullYear() -
-      birth.getFullYear()
-
-    const monthDifference =
-      today.getMonth() -
-      birth.getMonth()
-
-    if (
-      monthDifference < 0 ||
-      (
-        monthDifference === 0 &&
-        today.getDate() < birth.getDate()
-      )
-    ) {
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--
     }
-
-    return age
+    return age > 0 ? age : 0
   }
 
   const formatGender = (gender) => {
-    if (!gender) {
-      return '-'
-    }
-
-    const genderMap = {
-      male: 'Laki-laki',
-      female: 'Perempuan'
-    }
-
-    return genderMap[gender] || gender
+    if (!gender) return '-'
+    const g = String(gender).toLowerCase()
+    return g === 'female' || g === 'p' || g === 'perempuan' ? 'Perempuan' : 'Laki-laki'
   }
 
   const formatPhase = (phase) => {
-    if (!phase) {
-      return '-'
-    }
-
+    if (!phase) return '-'
     const phaseMap = {
       intensive: 'Fase Intensif',
       continuation: 'Fase Lanjutan'
     }
-
     return phaseMap[phase] || phase
   }
 
   const formatRegimen = (regimen) => {
-    if (!regimen) {
-      return '-'
-    }
-
+    if (!regimen) return '-'
     const regimenMap = {
       category_1: 'Kategori 1',
       category_2: 'Kategori 2',
       mdr: 'MDR'
     }
-
     return regimenMap[regimen] || regimen
   }
 
   const formatTreatmentStatus = (status) => {
-    if (!status) {
-      return '-'
-    }
-
+    if (!status) return '-'
     const statusMap = {
       active: 'Aktif Pengobatan',
       completed: 'Selesai',
       dropped: 'Putus Berobat'
     }
-
     return statusMap[status] || status
   }
 
   const formatRefillStatus = (status) => {
-    if (!status) {
-      return '-'
-    }
-
+    if (!status) return '-'
     const statusMap = {
       pending: 'Menunggu',
       approved: 'Disetujui',
       rejected: 'Ditolak'
     }
-
     return statusMap[status] || status
   }
 
   const getRefillBadgeClass = (status) => {
-    if (status === 'approved') {
-      return 'badge-success'
-    }
-
-    if (status === 'rejected') {
-      return 'badge-danger'
-    }
-
+    if (status === 'approved') return 'badge-success'
+    if (status === 'rejected') return 'badge-danger'
     return ''
   }
 
-  // =====================================================
-  // INITIALS
-  // =====================================================
-
   const getInitials = (name) => {
-    if (!name) {
-      return '-'
-    }
-
-    const words = name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-
+    if (!name) return 'TB'
+    const words = name.trim().split(/\s+/).filter(Boolean)
     if (words.length === 1) {
-      return words[0]
-        .substring(0, 2)
-        .toUpperCase()
+      return words[0].substring(0, 2).toUpperCase()
     }
-
-    return (
-      words[0][0] +
-      words[words.length - 1][0]
-    ).toUpperCase()
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase()
   }
 
-  // =====================================================
-  // ACTIONS
-  // =====================================================
-
   const contactPatient = () => {
-    if (!patient.value?.phone) {
+    const phone = patient.value?.phone || patient.value?.pmo_phone
+    if (!phone) {
       alert('Nomor telepon pasien belum tersedia.')
       return
     }
-
-    callNumber(patient.value.phone)
+    window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}`, '_blank')
   }
 
   const callNumber = (phone) => {
@@ -259,36 +151,23 @@ export function usePatientDetailView() {
       alert('Nomor telepon belum tersedia.')
       return
     }
-
     window.location.href = `tel:${phone}`
   }
 
   const showPatientMenu = () => {
-    console.log(
-      'Patient menu:',
-      patient.value
-    )
+    console.log('Patient menu:', patient.value)
   }
 
   const addNote = () => {
-    alert(
-      'Fitur tambah catatan akan dihubungkan setelah endpoint catatan tersedia.'
-    )
+    alert('Fitur tambah catatan akan dihubungkan setelah endpoint catatan tersedia.')
   }
 
   const rescheduleControl = () => {
     if (!nextControl.value) {
-      alert(
-        'Belum ada jadwal kontrol yang bisa dijadwalkan ulang.'
-      )
-
+      alert('Belum ada jadwal kontrol yang bisa dijadwalkan ulang.')
       return
     }
-
-    console.log(
-      'Reschedule:',
-      nextControl.value
-    )
+    console.log('Reschedule:', nextControl.value)
   }
 
   const shareSchedule = () => {
@@ -297,38 +176,20 @@ export function usePatientDetailView() {
       return
     }
 
-    const text =
-      `Jadwal kontrol pasien ${patient.value?.full_name || ''}: ` +
-      `${formatDate(nextControl.value.control_date)} ` +
-      `pukul ${nextControl.value.control_time || '-'} WIB`
-
+    const text = `Jadwal kontrol pasien ${patient.value?.full_name || ''}: ${formatDate(nextControl.value.control_date)} pukul ${nextControl.value.control_time || '-'} WIB`
     if (navigator.share) {
-      navigator.share({
-        title: 'Jadwal Kontrol',
-        text
-      }).catch(() => {})
+      navigator.share({ title: 'Jadwal Kontrol', text }).catch(() => {})
     } else {
-      navigator.clipboard
-        ?.writeText(text)
-
-      alert(
-        'Informasi jadwal berhasil disalin.'
-      )
+      navigator.clipboard?.writeText(text)
+      alert('Informasi jadwal berhasil disalin.')
     }
   }
 
-  // =====================================================
-  // LOAD
-  // =====================================================
-
   onMounted(() => {
     if (!patientId) {
-      error.value =
-        'ID pasien tidak ditemukan.'
-
+      error.value = 'ID pasien tidak ditemukan.'
       return
     }
-
     fetchPatientDetail()
   })
 
@@ -337,10 +198,8 @@ export function usePatientDetailView() {
     treatment,
     nextControl,
     refills,
-
     loading,
     error,
-
     formatDate,
     formatDateTime,
     calculateAge,
@@ -350,9 +209,7 @@ export function usePatientDetailView() {
     formatTreatmentStatus,
     formatRefillStatus,
     getRefillBadgeClass,
-
     getInitials,
-
     contactPatient,
     callNumber,
     showPatientMenu,
@@ -360,4 +217,8 @@ export function usePatientDetailView() {
     rescheduleControl,
     shareSchedule
   }
+}
+
+export default {
+  usePatientDetailView
 }

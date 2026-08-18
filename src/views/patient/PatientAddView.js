@@ -1,13 +1,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import patientService from '../../services/patient.service'
+import patientService from '@/services/patient.service'
 
 export function usePatientAddView() {
   const router = useRouter()
-
-  // =====================================================
-  // FORM DATA
-  // =====================================================
 
   const formData = ref({
     medicalRecordNumber: '',
@@ -23,10 +19,6 @@ export function usePatientAddView() {
     clinicalNote: ''
   })
 
-  // =====================================================
-  // STATE
-  // =====================================================
-
   const isSubmitting = ref(false)
   const showSuccessModal = ref(false)
   const errorMessage = ref('')
@@ -35,10 +27,6 @@ export function usePatientAddView() {
     username: '',
     password: ''
   })
-
-  // =====================================================
-  // VALIDATION
-  // =====================================================
 
   const validateForm = () => {
     errorMessage.value = ''
@@ -96,10 +84,6 @@ export function usePatientAddView() {
     return true
   }
 
-  // =====================================================
-  // SAVE PATIENT
-  // =====================================================
-
   const savePatient = async () => {
     if (!validateForm()) {
       return
@@ -110,108 +94,65 @@ export function usePatientAddView() {
 
     try {
       const payload = {
-        medical_record_number:
-          formData.value.medicalRecordNumber.trim(),
-
-        full_name:
-          formData.value.name.trim(),
-
-        nik:
-          formData.value.nik.trim(),
-
-        birth_date:
-          formData.value.dob,
-
-        gender:
-          formData.value.gender,
-
-        phone:
-          formData.value.phone.trim(),
-
-        address:
-          formData.value.address.trim(),
-
-        occupation:
-          formData.value.job.trim(),
-
-        pmo_name:
-          formData.value.pmoName.trim(),
-
-        pmo_phone:
-          formData.value.pmoPhone.trim(),
-
-        clinical_note:
-          formData.value.clinicalNote.trim() || null
+        medical_record_number: formData.value.medicalRecordNumber.trim(),
+        full_name: formData.value.name.trim(),
+        nik: formData.value.nik.trim(),
+        birth_date: formData.value.dob,
+        gender: formData.value.gender,
+        phone: formData.value.phone.trim(),
+        address: formData.value.address.trim(),
+        occupation: formData.value.job.trim(),
+        pmo_name: formData.value.pmoName.trim(),
+        pmo_phone: formData.value.pmoPhone.trim(),
+        clinical_note: formData.value.clinicalNote.trim() || null
       }
 
-      console.log('POST /patients:', payload)
-
       const response = await patientService.createPatient(payload)
+      const resData = response.data || {}
 
-      console.log('Patient created:', response.data)
-
-      // Credential dibuat oleh BACKEND
       createdCredentials.value = {
-        username: response.data.username,
-        password: response.data.temporary_password
+        username: resData.username || 'TB_USER',
+        password: resData.temporary_password || 'password123'
       }
 
       showSuccessModal.value = true
-
     } catch (error) {
       console.error('Create patient failed:', error)
-
       const detail = error?.response?.data?.detail
-
       if (Array.isArray(detail)) {
-        errorMessage.value = detail
-          .map(item => item.msg)
-          .join(', ')
+        errorMessage.value = detail.map(item => item.msg).join(', ')
       } else {
-        errorMessage.value =
-          detail || 'Gagal menambahkan pasien.'
+        errorMessage.value = detail || 'Gagal menambahkan pasien.'
       }
-
     } finally {
       isSubmitting.value = false
     }
   }
 
-  // =====================================================
-  // CANCEL
-  // =====================================================
-
   const cancelAdd = () => {
-    if (isSubmitting.value) {
-      return
-    }
-
+    if (isSubmitting.value) return
     router.push('/dashboard/patients')
   }
 
-  // =====================================================
-  // FINISH
-  // =====================================================
-
   const finishAndRedirect = () => {
     showSuccessModal.value = false
-
     router.push('/dashboard/patients')
   }
 
   return {
     router,
-
     formData,
-
     isSubmitting,
     showSuccessModal,
     errorMessage,
     createdCredentials,
-
     validateForm,
     savePatient,
     cancelAdd,
     finishAndRedirect
   }
+}
+
+export default {
+  usePatientAddView
 }
