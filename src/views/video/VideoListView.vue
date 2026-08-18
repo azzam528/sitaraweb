@@ -112,17 +112,6 @@
             <option value="Gagal">Gagal Verifikasi</option>
           </select>
         </div>
-
-        <!-- 3. Status AI Risk -->
-        <div class="form-group">
-          <label>Status AI Risk</label>
-          <select class="form-control">
-            <option value="">Semua Status Risk</option>
-            <option value="Risiko Tinggi">Risiko Tinggi</option>
-            <option value="Risiko Sedang">Risiko Sedang</option>
-            <option value="Risiko Rendah">Risiko Rendah</option>
-          </select>
-        </div>
       </div>
     </section>
 

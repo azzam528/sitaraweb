@@ -11,8 +11,7 @@ export default defineComponent({
 
     const filters = ref({
       search: '',
-      phase: '',
-      risk: ''
+      phase: ''
     })
 
     const currentPage = ref(1)
@@ -51,28 +50,23 @@ export default defineComponent({
         let phase = 'Fase Intensif'
         let month = 1
         let compliance = 94
-        let status = 'Risiko Rendah'
 
         if (isCompleted) {
           phase = 'Selesai Terapi'
           month = 6
           compliance = 100
-          status = 'Risiko Rendah'
         } else if (isMdr) {
           phase = 'Fase Intensif'
           month = 1
           compliance = 70
-          status = 'Risiko Tinggi'
         } else if (idx === 1) {
           phase = 'Fase Lanjutan'
           month = 3
           compliance = 88
-          status = 'Risiko Sedang'
         } else if (idx === 0) {
           phase = 'Fase Intensif'
           month = 2
           compliance = 96
-          status = 'Risiko Rendah'
         }
 
         return {
@@ -89,7 +83,6 @@ export default defineComponent({
           pmo: p.pmo_name || 'PMO Mandiri',
           pmoRelation: p.pmo_phone ? `Telp: ${p.pmo_phone}` : '',
           kader: p.address ? p.address.split(',')[0] : 'Bandung',
-          status,
           isCompleted,
           raw: p
         }
@@ -102,13 +95,13 @@ export default defineComponent({
       const active = all.filter(p => !p.isCompleted).length
       const inTherapy = all.filter(p => !p.isCompleted).length
       const completed = all.filter(p => p.isCompleted).length
-      const highRisk = all.filter(p => p.status === 'Risiko Tinggi').length
+      const tbRo = all.filter(p => p.tbType.includes('RO')).length
       return {
         active: active || all.length,
         inTherapy: inTherapy || all.length,
         completed: completed || 0,
         dropOut: 0,
-        highRisk: highRisk || 1
+        tbRo: tbRo || 0
       }
     })
 
@@ -126,8 +119,7 @@ export default defineComponent({
     const resetFilters = () => {
       filters.value = {
         search: '',
-        phase: '',
-        risk: ''
+        phase: ''
       }
     }
 
@@ -140,9 +132,8 @@ export default defineComponent({
           (patient.mrn && patient.mrn.toLowerCase().includes(searchLower))
 
         const matchesPhase = !filters.value.phase || patient.phase === filters.value.phase
-        const matchesRisk = !filters.value.risk || patient.status === filters.value.risk
 
-        return matchesSearch && matchesPhase && matchesRisk
+        return matchesSearch && matchesPhase
       })
     })
 

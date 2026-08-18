@@ -176,7 +176,7 @@
             </thead>
             <tbody>
               <tr v-if="filteredTreatments.length === 0">
-                <td colspan="10" class="text-center py-4 text-muted">Tidak ada data pengobatan pada periode ini.</td>
+                <td colspan="10" class="text-center py-6 text-muted">Tidak ada data pengobatan pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredTreatments" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>
@@ -218,7 +218,7 @@
             </thead>
             <tbody>
               <tr v-if="filteredRefills.length === 0">
-                <td colspan="9" class="text-center py-4 text-muted">Tidak ada data permintaan refill pada periode ini.</td>
+                <td colspan="9" class="text-center py-6 text-muted">Tidak ada data permintaan refill pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredRefills" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>
@@ -258,7 +258,7 @@
             </thead>
             <tbody>
               <tr v-if="filteredComplaints.length === 0">
-                <td colspan="8" class="text-center py-4 text-muted">Tidak ada keluhan klinis pada periode ini.</td>
+                <td colspan="8" class="text-center py-6 text-muted">Tidak ada data keluhan klinis pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredComplaints" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>

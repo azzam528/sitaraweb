@@ -183,7 +183,7 @@
               </thead>
               <tbody>
                 <tr v-if="refills.length === 0">
-                  <td colspan="4" class="text-center py-4 text-muted">Belum ada riwayat permohonan refill obat.</td>
+                  <td colspan="4" class="text-center py-6 text-muted">Belum ada riwayat permohonan refill obat.</td>
                 </tr>
                 <tr v-for="refill in refills" :key="refill.id">
                   <td>{{ formatDate(refill.created_at) }}</td>

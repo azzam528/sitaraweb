@@ -75,26 +75,36 @@
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
 }
 
-@media (max-width: 1024px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-@media (max-width: 600px) {
-  .stats-grid { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
   background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  border: 1px solid #e2e8f0;
+  gap: 12px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -105,8 +115,8 @@
 }
 
 .stat-icon-wrapper {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -114,10 +124,11 @@
   flex-shrink: 0;
 }
 
-.blue-circle { background-color: #e0f2fe; color: #006591; }
-.orange-circle { background-color: #fef3c7; color: #d97706; }
-.teal-circle { background-color: #e0f2fe; color: #0284c7; }
+.blue-circle,
+.teal-circle { background-color: #e0f2fe; color: #006591; }
 .green-circle { background-color: #dcfce7; color: #16a34a; }
+.orange-circle { background-color: #fef3c7; color: #d97706; }
+.red-circle { background-color: #fee2e2; color: #dc2626; }
 
 .stat-info {
   display: flex;
@@ -125,12 +136,13 @@
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.5px;
   color: #64748b;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 2px;
+  white-space: nowrap;
 }
 
 .stat-value {

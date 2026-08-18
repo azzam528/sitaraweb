@@ -73,14 +73,14 @@
       <div class="stat-card">
         <div class="stat-icon-wrapper red-circle">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">RISIKO TINGGI</span>
-          <span class="stat-value">{{ stats.highRisk }}</span>
+          <span class="stat-label">TB RESISTAN (RO)</span>
+          <span class="stat-value">{{ stats.tbRo }}</span>
         </div>
       </div>
     </section>
@@ -112,17 +112,6 @@
             <option value="Selesai Terapi">Selesai Terapi</option>
           </select>
         </div>
-
-        <!-- 3. Status AI Risk -->
-        <div class="form-group">
-          <label>Status AI Risk</label>
-          <select v-model="filters.risk" class="form-control">
-            <option value="">Semua Status</option>
-            <option value="Risiko Tinggi">Risiko Tinggi</option>
-            <option value="Risiko Sedang">Risiko Sedang</option>
-            <option value="Risiko Rendah">Risiko Rendah</option>
-          </select>
-        </div>
       </div>
     </section>
 
@@ -135,13 +124,12 @@
               <th>Pasien & NIK</th>
               <th>Info TB</th>
               <th>Kepatuhan</th>
-              <th>Status Risiko</th>
               <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="filteredPatients.length === 0">
-              <td colspan="5" class="text-center py-6 text-muted">
+              <td colspan="4" class="text-center py-6 text-muted">
                 {{ isLoading ? 'Memuat data pasien...' : 'Tidak ada data pasien yang cocok.' }}
               </td>
             </tr>
@@ -177,17 +165,6 @@
                     <div class="progress-bar-fill" :style="{ width: `${patient.compliance}%`, backgroundColor: getComplianceColor(patient.compliance) }"></div>
                   </div>
                 </div>
-              </td>
-              
-              <!-- STATUS -->
-              <td>
-                <span class="status-badge" :class="{
-                  'status-high': patient.status === 'Risiko Tinggi',
-                  'status-medium': patient.status === 'Risiko Sedang',
-                  'status-low': patient.status === 'Risiko Rendah'
-                }">
-                  {{ patient.status }}
-                </span>
               </td>
               
               <!-- AKSI -->

@@ -73,6 +73,7 @@ export default defineComponent({
     const intensiveCount = computed(() => treatments.value.filter(t => t.phase === 'intensive' && t.status === 'active').length)
     const continuationCount = computed(() => treatments.value.filter(t => t.phase === 'continuation' && t.status === 'active').length)
     const completedCount = computed(() => treatments.value.filter(t => t.status === 'completed').length)
+    const droppedCount = computed(() => treatments.value.filter(t => t.status === 'dropped').length)
 
     // Filtered & Paginated Treatments
     const filteredTreatments = computed(() => {
@@ -271,6 +272,7 @@ export default defineComponent({
       intensiveCount,
       continuationCount,
       completedCount,
+      droppedCount,
       filteredTreatments,
       totalPages,
       paginatedTreatments,

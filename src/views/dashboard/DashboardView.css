@@ -305,7 +305,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: conic-gradient(#ef4444 0% 3%, #f59e0b 3% 13%, #006591 13% 100%);
+  background: conic-gradient(#006591 0% 50%, #0284c7 50% 83%, #16a34a 83% 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,9 +362,11 @@
   border-radius: 50%;
 }
 
+.dot-primary { background-color: #006591; }
+.dot-teal { background-color: #0284c7; }
+.dot-success { background-color: #16a34a; }
 .dot-danger { background-color: #ef4444; }
 .dot-warning { background-color: #f59e0b; }
-.dot-primary { background-color: #006591; }
 
 .risk-list {
   flex: 1;
@@ -427,6 +429,9 @@
   white-space: nowrap;
 }
 
+.badge-primary { background: #e0f2fe; color: #006591; border: 1px solid #bae6fd; }
+.badge-teal { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+.badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 .badge-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 

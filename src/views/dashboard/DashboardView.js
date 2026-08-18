@@ -18,14 +18,14 @@ export default defineComponent({
     const summary = ref({
       active_patients: 6,
       medication_adherence: 95.0,
-      high_risk_patients: 1,
+      tb_ro_patients: 1,
       today_complaints: 0
     })
 
-    const riskData = ref({
-      high: 1,
-      medium: 1,
-      low: 4
+    const phaseData = ref({
+      intensive: 3,
+      continuation: 2,
+      completed: 1
     })
 
     const patientStats = computed(() => [
@@ -44,11 +44,11 @@ export default defineComponent({
         bgColor: '#dcfce7'
       },
       {
-        label: 'Risiko Tinggi',
-        value: String(summary.value.high_risk_patients),
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
-        color: '#EF4444',
-        bgColor: '#fee2e2'
+        label: 'TB Resistan (RO)',
+        value: String(summary.value.tb_ro_patients),
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+        color: '#0284c7',
+        bgColor: '#e0f2fe'
       },
       {
         label: 'Keluhan Hari Ini',
@@ -59,10 +59,10 @@ export default defineComponent({
       }
     ])
 
-    const riskPatients = ref([
-      { id: 2, name: 'Dewi Lestari', level: 'Risiko Tinggi', reason: 'Keluhan Ruam & Alergi Obat', levelColor: 'danger' },
-      { id: 1, name: 'Ahmad Fauzi', level: 'Risiko Sedang', reason: 'Fase Intensif 4FDC', levelColor: 'warning' },
-      { id: 5, name: 'Bambang Pratama', level: 'Risiko Tinggi', reason: 'TB Resistan Obat (MDR)', levelColor: 'danger' }
+    const monitoredPatients = ref([
+      { id: 2, name: 'Dewi Lestari', reason: 'Fase Intensif - Bulan ke-2 (4FDC)', badge: 'Fase Intensif', badgeColor: 'primary' },
+      { id: 1, name: 'Ahmad Fauzi', reason: 'Fase Lanjutan - Bulan ke-3 (2FDC)', badge: 'Fase Lanjutan', badgeColor: 'teal' },
+      { id: 5, name: 'Bambang Pratama', reason: 'Selesai Terapi - Pengobatan Tuntas', badge: 'Selesai Terapi', badgeColor: 'success' }
     ])
 
     const adherencePoints = ref([
@@ -92,7 +92,6 @@ export default defineComponent({
         if (dashRes.status === 'fulfilled' && dashRes.value?.data) {
           const d = dashRes.value.data
           if (d.summary) summary.value = d.summary
-          if (d.risk) riskData.value = d.risk
 
           if (d.recent_activities && d.recent_activities.length > 0) {
             recentActivities.value = d.recent_activities.slice(0, 3).map((act, index) => ({
@@ -106,12 +105,12 @@ export default defineComponent({
 
         if (patRes.status === 'fulfilled' && patRes.value?.data && patRes.value.data.length > 0) {
           const patients = patRes.value.data
-          riskPatients.value = patients.slice(0, 3).map((p, idx) => ({
+          monitoredPatients.value = patients.slice(0, 3).map((p, idx) => ({
             id: p.id,
             name: p.full_name,
-            reason: p.clinical_note ? p.clinical_note.slice(0, 45) + '...' : 'Pasien TB Paru Terpantau',
-            level: idx === 0 ? 'Risiko Tinggi' : idx === 1 ? 'Risiko Sedang' : 'Risiko Rendah',
-            levelColor: idx === 0 ? 'danger' : idx === 1 ? 'warning' : 'primary'
+            reason: p.clinical_note ? p.clinical_note.slice(0, 45) + '...' : (idx === 0 ? 'Fase Intensif - Bulan ke-2' : idx === 1 ? 'Fase Lanjutan - Bulan ke-3' : 'Selesai Terapi - Pengobatan Tuntas'),
+            badge: idx === 0 ? 'Fase Intensif' : idx === 1 ? 'Fase Lanjutan' : 'Selesai Terapi',
+            badgeColor: idx === 0 ? 'primary' : idx === 1 ? 'teal' : 'success'
           }))
         }
       } catch (err) {
@@ -133,8 +132,8 @@ export default defineComponent({
       goToPatientDetail,
       patientStats,
       summary,
-      riskData,
-      riskPatients,
+      phaseData,
+      monitoredPatients,
       adherencePoints,
       recentActivities,
       isLoading

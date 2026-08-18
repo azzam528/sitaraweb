@@ -33,12 +33,12 @@
 
     <!-- 3. Middle Row -->
     <div class="middle-row">
-      <!-- Left: Pasien Berisiko -->
+      <!-- Left: Distribusi Fase Pasien -->
       <div class="card risk-card">
         <div class="card-header">
           <div class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            Pasien Berisiko Putus Obat
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006591" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Distribusi Fase & Monitoring Pasien
           </div>
           <a href="#" class="link-view-all" @click.prevent="goToPatients">Lihat Semua</a>
         </div>
@@ -54,14 +54,14 @@
               </div>
             </div>
             <div class="risk-legend">
-              <div class="legend-item"><span class="dot dot-danger"></span>Tinggi: {{ riskData.high }}</div>
-              <div class="legend-item"><span class="dot dot-warning"></span>Sedang: {{ riskData.medium }}</div>
-              <div class="legend-item"><span class="dot dot-primary"></span>Rendah: {{ riskData.low }}</div>
+              <div class="legend-item"><span class="dot dot-primary"></span>Fase Intensif: {{ phaseData.intensive }}</div>
+              <div class="legend-item"><span class="dot dot-teal"></span>Fase Lanjutan: {{ phaseData.continuation }}</div>
+              <div class="legend-item"><span class="dot dot-success"></span>Selesai: {{ phaseData.completed }}</div>
             </div>
           </div>
 
           <div class="risk-list">
-            <div v-for="patient in riskPatients" :key="patient.id" class="risk-item cursor-pointer" @click="goToPatientDetail(patient.id)">
+            <div v-for="patient in monitoredPatients" :key="patient.id" class="risk-item cursor-pointer" @click="goToPatientDetail(patient.id)">
               <div class="risk-avatar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
@@ -69,8 +69,8 @@
                 <div class="risk-name">{{ patient.name }}</div>
                 <div class="risk-reason">{{ patient.reason }}</div>
               </div>
-              <div class="risk-badge" :class="'badge-' + patient.levelColor">
-                {{ patient.level }}
+              <div class="risk-badge" :class="'badge-' + patient.badgeColor">
+                {{ patient.badge }}
               </div>
               <button class="btn-phone" @click.stop="alert('Menghubungi ' + patient.name)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>

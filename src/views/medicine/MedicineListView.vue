@@ -27,7 +27,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">TOTAL JENIS OAT</span>
-          <span class="stat-value">{{ medicines.length }} <span class="stat-unit">Sediaan</span></span>
+          <span class="stat-value">{{ medicines.length }}</span>
         </div>
       </div>
 
@@ -55,7 +55,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">MENUNGGU RESPON</span>
-          <span class="stat-value text-warning">{{ pendingCount }}</span>
+          <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DISETUJUI</span>
-          <span class="stat-value text-success">{{ approvedCount }}</span>
+          <span class="stat-value">{{ approvedCount }}</span>
         </div>
       </div>
 
@@ -82,7 +82,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">DITOLAK</span>
-          <span class="stat-value text-danger">{{ rejectedCount }}</span>
+          <span class="stat-value">{{ rejectedCount }}</span>
         </div>
       </div>
     </section>
@@ -155,34 +155,9 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Memuat data permintaan obat...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="filteredRequests.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-        </div>
-        <h3>Belum Ada Permintaan Obat</h3>
-        <p v-if="searchQuery || filterCategory || filterStatus || filterStatusPill">
-          Tidak ditemukan permintaan obat yang cocok dengan filter yang dipilih.
-        </p>
-        <p v-else>
-          Belum ada permohonan refill atau pengambilan obat OAT yang diajukan oleh pasien.
-        </p>
-      </div>
-
       <!-- Data Table -->
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Pasien</th>
@@ -193,7 +168,17 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="req in paginatedRequests" :key="req.id">
+            <tr v-if="isLoading">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Memuat data permintaan obat...
+              </td>
+            </tr>
+            <tr v-else-if="filteredRequests.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data permintaan obat yang cocok.
+              </td>
+            </tr>
+            <tr v-else v-for="req in paginatedRequests" :key="req.id">
               <td>
                 <div class="patient-info">
                   <div class="avatar">
@@ -240,7 +225,7 @@
                   <div v-if="activeDropdown === req.id" class="dropdown-menu-floating" @click.stop>
                     <button class="dropdown-item" @click="viewDetail(req); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                       <span>Lihat Rincian / Detail</span>
@@ -269,11 +254,11 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="filteredRequests.length > 0" class="pagination-section">
+      <div class="pagination-section">
         <div class="pagination-info">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRequests.length) }} dari {{ filteredRequests.length }} permohonan
+          Menampilkan {{ filteredRequests.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRequests.length) }} dari {{ filteredRequests.length }} permohonan
         </div>
-        <div class="pagination-controls">
+        <div class="pagination-controls" v-if="totalPages > 1">
           <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
           <button 
             v-for="page in totalPages" 
@@ -295,12 +280,8 @@
         <h2 class="card-title">Riwayat Distribusi OAT Terbaru</h2>
       </div>
 
-      <div v-if="distributionHistory.length === 0" class="empty-state-subtle">
-        <p>Belum ada riwayat distribusi obat yang telah disetujui atau ditolak.</p>
-      </div>
-
-      <div v-else class="table-responsive">
-        <table class="data-table">
+      <div class="table-responsive">
+        <table class="data-table custom-table">
           <thead>
             <tr>
               <th>Waktu Distribusi</th>
@@ -311,7 +292,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="hist in distributionHistory" :key="hist.id">
+            <tr v-if="distributionHistory.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Belum ada riwayat distribusi obat yang telah disetujui atau ditolak.
+              </td>
+            </tr>
+            <tr v-else v-for="hist in distributionHistory" :key="hist.id">
               <td class="whitespace-nowrap font-medium text-sm">{{ formatDate(hist.created_at) }}</td>
               <td>
                 <span class="font-semibold text-dark">{{ hist.treatment?.patient?.full_name || 'Pasien #' + hist.treatment_id }}</span>
