@@ -1,96 +1,97 @@
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import patientService from '@/services/patient.service'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import patientService from "@/services/patient.service";
 
 export function usePatientAddView() {
-  const router = useRouter()
+  const router = useRouter();
 
   const formData = ref({
-    medicalRecordNumber: '',
-    name: '',
-    nik: '',
-    dob: '',
-    gender: 'male',
-    phone: '',
-    address: '',
-    job: '',
-    pmoName: '',
-    pmoPhone: '',
-    clinicalNote: ''
-  })
+    medicalRecordNumber: "",
+    name: "",
+    nik: "",
+    dob: "",
+    gender: "male",
+    phone: "",
+    address: "",
+    job: "",
+    pmoName: "",
+    pmoPhone: "",
+    clinicalNote: "",
+  });
 
-  const isSubmitting = ref(false)
-  const showSuccessModal = ref(false)
-  const errorMessage = ref('')
+  const isSubmitting = ref(false);
+  const showSuccessModal = ref(false);
+  const errorMessage = ref("");
 
   const createdCredentials = ref({
-    username: '',
-    password: ''
-  })
+    username: "",
+    activationUrl: "",
+    whatsappUrl: "",
+  });
 
   const validateForm = () => {
-    errorMessage.value = ''
+    errorMessage.value = "";
 
     if (!formData.value.medicalRecordNumber.trim()) {
-      errorMessage.value = 'Nomor rekam medis wajib diisi.'
-      return false
+      errorMessage.value = "Nomor rekam medis wajib diisi.";
+      return false;
     }
 
     if (!formData.value.name.trim()) {
-      errorMessage.value = 'Nama lengkap wajib diisi.'
-      return false
+      errorMessage.value = "Nama lengkap wajib diisi.";
+      return false;
     }
 
     if (!/^\d{16}$/.test(formData.value.nik.trim())) {
-      errorMessage.value = 'NIK harus terdiri dari 16 digit.'
-      return false
+      errorMessage.value = "NIK harus terdiri dari 16 digit.";
+      return false;
     }
 
     if (!formData.value.dob) {
-      errorMessage.value = 'Tanggal lahir wajib diisi.'
-      return false
+      errorMessage.value = "Tanggal lahir wajib diisi.";
+      return false;
     }
 
     if (!formData.value.gender) {
-      errorMessage.value = 'Jenis kelamin wajib dipilih.'
-      return false
+      errorMessage.value = "Jenis kelamin wajib dipilih.";
+      return false;
     }
 
     if (!formData.value.phone.trim()) {
-      errorMessage.value = 'Nomor telepon wajib diisi.'
-      return false
+      errorMessage.value = "Nomor telepon wajib diisi.";
+      return false;
     }
 
     if (!formData.value.address.trim()) {
-      errorMessage.value = 'Alamat wajib diisi.'
-      return false
+      errorMessage.value = "Alamat wajib diisi.";
+      return false;
     }
 
     if (!formData.value.job.trim()) {
-      errorMessage.value = 'Pekerjaan wajib diisi.'
-      return false
+      errorMessage.value = "Pekerjaan wajib diisi.";
+      return false;
     }
 
     if (!formData.value.pmoName.trim()) {
-      errorMessage.value = 'Nama PMO wajib diisi.'
-      return false
+      errorMessage.value = "Nama PMO wajib diisi.";
+      return false;
     }
 
     if (!formData.value.pmoPhone.trim()) {
-      errorMessage.value = 'Nomor telepon PMO wajib diisi.'
-      return false
+      errorMessage.value = "Nomor telepon PMO wajib diisi.";
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const savePatient = async () => {
     if (!validateForm()) {
-      return
+      return;
     }
 
-    isSubmitting.value = true
-    errorMessage.value = ''
+    isSubmitting.value = true;
+    errorMessage.value = "";
 
     try {
       const payload = {
@@ -104,40 +105,41 @@ export function usePatientAddView() {
         occupation: formData.value.job.trim(),
         pmo_name: formData.value.pmoName.trim(),
         pmo_phone: formData.value.pmoPhone.trim(),
-        clinical_note: formData.value.clinicalNote.trim() || null
-      }
+        clinical_note: formData.value.clinicalNote.trim() || null,
+      };
 
-      const response = await patientService.createPatient(payload)
-      const resData = response.data || {}
+      const response = await patientService.createPatient(payload);
+      const resData = response.data || {};
 
       createdCredentials.value = {
-        username: resData.username || 'TB_USER',
-        password: resData.temporary_password || 'password123'
-      }
+        username: resData.username || "",
+        activationUrl: resData.activation_url || "",
+        whatsappUrl: resData.whatsapp_url || "",
+      };
 
-      showSuccessModal.value = true
+      showSuccessModal.value = true;
     } catch (error) {
-      console.error('Create patient failed:', error)
-      const detail = error?.response?.data?.detail
+      console.error("Create patient failed:", error);
+      const detail = error?.response?.data?.detail;
       if (Array.isArray(detail)) {
-        errorMessage.value = detail.map(item => item.msg).join(', ')
+        errorMessage.value = detail.map((item) => item.msg).join(", ");
       } else {
-        errorMessage.value = detail || 'Gagal menambahkan pasien.'
+        errorMessage.value = detail || "Gagal menambahkan pasien.";
       }
     } finally {
-      isSubmitting.value = false
+      isSubmitting.value = false;
     }
-  }
+  };
 
   const cancelAdd = () => {
-    if (isSubmitting.value) return
-    router.push('/dashboard/patients')
-  }
+    if (isSubmitting.value) return;
+    router.push("/dashboard/patients");
+  };
 
   const finishAndRedirect = () => {
-    showSuccessModal.value = false
-    router.push('/dashboard/patients')
-  }
+    showSuccessModal.value = false;
+    router.push("/dashboard/patients");
+  };
 
   return {
     router,
@@ -149,10 +151,10 @@ export function usePatientAddView() {
     validateForm,
     savePatient,
     cancelAdd,
-    finishAndRedirect
-  }
+    finishAndRedirect,
+  };
 }
 
 export default {
-  usePatientAddView
-}
+  usePatientAddView,
+};

@@ -1,6 +1,6 @@
 <script setup>
-import './PatientAddView.css'
-import { usePatientAddView } from './PatientAddView.js'
+import "./PatientAddView.css";
+import { usePatientAddView } from "./PatientAddView.js";
 
 const {
   formData,
@@ -10,8 +10,8 @@ const {
   createdCredentials,
   savePatient,
   cancelAdd,
-  finishAndRedirect
-} = usePatientAddView()
+  finishAndRedirect,
+} = usePatientAddView();
 </script>
 
 <template>
@@ -19,7 +19,17 @@ const {
     <!-- Header Nav -->
     <div class="header-nav">
       <button type="button" class="back-link" @click="cancelAdd">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
@@ -31,7 +41,8 @@ const {
     <div class="page-header">
       <h1 class="page-title">Tambah Pasien Baru</h1>
       <p class="subtitle">
-        Daftarkan pasien TB baru dan buatkan akun aplikasinya untuk pemantauan pengobatan.
+        Daftarkan pasien TB baru dan buatkan akun aplikasinya untuk pemantauan
+        pengobatan.
       </p>
     </div>
 
@@ -118,11 +129,7 @@ const {
                   Jenis Kelamin
                   <span class="required">*</span>
                 </label>
-                <select
-                  v-model="formData.gender"
-                  class="form-select"
-                  required
-                >
+                <select v-model="formData.gender" class="form-select" required>
                   <option value="male">Laki-laki</option>
                   <option value="female">Perempuan</option>
                 </select>
@@ -232,7 +239,8 @@ const {
           <div class="card form-card">
             <h3 class="card-title">Informasi Pengobatan</h3>
             <p class="text-muted">
-              Data TB, regimen obat, tanggal mulai pengobatan, dan status terapi dikelola melalui modul Treatment setelah pasien berhasil dibuat.
+              Data TB, regimen obat, tanggal mulai pengobatan, dan status terapi
+              dikelola melalui modul Treatment setelah pasien berhasil dibuat.
             </p>
 
             <div class="info-box">
@@ -274,7 +282,17 @@ const {
     <div v-if="showSuccessModal" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-icon success">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
@@ -282,25 +300,34 @@ const {
 
         <h2>Pasien Berhasil Ditambahkan</h2>
         <p>
-          Data pasien <strong>{{ formData.name }}</strong> berhasil disimpan ke dalam sistem.
+          Data pasien <strong>{{ formData.name }}</strong> berhasil disimpan ke
+          dalam sistem.
         </p>
 
         <!-- Credential box -->
         <div class="credentials-box">
-          <h4>Akun Pasien</h4>
+          <h4>Aktivasi Akun Pasien</h4>
+
           <div class="credential-row">
             <span>Username:</span>
             <strong>{{ createdCredentials.username }}</strong>
           </div>
-          <div class="credential-row">
-            <span>Password Sementara:</span>
-            <strong>{{ createdCredentials.password }}</strong>
-          </div>
+
+          <p class="text-muted text-sm mt-3">
+            Pasien akan menerima link aktivasi melalui WhatsApp untuk membuat
+            password akun SITARA.
+          </p>
         </div>
 
-        <p class="text-muted text-sm mt-3">
-          Berikan kredensial di atas kepada pasien untuk dapat login ke aplikasi SITARA.
-        </p>
+        <a
+          v-if="createdCredentials.whatsappUrl"
+          :href="createdCredentials.whatsappUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-success btn-block mt-3"
+        >
+          Kirim Aktivasi via WhatsApp
+        </a>
 
         <button
           type="button"
