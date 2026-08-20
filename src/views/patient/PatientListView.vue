@@ -1,5 +1,5 @@
 <script setup>
-import { usePatientListView } from './PatientListView.js'
+import { usePatientListView } from "./PatientListView.js";
 
 const {
   patientStore,
@@ -18,14 +18,16 @@ const {
   calculateAge,
   formatGender,
   viewPatient,
+  addTreatment,
   editPatient,
   contactPmo,
   deletePatient,
   resetFilters,
   toggleDropdown,
+  handleDocumentClick,
   prevPage,
-  nextPage
-} = usePatientListView()
+  nextPage,
+} = usePatientListView();
 </script>
 
 <template>
@@ -40,7 +42,18 @@ const {
       </div>
 
       <router-link to="/dashboard/patients/add" class="btn-add">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-plus">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="icon-plus"
+        >
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -53,7 +66,17 @@ const {
       <!-- Total Pasien -->
       <div class="stat-card">
         <div class="stat-icon-wrapper teal-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -69,8 +92,20 @@ const {
       <!-- Pasien Aktif -->
       <div class="stat-card">
         <div class="stat-icon-wrapper teal-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+            ></path>
             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
           </svg>
         </div>
@@ -83,7 +118,17 @@ const {
       <!-- Sedang Terapi -->
       <div class="stat-card">
         <div class="stat-icon-wrapper green-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
@@ -97,7 +142,17 @@ const {
       <!-- Selesai Terapi -->
       <div class="stat-card">
         <div class="stat-icon-wrapper orange-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="16 12 12 16 8 12"></polyline>
           </svg>
@@ -112,8 +167,20 @@ const {
     <!-- FILTER -->
     <section class="filter-section card">
       <div class="filter-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon
+            points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+          ></polygon>
         </svg>
         <h2>Filter Pencarian Pasien</h2>
       </div>
@@ -148,11 +215,7 @@ const {
         <!-- Reset -->
         <div class="form-group filter-reset-wrapper">
           <label>&nbsp;</label>
-          <button
-            type="button"
-            class="btn-reset-filter"
-            @click="resetFilters"
-          >
+          <button type="button" class="btn-reset-filter" @click="resetFilters">
             Reset Filter
           </button>
         </div>
@@ -210,9 +273,15 @@ const {
                     {{ getInitials(patient.full_name || patient.name) }}
                   </div>
                   <div class="patient-details">
-                    <span class="patient-name">{{ patient.full_name || patient.name }}</span>
-                    <span class="patient-nik">NIK: {{ patient.nik || '-' }}</span>
-                    <span class="patient-age">{{ calculateAge(patient.birth_date) }} Tahun</span>
+                    <span class="patient-name">{{
+                      patient.full_name || patient.name
+                    }}</span>
+                    <span class="patient-nik"
+                      >NIK: {{ patient.nik || "-" }}</span
+                    >
+                    <span class="patient-age"
+                      >{{ calculateAge(patient.birth_date) }} Tahun</span
+                    >
                   </div>
                 </div>
               </td>
@@ -224,10 +293,10 @@ const {
                     {{ formatGender(patient.gender) }}
                   </span>
                   <span class="phase-text">
-                    RM: {{ patient.medical_record_number || '-' }}
+                    RM: {{ patient.medical_record_number || "-" }}
                   </span>
                   <span class="month-text">
-                    {{ patient.phone || '-' }}
+                    {{ patient.phone || "-" }}
                   </span>
                 </div>
               </td>
@@ -242,9 +311,7 @@ const {
                   >
                     {{ patient.clinical_note }}
                   </span>
-                  <span v-else class="text-muted">
-                    Belum ada catatan
-                  </span>
+                  <span v-else class="text-muted"> Belum ada catatan </span>
                 </div>
               </td>
 
@@ -252,10 +319,10 @@ const {
               <td>
                 <div class="pmo-info">
                   <span class="pmo-name">
-                    {{ patient.pmo_name || 'Belum ada PMO' }}
+                    {{ patient.pmo_name || "Belum ada PMO" }}
                   </span>
                   <span class="kader-name">
-                    {{ patient.pmo_phone || '-' }}
+                    {{ patient.pmo_phone || "-" }}
                   </span>
                 </div>
               </td>
@@ -266,10 +333,10 @@ const {
                   class="status-badge"
                   :class="{
                     'status-low': patient.is_active !== false,
-                    'status-high': patient.is_active === false
+                    'status-high': patient.is_active === false,
                   }"
                 >
-                  {{ patient.is_active !== false ? 'Aktif' : 'Tidak Aktif' }}
+                  {{ patient.is_active !== false ? "Aktif" : "Tidak Aktif" }}
                 </span>
               </td>
 
@@ -281,7 +348,17 @@ const {
                     @click.stop="toggleDropdown(patient.id)"
                     title="Aksi"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="19" cy="12" r="1"></circle>
                       <circle cx="5" cy="12" r="1"></circle>
@@ -296,50 +373,145 @@ const {
                   >
                     <!-- Detail -->
                     <button
+                      type="button"
                       class="dropdown-item"
-                      @click="viewPatient(patient.id); activeDropdown = null"
+                      @click="viewPatient(patient.id)"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        ></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
+
                       <span>Lihat Detail</span>
+                    </button>
+
+                    <!-- Tambah Pengobatan -->
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      @click="addTreatment(patient.id)"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                      </svg>
+
+                      <span>Tambah Pengobatan</span>
                     </button>
 
                     <!-- Edit -->
                     <button
+                      type="button"
                       class="dropdown-item"
-                      @click="editPatient(patient.id); activeDropdown = null"
+                      @click="editPatient(patient.id)"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M12 20h9"></path>
+                        <path
+                          d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"
+                        ></path>
                       </svg>
+
                       <span>Edit Pasien</span>
                     </button>
 
-                    <!-- PMO Contact -->
+                    <!-- Hubungi PMO -->
                     <button
-                      v-if="patient.pmo_phone || patient.phone"
+                      type="button"
                       class="dropdown-item"
-                      @click="contactPmo(patient); activeDropdown = null"
+                      @click="contactPmo(patient)"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M22 16.92v3a2 2 0 0 1-2.18 2
+        19.79 19.79 0 0 1-8.63-3.07
+        19.5 19.5 0 0 1-6-6
+        19.79 19.79 0 0 1-3.07-8.67
+        A2 2 0 0 1 4.11 2h3
+        a2 2 0 0 1 2 1.72
+        12.84 12.84 0 0 0 .7 2.81
+        2 2 0 0 1-.45 2.11L8.09 9.91
+        a16 16 0 0 0 6 6l1.27-1.27
+        a2 2 0 0 1 2.11-.45
+        12.84 12.84 0 0 0 2.81.7
+        A2 2 0 0 1 22 16.92z"
+                        ></path>
                       </svg>
+
                       <span>Hubungi PMO</span>
                     </button>
 
                     <!-- Delete -->
                     <button
-                      class="dropdown-item text-danger"
-                      @click="deletePatient(patient); activeDropdown = null"
+                      type="button"
+                      class="dropdown-item dropdown-item-danger"
+                      @click="deletePatient(patient)"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
                         <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <path
+                          d="M19 6v14a2 2 0 0 1-2 2H7
+        a2 2 0 0 1-2-2V6m3 0V4
+        a2 2 0 0 1 2-2h4
+        a2 2 0 0 1 2 2v2"
+                        ></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
                       </svg>
-                      <span>Hapus</span>
+
+                      <span>Hapus Pasien</span>
                     </button>
                   </div>
                 </div>
@@ -353,7 +525,9 @@ const {
       <div v-if="filteredPatients.length > 0" class="pagination-section">
         <div class="pagination-info">
           Menampilkan
-          {{ Math.min((currentPage - 1) * pageSize + 1, filteredPatients.length) }}
+          {{
+            Math.min((currentPage - 1) * pageSize + 1, filteredPatients.length)
+          }}
           -
           {{ Math.min(currentPage * pageSize, filteredPatients.length) }}
           dari
