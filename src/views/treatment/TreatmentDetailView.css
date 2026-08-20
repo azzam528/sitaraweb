@@ -34,7 +34,9 @@
 .card {
   background: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.04),
+    0 1px 2px -1px rgba(0, 0, 0, 0.04);
   padding: 24px;
   border: 1px solid #e2e8f0;
 }
@@ -54,7 +56,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #006591 0%, #6DF5E1 100%);
+  background: linear-gradient(135deg, #006591 0%, #6df5e1 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -154,8 +156,9 @@
 /* Info Grid */
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.5fr 1fr;
   gap: 16px;
+  margin-bottom: 20px;
 }
 
 .info-card {
@@ -216,9 +219,15 @@
   transition: width 0.4s ease;
 }
 
-.bg-primary { background-color: #006591; }
-.bg-success { background-color: #22c55e; }
-.bg-danger { background-color: #ef4444; }
+.bg-primary {
+  background-color: #006591;
+}
+.bg-success {
+  background-color: #22c55e;
+}
+.bg-danger {
+  background-color: #ef4444;
+}
 
 /* Grid Layout (2 cols: 65% / 35%) */
 .grid-layout {
@@ -228,7 +237,8 @@
 }
 
 @media (max-width: 900px) {
-  .grid-layout, .info-grid {
+  .grid-layout,
+  .info-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -314,14 +324,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #006591 0%, #0080B5 100%);
+  background: linear-gradient(135deg, #006591 0%, #0080b5 100%);
   color: #ffffff !important;
   border-color: #006591;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #004D6E 0%, #006591 100%);
+  background: linear-gradient(135deg, #004d6e 0%, #006591 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(0, 101, 145, 0.25);
 }
@@ -365,7 +375,9 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
   animation: slideUp 0.3s ease;
 }
 
@@ -408,11 +420,21 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(16px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
