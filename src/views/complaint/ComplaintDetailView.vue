@@ -51,23 +51,26 @@
           </div>
         </div>
 
-        <div class="patient-meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">FASE TERAPI</span>
-            <span class="meta-value">{{ formatPhase(complaint.treatment?.phase) }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">REGIMEN OBAT</span>
-            <span class="meta-value">{{ formatRegimen(complaint.treatment?.regimen) }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">DOKTER PJ</span>
-            <span class="meta-value">{{ complaint.treatment?.doctor_name || '-' }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">PMO (PENGAWAS)</span>
-            <span class="meta-value">{{ complaint.treatment?.patient?.pmo_name || '-' }}</span>
-          </div>
+       <div class="patient-meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">FASE TERAPI</span>
+          <span class="meta-value">
+            {{ formatPhase(complaint.treatment?.phase) }}
+          </span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-label">REGIMEN OBAT</span>
+          <span class="meta-value">
+            {{ formatRegimen(complaint.treatment?.regimen) }}
+          </span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-label">DOKTER PJ</span>
+          <span class="meta-value">
+            {{ complaint.treatment?.doctor_name || '-' }}
+          </span>
         </div>
       </div>
 
@@ -133,22 +136,23 @@
           <!-- Kontak & Informasi Pasien -->
           <div class="card" v-if="complaint.treatment?.patient">
             <h3 class="section-title">Kontak & Alamat Pasien</h3>
+
             <div class="detail-list">
               <div class="detail-row">
                 <span class="detail-label">Nomor Telepon Pasien:</span>
-                <span class="detail-val font-semibold">{{ complaint.treatment.patient.phone || '-' }}</span>
+                <span class="detail-val font-semibold">
+                  {{ complaint.treatment.patient.phone || '-' }}
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Pengawas Menelan Obat (PMO):</span>
-                <span class="detail-val">{{ complaint.treatment.patient.pmo_name }} ({{ complaint.treatment.patient.pmo_phone || '-' }})</span>
-              </div>
+
               <div class="detail-row">
                 <span class="detail-label">Alamat Lengkap:</span>
-                <span class="detail-val">{{ complaint.treatment.patient.address || '-' }}</span>
+                <span class="detail-val">
+                  {{ complaint.treatment.patient.address || '-' }}
+                </span>
               </div>
             </div>
           </div>
-        </div>
 
         <!-- Right Column: Tindakan Medis & Pembaruan Status -->
         <div class="col-side">
@@ -218,16 +222,7 @@
                 Hubungi Pasien (WA)
               </button>
 
-              <button 
-                v-if="complaint.treatment?.patient?.pmo_phone" 
-                class="btn btn-outline btn-block" 
-                @click="sendWhatsApp(complaint.treatment.patient.pmo_phone, complaint.treatment.patient.pmo_name, 'PMO')"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-                Hubungi PMO (WA)
-              </button>
+              
 
               <button class="btn btn-outline-danger btn-block" @click="confirmDelete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
