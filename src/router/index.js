@@ -160,7 +160,10 @@ const routes = [
         path: "medicines",
         name: "MedicineList",
         component: () => import("@/views/medicine/MedicineListView.vue"),
-        meta: { title: "Logistik Obat - SITARA", breadcrumb: "Logistik Obat" },
+        meta: {
+          title: "Permintaan Obat - SITARA",
+          breadcrumb: "Permintaan Obat",
+        },
       },
       {
         path: "refill-requests",

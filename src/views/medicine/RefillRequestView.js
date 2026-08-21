@@ -1,322 +1,522 @@
-import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
-import refillService from '../../services/refill.service'
-import treatmentService from '../../services/treatment.service'
-import medicineService from '../../services/medicine.service'
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
+
+import refillService from "../../services/refill.service";
 
 export default defineComponent({
-  name: 'RefillRequestView',
+  name: "RefillRequestView",
+
   setup() {
-    const refills = ref([])
-    const availableTreatments = ref([])
-    const medicines = ref([])
+    // =====================================================
+    // DATA STATE
+    // =====================================================
 
-    const isLoading = ref(true)
-    const isSubmitting = ref(false)
+    const refills = ref([]);
 
-    // Alert Toast
-    const alertMessage = ref('')
-    const alertType = ref('success')
+    const isLoading = ref(true);
+    const isSubmitting = ref(false);
 
-    const showAlert = (msg, type = 'success') => {
-      alertMessage.value = msg
-      alertType.value = type
+    // =====================================================
+    // ALERT TOAST
+    // =====================================================
+
+    const alertMessage = ref("");
+    const alertType = ref("success");
+
+    const showAlert = (msg, type = "success") => {
+      alertMessage.value = msg;
+      alertType.value = type;
+
       setTimeout(() => {
-        alertMessage.value = ''
-      }, 4000)
-    }
+        alertMessage.value = "";
+      }, 4000);
+    };
 
-    // Search & Filter
-    const searchQuery = ref('')
-    const filterStatus = ref('')
-    const filterReason = ref('')
+    // =====================================================
+    // SEARCH & FILTER
+    // =====================================================
 
-    // Pagination
-    const currentPage = ref(1)
-    const pageSize = 10
+    const searchQuery = ref("");
+    const filterStatus = ref("");
+    const filterReason = ref("");
 
-    // Dropdown
-    const activeDropdown = ref(null)
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const currentPage = ref(1);
+    const pageSize = 10;
+
+    // =====================================================
+    // DROPDOWN
+    // =====================================================
+
+    const activeDropdown = ref(null);
 
     const toggleDropdown = (id) => {
-      activeDropdown.value = activeDropdown.value === id ? null : id
-    }
+      activeDropdown.value = activeDropdown.value === id ? null : id;
+    };
 
     const handleDocumentClick = () => {
-      activeDropdown.value = null
-    }
+      activeDropdown.value = null;
+    };
+
+    // =====================================================
+    // LIFECYCLE
+    // =====================================================
 
     onMounted(() => {
-      document.addEventListener('click', handleDocumentClick)
-      loadRefills()
-      loadTreatments()
-      loadMedicines()
-    })
+      document.addEventListener("click", handleDocumentClick);
+
+      loadRefills();
+    });
 
     onUnmounted(() => {
-      document.removeEventListener('click', handleDocumentClick)
-    })
+      document.removeEventListener("click", handleDocumentClick);
+    });
 
-    // Load Refills from API
+    // =====================================================
+    // LOAD REFILL REQUESTS
+    // =====================================================
+
     const loadRefills = async () => {
-      isLoading.value = true
+      isLoading.value = true;
+
       try {
-        const res = await refillService.getAll()
-        refills.value = res.data || []
+        const res = await refillService.getAll();
+
+        console.log("REFILL RESPONSE:", res);
+        console.log("REFILL DATA:", res.data);
+
+        const data = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.data)
+            ? res.data.data
+            : [];
+
+        refills.value = data;
+
+        console.log("REFILLS STATE:", refills.value);
+
+        if (currentPage.value > totalPages.value) {
+          currentPage.value = 1;
+        }
       } catch (error) {
-        console.error('Failed to load refills:', error)
-        showAlert('Gagal memuat daftar permintaan refill obat', 'danger')
+        console.error("FAILED LOAD REFILLS:", error);
+
+        refills.value = [];
+
+        showAlert(
+          error.response?.data?.detail || "Gagal memuat daftar permintaan obat",
+          "danger",
+        );
       } finally {
-        isLoading.value = false
+        isLoading.value = false;
       }
-    }
+    };
 
-    // Load Treatments & Medicines for Add Modal
-    const loadTreatments = async () => {
-      try {
-        const res = await treatmentService.getAll()
-        availableTreatments.value = res.data || []
-      } catch (error) {
-        console.error('Failed to load treatments:', error)
-      }
-    }
+    // =====================================================
+    // STATISTICS
+    // =====================================================
 
-    const loadMedicines = async () => {
-      try {
-        const res = await medicineService.getAll()
-        medicines.value = res.data || []
-      } catch (error) {
-        console.error('Failed to load medicines:', error)
-      }
-    }
+    const totalRequests = computed(() => {
+      return refills.value.length;
+    });
 
-    // Computed Statistics
-    const pendingCount = computed(() => refills.value.filter(r => r.status === 'pending').length)
-    const approvedCount = computed(() => refills.value.filter(r => r.status === 'approved').length)
-    const rejectedCount = computed(() => refills.value.filter(r => r.status === 'rejected').length)
+    const pendingCount = computed(() => {
+      return refills.value.filter((r) => r.status === "pending").length;
+    });
+
+    const waitingCount = computed(() => {
+      return pendingCount.value;
+    });
+
+    const approvedCount = computed(() => {
+      return refills.value.filter((r) => r.status === "approved").length;
+    });
+
+    const rejectedCount = computed(() => {
+      return refills.value.filter((r) => r.status === "rejected").length;
+    });
+
+    const totalMedicines = computed(() => {
+      const medicineIds = new Set(
+        refills.value
+          .map((r) => r.medicine_id)
+          .filter((id) => id !== null && id !== undefined),
+      );
+
+      return medicineIds.size;
+    });
+
     const approvalRate = computed(() => {
-      const processed = approvedCount.value + rejectedCount.value
-      if (processed === 0) return '100%'
-      return Math.round((approvedCount.value / processed) * 100) + '%'
-    })
+      const processed = approvedCount.value + rejectedCount.value;
 
-    // Filtered Refills
+      if (processed === 0) {
+        return "0%";
+      }
+
+      return Math.round((approvedCount.value / processed) * 100) + "%";
+    });
+    // =====================================================
+    // FILTERED REFILLS
+    // =====================================================
+
     const filteredRefills = computed(() => {
-      return refills.value.filter(r => {
-        const q = searchQuery.value.toLowerCase().trim()
-        const pName = r.treatment?.patient?.full_name?.toLowerCase() || ''
-        const pNik = r.treatment?.patient?.nik || ''
-        const pRm = r.treatment?.patient?.medical_record_number?.toLowerCase() || ''
-        const medName = r.medicine?.name?.toLowerCase() || ''
-        const medCode = r.medicine?.code?.toLowerCase() || ''
-        const reason = r.reason?.toLowerCase() || ''
+      return refills.value.filter((r) => {
+        const q = searchQuery.value.toLowerCase().trim();
 
-        const matchSearch = !q || pName.includes(q) || pNik.includes(q) || pRm.includes(q) || medName.includes(q) || medCode.includes(q) || reason.includes(q)
-        const matchStatus = !filterStatus.value || r.status === filterStatus.value
-        const matchReason = !filterReason.value || r.reason?.toLowerCase().includes(filterReason.value.toLowerCase())
+        const patientName =
+          r.treatment?.patient?.full_name?.toLowerCase() || "";
 
-        return matchSearch && matchStatus && matchReason
-      })
-    })
+        const patientNik = r.treatment?.patient?.nik || "";
 
-    const totalPages = computed(() => Math.ceil(filteredRefills.value.length / pageSize) || 1)
+        const patientRm =
+          r.treatment?.patient?.medical_record_number?.toLowerCase() || "";
+
+        const medicineName = r.medicine?.name?.toLowerCase() || "";
+
+        const medicineCode = r.medicine?.code?.toLowerCase() || "";
+
+        const reason = r.reason?.toLowerCase() || "";
+
+        const description = r.description?.toLowerCase() || "";
+
+        const matchSearch =
+          !q ||
+          patientName.includes(q) ||
+          patientNik.includes(q) ||
+          patientRm.includes(q) ||
+          medicineName.includes(q) ||
+          medicineCode.includes(q) ||
+          reason.includes(q) ||
+          description.includes(q);
+
+        const matchStatus =
+          !filterStatus.value || r.status === filterStatus.value;
+
+        const matchReason =
+          !filterReason.value ||
+          r.reason?.toLowerCase().includes(filterReason.value.toLowerCase());
+
+        return matchSearch && matchStatus && matchReason;
+      });
+    });
+
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const totalPages = computed(() => {
+      return Math.ceil(filteredRefills.value.length / pageSize) || 1;
+    });
 
     const paginatedRefills = computed(() => {
-      const start = (currentPage.value - 1) * pageSize
-      return filteredRefills.value.slice(start, start + pageSize)
-    })
+      const start = (currentPage.value - 1) * pageSize;
 
-    // Helpers
+      return filteredRefills.value.slice(start, start + pageSize);
+    });
+
+    // =====================================================
+    // HELPERS
+    // =====================================================
+
     const formatStatus = (status) => {
-      if (status === 'pending') return 'Menunggu'
-      if (status === 'approved') return 'Disetujui'
-      if (status === 'rejected') return 'Ditolak'
-      return status || '-'
-    }
+      if (status === "pending") {
+        return "Menunggu";
+      }
+
+      if (status === "approved") {
+        return "Disetujui";
+      }
+
+      if (status === "rejected") {
+        return "Ditolak";
+      }
+
+      return status || "-";
+    };
 
     const formatDate = (dateStr) => {
-      if (!dateStr) return '-'
-      const d = new Date(dateStr)
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-    }
+      if (!dateStr) {
+        return "-";
+      }
+
+      const d = new Date(dateStr);
+
+      return d.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    };
 
     const formatTime = (dateStr) => {
-      if (!dateStr) return '-'
-      const d = new Date(dateStr)
-      return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-    }
+      if (!dateStr) {
+        return "-";
+      }
+
+      const d = new Date(dateStr);
+
+      return d.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    };
 
     const truncate = (text, maxLen = 40) => {
-      if (!text) return '-'
-      return text.length > maxLen ? text.slice(0, maxLen) + '...' : text
-    }
+      if (!text) {
+        return "-";
+      }
+
+      return text.length > maxLen ? text.slice(0, maxLen) + "..." : text;
+    };
 
     const getInitials = (name) => {
-      if (!name) return 'TB'
-      return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
-    }
+      if (!name) {
+        return "TB";
+      }
+
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+    };
 
     const getAvatarColor = (id) => {
-      const colors = ['teal', 'primary', 'orange', 'green', 'purple']
-      return colors[id % colors.length]
-    }
+      const colors = ["teal", "primary", "orange", "green", "purple"];
 
-    // Verification Modal (Approve / Reject)
-    const showVerifyModal = ref(false)
-    const selectedRefill = ref(null)
-    const verifyTargetStatus = ref('approved')
-    const verifyNurseNote = ref('')
+      return colors[id % colors.length];
+    };
+
+    // =====================================================
+    // VERIFICATION MODAL
+    // =====================================================
+
+    const showVerifyModal = ref(false);
+
+    const selectedRefill = ref(null);
+
+    const verifyTargetStatus = ref("approved");
+
+    const verifyNurseNote = ref("");
 
     const openVerifyModal = (refill, targetStatus) => {
-      selectedRefill.value = refill
-      verifyTargetStatus.value = targetStatus
-      verifyNurseNote.value = refill.nurse_note || ''
-      showVerifyModal.value = true
-    }
+      selectedRefill.value = refill;
+
+      verifyTargetStatus.value = targetStatus;
+
+      verifyNurseNote.value = refill.nurse_note || "";
+
+      showVerifyModal.value = true;
+    };
+
+    // =====================================================
+    // APPROVE / REJECT
+    // =====================================================
 
     const submitVerification = async () => {
-      if (!selectedRefill.value) return
-      isSubmitting.value = true
+      if (!selectedRefill.value) {
+        return;
+      }
+
+      isSubmitting.value = true;
+
       try {
-        if (verifyTargetStatus.value === 'approved') {
-          await refillService.approve(selectedRefill.value.id, verifyNurseNote.value)
-          showAlert('Permintaan refill berhasil disetujui!')
+        if (verifyTargetStatus.value === "approved") {
+          await refillService.approve(
+            selectedRefill.value.id,
+            verifyNurseNote.value,
+          );
+
+          showAlert("Permintaan obat berhasil disetujui!");
         } else {
-          await refillService.reject(selectedRefill.value.id, verifyNurseNote.value)
-          showAlert('Permintaan refill telah ditolak!')
-        }
-        showVerifyModal.value = false
-        await loadRefills()
-      } catch (error) {
-        console.error('Failed to verify refill:', error)
-        showAlert('Gagal memproses verifikasi refill', 'danger')
-      } finally {
-        isSubmitting.value = false
-      }
-    }
+          await refillService.reject(
+            selectedRefill.value.id,
+            verifyNurseNote.value,
+          );
 
-    // Detail Modal
-    const showDetailModal = ref(false)
+          showAlert("Permintaan obat telah ditolak!");
+        }
+
+        showVerifyModal.value = false;
+
+        selectedRefill.value = null;
+
+        verifyNurseNote.value = "";
+
+        await loadRefills();
+      } catch (error) {
+        console.error("Failed to verify refill:", error);
+
+        showAlert("Gagal memproses permintaan obat", "danger");
+      } finally {
+        isSubmitting.value = false;
+      }
+    };
+
+    // =====================================================
+    // DETAIL MODAL
+    // =====================================================
+
+    const showDetailModal = ref(false);
+
     const openDetailModal = (refill) => {
-      selectedRefill.value = refill
-      showDetailModal.value = true
-    }
+      selectedRefill.value = refill;
 
-    // Add Modal
-    const showAddModal = ref(false)
-    const addForm = ref({
-      treatment_id: '',
-      medicine_id: '',
-      quantity: 28,
-      reason: 'Stok Habis',
-      description: ''
-    })
+      showDetailModal.value = true;
+    };
 
-    const openAddModal = () => {
-      addForm.value = {
-        treatment_id: availableTreatments.value[0]?.id || '',
-        medicine_id: medicines.value[0]?.id || '',
-        quantity: 28,
-        reason: 'Stok Habis',
-        description: ''
-      }
-      showAddModal.value = true
-    }
+    // =====================================================
+    // WHATSAPP
+    // =====================================================
 
-    const submitAddRefill = async () => {
-      if (!addForm.value.treatment_id || !addForm.value.medicine_id) {
-        showAlert('Pilih pengobatan dan obat terlebih dahulu', 'warning')
-        return
-      }
-      isSubmitting.value = true
-      try {
-        await refillService.create({
-          treatment_id: Number(addForm.value.treatment_id),
-          medicine_id: Number(addForm.value.medicine_id),
-          quantity: Number(addForm.value.quantity),
-          reason: addForm.value.reason,
-          description: addForm.value.description || null
-        })
-        showAlert('Permintaan refill obat berhasil dibuat!')
-        showAddModal.value = false
-        await loadRefills()
-      } catch (error) {
-        console.error('Failed to create refill:', error)
-        showAlert('Gagal membuat permintaan refill', 'danger')
-      } finally {
-        isSubmitting.value = false
-      }
-    }
-
-    // WhatsApp Helper
     const sendWhatsApp = (refill) => {
-      const phone = refill.treatment?.patient?.phone
-      if (!phone) {
-        showAlert('Nomor WhatsApp pasien tidak tersedia', 'warning')
-        return
-      }
-      const cleanPhone = phone.replace(/^0/, '62').replace(/\D/g, '')
-      const msg = encodeURIComponent(`Halo Bpk/Ibu ${refill.treatment?.patient?.full_name}, terkait permintaan refill obat ${refill.medicine?.name} sejumlah ${refill.quantity} ${refill.medicine?.unit || 'Tablet'}: status permintaan Anda saat ini adalah ${formatStatus(refill.status)}. ${refill.nurse_note ? 'Catatan: ' + refill.nurse_note : ''}`)
-      window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
-    }
+      const phone = refill.treatment?.patient?.phone;
 
-    // Delete Refill
-    const confirmDelete = async (refill) => {
-      const name = refill.treatment?.patient?.full_name || 'Pasien'
-      if (confirm(`Apakah Anda yakin ingin menghapus permintaan refill obat ${refill.medicine?.name} untuk ${name}?`)) {
-        try {
-          await refillService.delete(refill.id)
-          showAlert('Permintaan refill berhasil dihapus!')
-          await loadRefills()
-        } catch (error) {
-          console.error('Failed to delete refill:', error)
-          showAlert('Gagal menghapus permintaan refill', 'danger')
-        }
+      if (!phone) {
+        showAlert("Nomor WhatsApp pasien tidak tersedia", "warning");
+
+        return;
       }
-    }
+
+      let cleanPhone = phone.replace(/\D/g, "");
+
+      if (cleanPhone.startsWith("0")) {
+        cleanPhone = "62" + cleanPhone.substring(1);
+      }
+
+      const patientName = refill.treatment?.patient?.full_name || "Pasien";
+
+      const medicineName = refill.medicine?.name || "obat";
+
+      const quantity = refill.quantity || 0;
+
+      const unit = refill.medicine?.unit || "Tablet";
+
+      const status = formatStatus(refill.status);
+
+      const nurseNote = refill.nurse_note
+        ? ` Catatan tenaga kesehatan: ${refill.nurse_note}`
+        : "";
+
+      const message =
+        `Halo Bpk/Ibu ${patientName}, ` +
+        `terkait permintaan obat ${medicineName} ` +
+        `sejumlah ${quantity} ${unit}. ` +
+        `Status permintaan Anda saat ini: ${status}.` +
+        nurseNote;
+
+      const encodedMessage = encodeURIComponent(message);
+
+      window.open(
+        `https://wa.me/${cleanPhone}?text=${encodedMessage}`,
+        "_blank",
+      );
+    };
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+
+    const confirmDelete = async (refill) => {
+      const name = refill.treatment?.patient?.full_name || "Pasien";
+
+      const medicineName = refill.medicine?.name || "obat";
+
+      const confirmed = confirm(
+        `Apakah Anda yakin ingin menghapus ` +
+          `permintaan obat ${medicineName} ` +
+          `untuk ${name}?`,
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await refillService.delete(refill.id);
+
+        showAlert("Permintaan obat berhasil dihapus!");
+
+        await loadRefills();
+      } catch (error) {
+        console.error("Failed to delete refill:", error);
+
+        showAlert("Gagal menghapus permintaan obat", "danger");
+      }
+    };
+
+    // =====================================================
+    // RETURN
+    // =====================================================
 
     return {
+      // Data
       refills,
-      availableTreatments,
-      medicines,
+
+      // Loading
       isLoading,
       isSubmitting,
+
+      // Alert
       alertMessage,
       alertType,
       showAlert,
+
+      // Search & Filter
       searchQuery,
       filterStatus,
       filterReason,
+
+      // Pagination
       currentPage,
       pageSize,
+
+      // Dropdown
       activeDropdown,
       toggleDropdown,
+
+      // Statistics
+      totalRequests,
       pendingCount,
+      waitingCount,
       approvedCount,
       rejectedCount,
+      totalMedicines,
       approvalRate,
+
+      // Filtered Data
       filteredRefills,
       totalPages,
       paginatedRefills,
+
+      // Helpers
       formatStatus,
       formatDate,
       formatTime,
       truncate,
       getInitials,
       getAvatarColor,
+
+      // Verification
       showVerifyModal,
       selectedRefill,
       verifyTargetStatus,
       verifyNurseNote,
       openVerifyModal,
       submitVerification,
+
+      // Detail
       showDetailModal,
       openDetailModal,
-      showAddModal,
-      addForm,
-      openAddModal,
-      submitAddRefill,
+
+      // WhatsApp
       sendWhatsApp,
-      confirmDelete
-    }
-  }
-})
+
+      // Delete
+      confirmDelete,
+    };
+  },
+});
