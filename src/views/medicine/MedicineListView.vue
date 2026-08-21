@@ -454,7 +454,7 @@
         <table class="data-table custom-table">
           <thead>
             <tr>
-              <th>Waktu Penyaluran</th>
+              <th>Waktu Penyaluran Obat</th>
               <th>Pasien Penerima</th>
               <th>Jenis Obat OAT</th>
               <th>Jumlah</th>
