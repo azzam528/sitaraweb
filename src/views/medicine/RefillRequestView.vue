@@ -473,59 +473,194 @@
       </div>
     </div>
 
-    <!-- MODAL: Verifikasi Refill (Approve / Reject) -->
+    <!-- MODAL: Proses Permintaan Obat -->
     <div
       v-if="showVerifyModal"
       class="modal-backdrop"
       @click="showVerifyModal = false"
     >
-      <div class="modal-dialog modal-sm" @click.stop>
-        <div class="modal-header">
-          <h3>
-            {{
-              verifyTargetStatus === "approved"
-                ? "Setujui Permintaan Obat"
-                : "Tolak Permintaan Obat"
-            }}
-          </h3>
-          <button class="modal-close" @click="showVerifyModal = false">
+      <div class="verify-modal" @click.stop>
+        <!-- HEADER -->
+        <div class="verify-modal-header">
+          <div class="verify-title-wrapper">
+            <div
+              class="verify-icon"
+              :class="
+                verifyTargetStatus === 'approved'
+                  ? 'verify-icon-success'
+                  : 'verify-icon-danger'
+              "
+            >
+              <svg
+                v-if="verifyTargetStatus === 'approved'"
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+
+            <div>
+              <h3>
+                {{
+                  verifyTargetStatus === "approved"
+                    ? "Setujui Permintaan Obat"
+                    : "Tolak Permintaan Obat"
+                }}
+              </h3>
+
+              <p>
+                {{
+                  verifyTargetStatus === "approved"
+                    ? "Tinjau informasi sebelum menyetujui permintaan."
+                    : "Berikan alasan penolakan permintaan obat pasien."
+                }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            @click="showVerifyModal = false"
+          >
             &times;
           </button>
         </div>
 
+        <!-- BODY -->
         <form @submit.prevent="submitVerification">
-          <div class="modal-body">
-            <div class="refill-summary-box mb-3">
-              <div class="font-semibold text-dark">
-                {{ selectedRefill?.treatment?.patient?.full_name || "Pasien" }}
-              </div>
-              <div class="text-sm mt-1">
-                Obat: <strong>{{ selectedRefill?.medicine?.name }}</strong> ({{
-                  selectedRefill?.quantity
-                }}
-                {{ selectedRefill?.medicine?.unit || "Tablet" }})
-              </div>
-              <div class="text-xs text-muted mt-0.5">
-                Alasan: {{ selectedRefill?.reason }}
+          <div class="verify-modal-body">
+            <!-- INFORMASI PASIEN -->
+            <div class="verify-section">
+              <div class="verify-section-title">INFORMASI PASIEN</div>
+
+              <div class="patient-summary">
+                <div class="patient-avatar">
+                  {{
+                    getInitials(selectedRefill?.treatment?.patient?.full_name)
+                  }}
+                </div>
+
+                <div class="patient-summary-info">
+                  <div class="patient-summary-name">
+                    {{
+                      selectedRefill?.treatment?.patient?.full_name || "Pasien"
+                    }}
+                  </div>
+
+                  <div class="patient-summary-meta">
+                    NIK:
+                    {{ selectedRefill?.treatment?.patient?.nik || "-" }}
+                    <span>•</span>
+                    No. RM:
+                    {{
+                      selectedRefill?.treatment?.patient
+                        ?.medical_record_number || "-"
+                    }}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Catatan Tenaga Kesehatan / Alasan</label>
+            <!-- RINCIAN PERMINTAAN -->
+            <div class="verify-section">
+              <div class="verify-section-title">RINCIAN PERMINTAAN</div>
+
+              <div class="request-detail-grid">
+                <div class="request-detail-item">
+                  <span>Nama Obat</span>
+                  <strong>
+                    {{ selectedRefill?.medicine?.name || "-" }}
+                  </strong>
+                </div>
+
+                <div class="request-detail-item">
+                  <span>Jumlah Diminta</span>
+                  <strong>
+                    {{ selectedRefill?.quantity || 0 }}
+                    {{ selectedRefill?.medicine?.unit || "Tablet" }}
+                  </strong>
+                </div>
+
+                <div class="request-detail-item">
+                  <span>Alasan Permintaan</span>
+                  <strong>
+                    {{ selectedRefill?.reason || "-" }}
+                  </strong>
+                </div>
+
+                <div
+                  v-if="selectedRefill?.description"
+                  class="request-detail-item full-width"
+                >
+                  <span>Catatan Pasien</span>
+                  <strong class="request-description">
+                    "{{ selectedRefill.description }}"
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- CATATAN NAKES -->
+            <div class="verify-section">
+              <div class="verify-section-title">
+                {{
+                  verifyTargetStatus === "approved"
+                    ? "CATATAN TENAGA KESEHATAN"
+                    : "ALASAN PENOLAKAN"
+                }}
+
+                <span
+                  v-if="verifyTargetStatus === 'rejected'"
+                  class="required-mark"
+                >
+                  *
+                </span>
+              </div>
+
               <textarea
                 v-model="verifyNurseNote"
-                rows="3"
+                class="verify-textarea"
+                rows="4"
                 :placeholder="
                   verifyTargetStatus === 'approved'
-                    ? 'Contoh: Disetujui untuk pengambilan 28 tablet di farmasi puskesmas...'
-                    : 'Contoh: Ditolak karena jadwal kontrol belum tiba atau dosis masih mencukupi...'
+                    ? 'Tambahkan catatan untuk pasien jika diperlukan...'
+                    : 'Tuliskan alasan penolakan permintaan obat...'
                 "
-                class="form-control"
               ></textarea>
+
+              <small v-if="verifyTargetStatus === 'rejected'" class="form-hint">
+                Alasan penolakan wajib diisi.
+              </small>
             </div>
           </div>
 
-          <div class="modal-footer">
+          <!-- FOOTER -->
+          <div class="verify-modal-footer">
             <button
               type="button"
               class="btn btn-outline"
@@ -533,20 +668,57 @@
             >
               Batal
             </button>
+
             <button
               type="submit"
-              class="btn"
+              class="verify-submit-btn"
               :class="
-                verifyTargetStatus === 'approved' ? 'btn-success' : 'btn-danger'
+                verifyTargetStatus === 'approved'
+                  ? 'verify-submit-success'
+                  : 'verify-submit-danger'
               "
               :disabled="isSubmitting"
             >
               <span v-if="isSubmitting" class="spinner-sm"></span>
-              <span v-else>{{
-                verifyTargetStatus === "approved"
-                  ? "Konfirmasi Setujui"
-                  : "Konfirmasi Tolak"
-              }}</span>
+
+              <template v-else>
+                <svg
+                  v-if="verifyTargetStatus === 'approved'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+
+                {{
+                  verifyTargetStatus === "approved"
+                    ? "Setujui Permintaan"
+                    : "Tolak Permintaan"
+                }}
+              </template>
             </button>
           </div>
         </form>
