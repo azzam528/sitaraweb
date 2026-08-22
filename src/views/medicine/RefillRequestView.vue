@@ -217,6 +217,7 @@
             <tr v-if="isLoading">
               <td colspan="5" class="text-center py-6 text-muted">
                 Memuat data permintaan obat...
+              </td>
             </tr>
             <tr v-else-if="filteredRefills.length === 0">
               <td colspan="5" class="text-center py-6 text-muted">
@@ -681,9 +682,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-    
     </div>
   </div>
 </template>
