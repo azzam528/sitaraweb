@@ -419,7 +419,7 @@
   color: #b91c1c;
 }
 
-/* --- 5. Unified Tables --- */
+/* --- 5. Unified Tables & Patient Column --- */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -472,50 +472,235 @@
   background: #f8fafc;
 }
 
-/* --- 6. Unified Badges --- */
-.badge,
-.status-badge {
+/* Patient Column Layout */
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.patient-nik,
+.patient-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* --- Avatar Hierarchy --- */
+.avatar,
+.patient-avatar,
+.avatar-placeholder {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #006591 0%, #6DF5E1 100%);
+  color: #ffffff;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 101, 145, 0.15);
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 11.5px;
+}
+
+.avatar-md,
+.avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  font-size: 13px;
+}
+
+.avatar-lg {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 1.25rem;
+}
+
+.avatar-xl {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  min-height: 80px;
+  font-size: 1.75rem;
+}
+
+/* --- 6. Unified Badges & Status Pills --- */
+.badge,
+.status-badge,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  text-transform: none;
+  white-space: nowrap;
 }
 
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+/* Success: Approved, Completed, Active, Low Risk, Resolved */
 .badge-success,
 .badge-green,
-.status-low {
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
+.status-approved,
+.status-completed,
+.status-active,
+.status-low,
+.status-resolved {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #bbf7d0 !important;
 }
 
+/* Warning: Pending, Intensive, Medium Risk, Mild */
 .badge-warning,
 .badge-orange,
+.status-pending,
+.status-intensive,
 .status-medium {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
 }
 
+/* Danger: Rejected, Dropped, High Risk, Severe */
 .badge-danger,
 .badge-red,
+.status-rejected,
+.status-dropped,
 .status-high {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
 }
 
+/* Primary / Info: Continuation, In Progress, Info */
 .badge-primary,
-.badge-blue {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+.badge-blue,
+.badge-teal,
+.status-continuation,
+.status-in_progress {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
 }
+
+/* --- Standardized Detail & Modal Key-Value Layout --- */
+.detail-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.detail-sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #006591;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.patient-summary-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.detail-keyvalue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .detail-keyvalue-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.kv-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.kv-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kv-value {
+  font-size: 13.5px;
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+}
+
 
 /* --- 7. Unified Form Controls --- */
 .form-control,
@@ -625,8 +810,288 @@ textarea:focus {
   cursor: not-allowed;
 }
 
+/* --- 9. Unified Modals & Dialogs --- */
+.modal-backdrop,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1050);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-dialog,
+.modal-content,
+.verify-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-sm { max-width: 440px; }
+.modal-lg { max-width: 720px; }
+
+.modal-header,
+.verify-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-header h3,
+.verify-modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.modal-header p,
+.verify-modal-header p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.modal-close:hover {
+  color: #0f172a;
+}
+
+.modal-body,
+.verify-modal-body {
+  padding: 20px 22px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer,
+.verify-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid #f1f5f9;
+  background: #fafafa;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* --- 10. Unified Toast Alerts --- */
+.toast-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  animation: slideDown 0.25s ease-out;
+}
+
+.toast-success {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.toast-error,
+.toast-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.toast-warning {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.toast-info {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.btn-close-toast {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 4px;
+}
+
+.btn-close-toast:hover {
+  opacity: 1;
+}
+
+/* --- 11. Unified States (Loading, Empty, Error) --- */
+.loading-state,
+.empty-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #006591;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 12. Unified Form Layouts --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+/* --- 13. Unified Progress Bars --- */
+.progress-wrapper {
+  width: 100%;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 7px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* --- 14. Responsive Layout Utilities --- */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-layout-65-35 {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-layout,
+  .grid-layout-65-35 {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
 @media print {
-  .sidebar, .navbar {
+  .sidebar, .navbar, .no-print {
     display: none !important;
   }
   
@@ -636,4 +1101,5 @@ textarea:focus {
     width: 100% !important;
   }
 }
+
 

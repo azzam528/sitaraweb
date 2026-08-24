@@ -731,106 +731,104 @@
       class="modal-backdrop"
       @click="showDetailModal = false"
     >
-      <div class="modal-dialog" @click.stop>
+      <div class="modal-dialog modal-lg" @click.stop>
         <div class="modal-header">
-          <h3>Rincian Permintaan Obat</h3>
-          <button class="modal-close" @click="showDetailModal = false">
+          <div>
+            <h3>Rincian Permintaan Obat</h3>
+            <p>Detail permohonan logistik OAT dari pasien</p>
+          </div>
+          <button class="modal-close" @click="showDetailModal = false" title="Tutup">
             &times;
           </button>
         </div>
 
         <div class="modal-body">
-          <div class="detail-section mb-3">
-            <h4 class="detail-sec-title">Informasi Pasien</h4>
-            <div class="detail-list">
-              <div class="detail-row">
-                <span class="detail-label">Nama Pasien:</span>
-                <span class="detail-val font-semibold">{{
-                  selectedRefill?.treatment?.patient?.full_name
-                }}</span>
+          <!-- 1. INFORMASI PASIEN -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              INFORMASI PASIEN
+            </h4>
+            <div class="patient-summary-card">
+              <div class="avatar avatar-md">
+                {{ getInitials(selectedRefill?.treatment?.patient?.full_name || 'TB') }}
               </div>
-              <div class="detail-row">
-                <span class="detail-label">NIK / No. RM:</span>
-                <span class="detail-val"
-                  >{{ selectedRefill?.treatment?.patient?.nik }} /
-                  {{
-                    selectedRefill?.treatment?.patient?.medical_record_number
-                  }}</span
-                >
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Dokter PJ:</span>
-                <span class="detail-val">{{
-                  selectedRefill?.treatment?.doctor_name
-                }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">No. WhatsApp:</span>
-                <span class="detail-val">
-                  {{ selectedRefill?.treatment?.patient?.phone || "-" }}
-                </span>
-              </div>
-
-              <div class="detail-row">
-                <span class="detail-label">Alamat:</span>
-                <span class="detail-val">
-                  {{ selectedRefill?.treatment?.patient?.address || "-" }}
-                </span>
+              <div class="patient-summary-details">
+                <div class="patient-name font-bold text-dark">
+                  {{ selectedRefill?.treatment?.patient?.full_name || "Pasien #" + selectedRefill?.treatment_id }}
+                </div>
+                <div class="patient-meta text-xs text-muted">
+                  NIK: {{ selectedRefill?.treatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedRefill?.treatment?.patient?.medical_record_number || "-" }}
+                </div>
+                <div class="text-xs text-secondary mt-1" v-if="selectedRefill?.treatment?.doctor_name">
+                  Dokter PJ: {{ selectedRefill?.treatment?.doctor_name }}
+                </div>
+                <div class="text-xs text-muted" v-if="selectedRefill?.treatment?.patient?.address">
+                  Alamat: {{ selectedRefill?.treatment?.patient?.address }}
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="detail-section mb-3">
-            <h4 class="detail-sec-title">Rincian Obat & Permintaan</h4>
-            <div class="detail-list">
-              <div class="detail-row">
-                <span class="detail-label">Nama Obat:</span>
-                <span class="detail-val font-semibold"
-                  >{{ selectedRefill?.medicine?.name }} ({{
-                    selectedRefill?.medicine?.code
-                  }})</span
-                >
+          <!-- 2. RINCIAN PERMINTAAN OBAT -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              RINCIAN PERMINTAAN OBAT
+            </h4>
+            <div class="detail-keyvalue-grid">
+              <div class="kv-item">
+                <span class="kv-label">Nama Obat</span>
+                <span class="kv-value font-semibold">
+                  {{ selectedRefill?.medicine?.name || "OAT" }}
+                  <span v-if="selectedRefill?.medicine?.code" class="text-muted text-xs">({{ selectedRefill?.medicine?.code }})</span>
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Jumlah Diminta:</span>
-                <span class="detail-val font-bold text-primary"
-                  >{{ selectedRefill?.quantity }}
-                  {{ selectedRefill?.medicine?.unit || "Tablet" }}</span
-                >
+              <div class="kv-item">
+                <span class="kv-label">Jumlah Diminta</span>
+                <span class="kv-value font-bold text-primary">
+                  {{ selectedRefill?.quantity }} {{ selectedRefill?.medicine?.unit || "Tablet" }}
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Alasan Permintaan:</span>
-                <span class="detail-val">{{ selectedRefill?.reason }}</span>
+              <div class="kv-item">
+                <span class="kv-label">Alasan Permintaan</span>
+                <span class="kv-value">{{ selectedRefill?.reason || "-" }}</span>
               </div>
-              <div class="detail-row" v-if="selectedRefill?.description">
-                <span class="detail-label">Catatan Pasien:</span>
-                <span class="detail-val italic"
-                  >"{{ selectedRefill?.description }}"</span
-                >
+              <div class="kv-item">
+                <span class="kv-label">Waktu Pengajuan</span>
+                <span class="kv-value">
+                  {{ formatDate(selectedRefill?.created_at) }}, {{ formatTime(selectedRefill?.created_at) }} WIB
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Waktu Pengajuan:</span>
-                <span class="detail-val"
-                  >{{ formatDate(selectedRefill?.created_at) }},
-                  {{ formatTime(selectedRefill?.created_at) }} WIB</span
-                >
+              <div class="kv-item full-width" v-if="selectedRefill?.description">
+                <span class="kv-label">Catatan Pasien</span>
+                <span class="kv-value italic text-secondary">"{{ selectedRefill.description }}"</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Status Saat Ini:</span>
-                <span class="detail-val">
+            </div>
+          </div>
+
+          <!-- 3. STATUS & CATATAN NAKES -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              STATUS & CATATAN NAKES
+            </h4>
+            <div class="detail-keyvalue-grid">
+              <div class="kv-item">
+                <span class="kv-label">Status Saat Ini</span>
+                <span class="kv-value">
                   <span
                     class="status-badge"
                     :class="'status-' + selectedRefill?.status"
                   >
+                    <span class="status-dot"></span>
                     {{ formatStatus(selectedRefill?.status) }}
                   </span>
                 </span>
               </div>
-              <div class="detail-row" v-if="selectedRefill?.nurse_note">
-                <span class="detail-label">Catatan Nakes:</span>
-                <span class="detail-val font-medium text-dark">{{
-                  selectedRefill?.nurse_note
-                }}</span>
+              <div class="kv-item" v-if="selectedRefill?.nurse_note">
+                <span class="kv-label">Catatan Tenaga Kesehatan</span>
+                <span class="kv-value">{{ selectedRefill.nurse_note }}</span>
               </div>
             </div>
           </div>

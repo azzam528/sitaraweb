@@ -95,7 +95,7 @@ const {
           </RouterLink>
 
           <button
-            class="btn btn-filled"
+            class="btn btn-primary"
             type="button"
             @click="contactPatient"
           >

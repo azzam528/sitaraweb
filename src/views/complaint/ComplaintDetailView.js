@@ -130,6 +130,28 @@ export default defineComponent({
       return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     }
 
+    const formatCategory = (cat) => {
+      const map = {
+        nausea: 'Mual / Muntah',
+        rash: 'Gatal / Ruam Kulit',
+        joint_pain: 'Nyeri Sendi',
+        vision: 'Gangguan Penglihatan',
+        urine_color: 'Warna Urin Merah',
+        hearing: 'Gangguan Pendengaran',
+        other: 'Keluhan Lainnya'
+      }
+      return map[cat] || cat || 'Efek Samping Obat'
+    }
+
+    const formatSeverity = (sev) => {
+      const map = {
+        mild: 'Ringan (Mild)',
+        moderate: 'Sedang (Moderate)',
+        severe: 'Berat (Severe)'
+      }
+      return map[sev] || sev || 'Ringan'
+    }
+
     const goBack = () => {
       router.push('/dashboard/complaints')
     }
@@ -148,6 +170,8 @@ export default defineComponent({
       formatStatus,
       formatPhase,
       formatRegimen,
+      formatCategory,
+      formatSeverity,
       formatDate,
       formatTime,
       getInitials,
@@ -155,3 +179,4 @@ export default defineComponent({
     }
   }
 })
+

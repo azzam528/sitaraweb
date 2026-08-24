@@ -394,3 +394,19 @@ textarea.form-control {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+

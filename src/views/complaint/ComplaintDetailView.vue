@@ -73,6 +73,7 @@
           </span>
         </div>
       </div>
+    </div>
 
       <!-- 2. Grid Layout -->
       <div class="row-grid">
@@ -83,53 +84,45 @@
             <div class="card-header-row">
               <div class="card-title-with-icon">
                 <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <h3>Informasi Keluhan Pasien</h3>
+                <h3 class="section-title">Detail Laporan ESO / Keluhan</h3>
               </div>
-              <span class="category-badge">{{ complaint.category }}</span>
+              <span class="category-badge">{{ formatCategory(complaint.category) }}</span>
             </div>
 
-            <div class="info-boxes">
-              <div class="info-box">
-                <span class="info-box-label">WAKTU LAPORAN</span>
-                <span class="info-box-value">{{ formatDate(complaint.created_at) }}, {{ formatTime(complaint.created_at) }} WIB</span>
+            <div class="complaint-quote-box">
+              <p class="complaint-quote">"{{ complaint.description || 'Tidak ada deskripsi keluhan tertulis.' }}"</p>
+            </div>
+
+            <div class="detail-list">
+              <div class="detail-row">
+                <span class="detail-label">Kategori Efek Samping:</span>
+                <span class="detail-val font-semibold">{{ formatCategory(complaint.category) }}</span>
               </div>
-              <div class="info-box">
-                <span class="info-box-label">KATEGORI KELUHAN</span>
-                <span class="info-box-value font-semibold">{{ complaint.category }}</span>
+              <div class="detail-row">
+                <span class="detail-label">Waktu Dilaporkan:</span>
+                <span class="detail-val">{{ formatDate(complaint.created_at) }} ({{ formatTime(complaint.created_at) }})</span>
               </div>
-              <div class="info-box">
-                <span class="info-box-label">STATUS PENANGANAN</span>
-                <span class="info-box-value">
-                  <span class="status-badge" :class="'status-' + complaint.status">
-                    {{ formatStatus(complaint.status) }}
+              <div class="detail-row">
+                <span class="detail-label">Tingkat Keparahan:</span>
+                <span class="detail-val">
+                  <span class="severity-badge" :class="'severity-' + (complaint.severity || 'mild')">
+                    {{ formatSeverity(complaint.severity) }}
                   </span>
                 </span>
               </div>
             </div>
 
-            <div class="description-section">
-              <h4 class="description-label">Deskripsi / Keluhan Pasien:</h4>
-              <div class="description-quote">
-                <p>"{{ complaint.description }}"</p>
-              </div>
-            </div>
-
-            <!-- Tanggapan yang sudah tersimpan -->
-            <div class="response-section mt-4" v-if="complaint.response">
-              <h4 class="response-label">Tanggapan / Rekomendasi Medis Tersimpan:</h4>
-              <div class="response-box">
-                <div class="response-header">
-                  <span class="badge-resolved">Respon Terkirim</span>
-                  <span class="text-xs text-muted" v-if="complaint.updated_at">
-                    Diperbarui: {{ formatDate(complaint.updated_at) }}
-                  </span>
-                </div>
-                <p class="response-content">{{ complaint.response }}</p>
-              </div>
+            <!-- Respon Medis Sebelumnya -->
+            <div v-if="complaint.response" class="response-history-box">
+              <h4 class="response-title">Respon Medis Sebelumnya:</h4>
+              <p class="response-text">{{ complaint.response }}</p>
+              <span class="response-meta" v-if="complaint.responded_at">
+                Dijawab pada: {{ formatDate(complaint.responded_at) }}
+              </span>
             </div>
           </div>
 
@@ -153,6 +146,7 @@
               </div>
             </div>
           </div>
+        </div>
 
         <!-- Right Column: Tindakan Medis & Pembaruan Status -->
         <div class="col-side">

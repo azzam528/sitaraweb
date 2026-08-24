@@ -462,30 +462,45 @@
     >
       <div class="modal-dialog" @click.stop>
         <div class="modal-header">
-          <h3>Tanggapan Medis & Update Status</h3>
-          <button class="modal-close" @click="showResponseModal = false">
+          <div>
+            <h3>Tanggapan Medis & Update Status</h3>
+            <p>Pemberian respon klinis atas keluhan efek samping obat pasien</p>
+          </div>
+          <button class="modal-close" @click="showResponseModal = false" title="Tutup">
             &times;
           </button>
         </div>
 
         <form @submit.prevent="submitResponseForm">
           <div class="modal-body">
-            <div class="complaint-summary mb-3">
-              <div class="text-xs font-bold text-muted">KELUHAN PASIEN:</div>
-              <div class="font-semibold text-dark">
-                {{
-                  selectedComplaint?.treatment?.patient?.full_name || "Pasien"
-                }}
+            <!-- 1. INFORMASI PASIEN & KELUHAN -->
+            <div class="detail-section">
+              <h4 class="detail-sec-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                PASIEN & KELUHAN
+              </h4>
+              <div class="patient-summary-card mb-2">
+                <div class="avatar avatar-md">
+                  {{ getInitials(selectedComplaint?.treatment?.patient?.full_name || 'TB') }}
+                </div>
+                <div class="patient-summary-details">
+                  <div class="patient-name font-bold text-dark">
+                    {{ selectedComplaint?.treatment?.patient?.full_name || "Pasien #" + selectedComplaint?.treatment_id }}
+                  </div>
+                  <div class="patient-meta text-xs text-muted">
+                    NIK: {{ selectedComplaint?.treatment?.patient?.nik || "-" }} &bull; Kategori: {{ selectedComplaint?.category || "-" }}
+                  </div>
+                </div>
               </div>
-              <div class="text-sm text-muted mt-1 italic">
-                "{{ selectedComplaint?.description }}"
+              <div class="p-3 bg-white rounded border border-slate-200 mt-2" v-if="selectedComplaint?.description">
+                <span class="text-xs font-bold text-muted block mb-1">DESKRIPSI KELUHAN:</span>
+                <span class="text-sm italic text-dark">"{{ selectedComplaint.description }}"</span>
               </div>
             </div>
 
+            <!-- 2. FORM PENANGANAN -->
             <div class="form-group mb-3">
-              <label
-                >Status Penanganan <span class="text-danger">*</span></label
-              >
+              <label>Status Penanganan <span class="text-danger">*</span></label>
               <select
                 v-model="responseForm.status"
                 class="form-control"
@@ -504,7 +519,7 @@
               <textarea
                 v-model="responseForm.response"
                 rows="4"
-                placeholder="Tuliskan instruksi penanganan, resep simtomatis, atau anjuran kontrol ke faskes..."
+                placeholder="Tuliskan instruksi penanganan klinis, resep simtomatis, atau anjuran kontrol ke faskes..."
                 class="form-control"
               ></textarea>
             </div>

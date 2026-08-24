@@ -301,17 +301,33 @@
 
     <!-- MODAL: Ubah Status Pengobatan -->
     <div v-if="showStatusModal" class="modal-backdrop" @click="showStatusModal = false">
-      <div class="modal-dialog modal-sm" @click.stop>
+      <div class="modal-dialog" @click.stop>
         <div class="modal-header">
-          <h3>Ubah Status Pengobatan</h3>
-          <button class="modal-close" @click="showStatusModal = false">&times;</button>
+          <div>
+            <h3>Pembaruan Status Pengobatan</h3>
+            <p>Ubah status terapi dan fase pengobatan pasien TB</p>
+          </div>
+          <button class="modal-close" @click="showStatusModal = false" title="Tutup">&times;</button>
         </div>
 
         <form @submit.prevent="submitUpdateStatus">
           <div class="modal-body">
-            <p class="mb-3 text-sm">
-              Pasien: <strong>{{ selectedTreatment?.patient?.full_name || 'Pasien #' + selectedTreatment?.patient_id }}</strong>
-            </p>
+            <!-- Patient Info Section -->
+            <div class="detail-section mb-3">
+              <div class="patient-summary-card">
+                <div class="avatar avatar-md">
+                  {{ getInitials(selectedTreatment?.patient?.full_name || 'TB') }}
+                </div>
+                <div class="patient-summary-details">
+                  <div class="patient-name font-bold text-dark">
+                    {{ selectedTreatment?.patient?.full_name || 'Pasien #' + selectedTreatment?.patient_id }}
+                  </div>
+                  <div class="patient-meta text-xs text-muted">
+                    NIK: {{ selectedTreatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedTreatment?.patient?.medical_record_number || "-" }}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="form-group mb-3">
               <label>Status Pengobatan <span class="text-danger">*</span></label>
@@ -334,8 +350,8 @@
               <label>Catatan Dokter / Keterangan</label>
               <textarea 
                 v-model="statusForm.doctor_note" 
-                rows="2" 
-                placeholder="Keterangan perubahan status..."
+                rows="3" 
+                placeholder="Keterangan klinis perubahan status..."
                 class="form-control"
               ></textarea>
             </div>

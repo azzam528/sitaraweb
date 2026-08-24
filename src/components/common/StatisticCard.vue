@@ -140,7 +140,7 @@ defineProps({
 
 /* Icon Background Colors */
 .bg-primary {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: rgba(0, 101, 145, 0.12);
   color: var(--color-primary, #006591);
 }
 

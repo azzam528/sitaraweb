@@ -133,7 +133,10 @@
               <td>
                 <div class="patient-info">
                   <div class="avatar">{{ item.initials }}</div>
-                  <span class="patient-name">{{ item.name }}</span>
+                  <div class="patient-meta">
+                    <span class="patient-name font-semibold text-dark">{{ item.name }}</span>
+                    <span class="patient-nik text-xs text-muted">NIK: {{ item.nik }}</span>
+                  </div>
                 </div>
               </td>
               <td class="text-secondary">{{ item.time }}</td>

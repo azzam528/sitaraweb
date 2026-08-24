@@ -69,32 +69,38 @@ defineProps({
 
 /* Variants using soft backgrounds */
 .badge-primary {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: #E0F2FE;
   color: var(--color-primary, #006591);
+  border: 1px solid #BAE6FD;
 }
 
 .badge-secondary {
-  background-color: rgba(30, 64, 175, 0.1);
-  color: var(--color-secondary, #1E40AF);
+  background-color: #F1F5F9;
+  color: var(--color-secondary, #004D6E);
+  border: 1px solid #E2E8F0;
 }
 
 .badge-success {
-  background-color: rgba(34, 197, 94, 0.1);
+  background-color: #DCFCE7;
   color: var(--color-success, #16A34A);
+  border: 1px solid #BBF7D0;
 }
 
 .badge-warning {
-  background-color: rgba(245, 158, 11, 0.1);
+  background-color: #FEF3C7;
   color: var(--color-warning, #D97706);
+  border: 1px solid #FDE68A;
 }
 
 .badge-danger {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: #FEE2E2;
   color: var(--color-danger, #DC2626);
+  border: 1px solid #FECACA;
 }
 
 .badge-info {
-  background-color: rgba(6, 182, 212, 0.1);
-  color: #0891B2;
+  background-color: #E0F2FE;
+  color: #0284C7;
+  border: 1px solid #BAE6FD;
 }
 </style>

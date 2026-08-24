@@ -695,5 +695,16 @@ onUnmounted(() => {
   .profile-info { display: none; }
   .chevron { display: none; }
   .page-title { display: none; }
+  .notification-dropdown {
+    width: 290px;
+    right: -50px;
+  }
+}
+
+@media (max-width: 380px) {
+  .notification-dropdown {
+    width: 260px;
+    right: -40px;
+  }
 }
 </style>
