@@ -3,7 +3,17 @@
     <!-- Nav Back -->
     <div class="header-nav mb-3">
       <button @click="goBack" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -21,50 +31,64 @@
     <div v-else-if="!complaint" class="error-state card">
       <h3>Data Keluhan Tidak Ditemukan</h3>
       <p>Laporan keluhan dengan ID ini tidak tersedia atau telah dihapus.</p>
-      <button class="btn btn-primary mt-3" @click="goBack">Kembali ke Daftar</button>
+      <button class="btn btn-primary mt-3" @click="goBack">
+        Kembali ke Daftar
+      </button>
     </div>
 
     <!-- Main Detail Content -->
     <div v-else class="detail-container">
       <!-- Toast Alert -->
-      <div v-if="alertMessage" class="toast-alert" :class="'toast-' + alertType">
+      <div
+        v-if="alertMessage"
+        class="toast-alert"
+        :class="'toast-' + alertType"
+      >
         <span>{{ alertMessage }}</span>
-        <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
+        <button class="btn-close-toast" @click="alertMessage = ''">
+          &times;
+        </button>
       </div>
 
       <!-- 1. Patient Profile Header Card -->
       <div class="card patient-header">
         <div class="patient-info-left">
           <div class="patient-avatar">
-            {{ getInitials(complaint.treatment?.patient?.full_name || 'TB') }}
+            {{ getInitials(complaint.treatment?.patient?.full_name || "TB") }}
           </div>
           <div class="patient-bio">
             <div class="flex-row items-center gap-2">
-              <h2 class="patient-name">{{ complaint.treatment?.patient?.full_name || 'Pasien #' + complaint.treatment_id }}</h2>
+              <h2 class="patient-name">
+                {{
+                  complaint.treatment?.patient?.full_name ||
+                  "Pasien #" + complaint.treatment_id
+                }}
+              </h2>
               <span class="status-badge" :class="'status-' + complaint.status">
                 {{ formatStatus(complaint.status) }}
               </span>
             </div>
             <p class="patient-sub">
-              NIK: {{ complaint.treatment?.patient?.nik || '-' }} &bull; No. RM: {{ complaint.treatment?.patient?.medical_record_number || '-' }}
+              NIK: {{ complaint.treatment?.patient?.nik || "-" }} &bull; No. RM:
+              {{ complaint.treatment?.patient?.medical_record_number || "-" }}
             </p>
           </div>
         </div>
 
-       <div class="patient-meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">FASE TERAPI</span>
-          <span class="meta-value">
-            {{ formatPhase(complaint.treatment?.phase) }}
-          </span>
-        </div>
+        <div class="patient-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">FASE TERAPI</span>
+            <span class="meta-value">
+              {{ formatPhase(complaint.treatment?.phase) }}
+            </span>
+          </div>
 
-        <div class="meta-item">
-          <span class="meta-label">REGIMEN OBAT</span>
-          <span class="meta-value">
-            {{ formatRegimen(complaint.treatment?.regimen) }}
-          </span>
-        </div>
+          <div class="meta-item">
+            <span class="meta-label">REGIMEN OBAT</span>
+            <span class="meta-value">
+              {{ formatRegimen(complaint.treatment?.regimen) }}
+            </span>
+          </div>
 
         <div class="meta-item">
           <span class="meta-label">DOKTER PJ</span>
@@ -134,97 +158,153 @@
               <div class="detail-row">
                 <span class="detail-label">Nomor Telepon Pasien:</span>
                 <span class="detail-val font-semibold">
-                  {{ complaint.treatment.patient.phone || '-' }}
+                  {{ complaint.treatment.patient.phone || "-" }}
                 </span>
               </div>
 
               <div class="detail-row">
                 <span class="detail-label">Alamat Lengkap:</span>
                 <span class="detail-val">
-                  {{ complaint.treatment.patient.address || '-' }}
+                  {{ complaint.treatment.patient.address || "-" }}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Tindakan Medis & Pembaruan Status -->
-        <div class="col-side">
-          <!-- Form Pembaruan Status -->
-          <div class="card action-card">
-            <h3 class="side-title">Pembaruan & Tindakan Medis</h3>
+          <!-- Right Column: Tindakan Medis & Pembaruan Status -->
+          <div class="col-side">
+            <!-- Form Pembaruan Status -->
+            <div class="card action-card">
+              <h3 class="side-title">Pembaruan & Tindakan Medis</h3>
 
-            <form @submit.prevent="submitUpdateStatus">
-              <div class="form-group mb-3">
-                <label>Status Penanganan <span class="text-danger">*</span></label>
-                <div class="status-radio-group">
-                  <label 
-                    class="status-radio" 
-                    :class="{ 'is-selected': responseForm.status === 'pending' }"
+              <form @submit.prevent="submitUpdateStatus">
+                <div class="form-group mb-3">
+                  <label
+                    >Status Penanganan <span class="text-danger">*</span></label
                   >
-                    <input type="radio" value="pending" v-model="responseForm.status" />
-                    <span>Menunggu Respon (Pending)</span>
-                  </label>
+                  <div class="status-radio-group">
+                    <label
+                      class="status-radio"
+                      :class="{
+                        'is-selected': responseForm.status === 'pending',
+                      }"
+                    >
+                      <input
+                        type="radio"
+                        value="pending"
+                        v-model="responseForm.status"
+                      />
+                      <span>Menunggu Respon (Pending)</span>
+                    </label>
 
-                  <label 
-                    class="status-radio" 
-                    :class="{ 'is-selected': responseForm.status === 'in_progress' }"
-                  >
-                    <input type="radio" value="in_progress" v-model="responseForm.status" />
-                    <span>Sedang Diproses / Observasi</span>
-                  </label>
+                    <label
+                      class="status-radio"
+                      :class="{
+                        'is-selected': responseForm.status === 'in_progress',
+                      }"
+                    >
+                      <input
+                        type="radio"
+                        value="in_progress"
+                        v-model="responseForm.status"
+                      />
+                      <span>Sedang Diproses / Observasi</span>
+                    </label>
 
-                  <label 
-                    class="status-radio" 
-                    :class="{ 'is-selected': responseForm.status === 'resolved' }"
-                  >
-                    <input type="radio" value="resolved" v-model="responseForm.status" />
-                    <span>Selesai / Teratasi (Resolved)</span>
-                  </label>
+                    <label
+                      class="status-radio"
+                      :class="{
+                        'is-selected': responseForm.status === 'resolved',
+                      }"
+                    >
+                      <input
+                        type="radio"
+                        value="resolved"
+                        v-model="responseForm.status"
+                      />
+                      <span>Selesai / Teratasi (Resolved)</span>
+                    </label>
+                  </div>
                 </div>
+
+                <div class="form-group mb-4">
+                  <label>Tanggapan / Rekomendasi Medis</label>
+                  <textarea
+                    v-model="responseForm.response"
+                    rows="4"
+                    placeholder="Tuliskan instruksi penanganan klinis, resep obat simtomatis, atau anjuran kontrol ke faskes..."
+                    class="form-control"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-block"
+                  :disabled="isSubmitting"
+                >
+                  <span v-if="isSubmitting" class="spinner-sm"></span>
+                  <span v-else>Simpan Tanggapan & Status</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Aksi Cepat / Hubungi Pasien -->
+            <div class="card">
+              <h3 class="side-title">Aksi Cepat</h3>
+              <div class="action-buttons-list">
+                <button
+                  v-if="complaint.treatment?.patient?.phone"
+                  class="btn btn-outline-success btn-block"
+                  @click="
+                    sendWhatsApp(
+                      complaint.treatment.patient.phone,
+                      complaint.treatment.patient.full_name,
+                      'Pasien',
+                    )
+                  "
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                    ></path>
+                  </svg>
+                  Hubungi Pasien (WA)
+                </button>
+
+                <button
+                  class="btn btn-outline-danger btn-block"
+                  @click="confirmDelete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                  </svg>
+                  Hapus Laporan Keluhan
+                </button>
               </div>
-
-              <div class="form-group mb-4">
-                <label>Tanggapan / Rekomendasi Medis</label>
-                <textarea 
-                  v-model="responseForm.response" 
-                  rows="4" 
-                  placeholder="Tuliskan instruksi penanganan klinis, resep obat simtomatis, atau anjuran kontrol ke faskes..."
-                  class="form-control"
-                ></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block" :disabled="isSubmitting">
-                <span v-if="isSubmitting" class="spinner-sm"></span>
-                <span v-else>Simpan Tanggapan & Status</span>
-              </button>
-            </form>
-          </div>
-
-          <!-- Aksi Cepat / Hubungi Pasien -->
-          <div class="card">
-            <h3 class="side-title">Aksi Cepat</h3>
-            <div class="action-buttons-list">
-              <button 
-                v-if="complaint.treatment?.patient?.phone" 
-                class="btn btn-outline-success btn-block" 
-                @click="sendWhatsApp(complaint.treatment.patient.phone, complaint.treatment.patient.full_name, 'Pasien')"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-                Hubungi Pasien (WA)
-              </button>
-
-              
-
-              <button class="btn btn-outline-danger btn-block" @click="confirmDelete">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-                Hapus Laporan Keluhan
-              </button>
             </div>
           </div>
         </div>
