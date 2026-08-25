@@ -1091,14 +1091,68 @@ textarea:focus {
 }
 
 @media print {
-  .sidebar, .navbar, .no-print {
+  /* 1. Sembunyikan semua elemen navigasi, filter, search, tombol aksi, dan UI dashboard */
+  aside,
+  header,
+  nav,
+  footer,
+  .sidebar,
+  .sidebar-container,
+  .navbar,
+  .breadcrumb-container,
+  .breadcrumb,
+  .footer,
+  .no-print,
+  .btn,
+  .btn-primary,
+  .btn-outline,
+  .btn-reset-filter,
+  .btn-more-actions,
+  .action-dropdown-wrapper,
+  .dropdown-menu-floating,
+  .filter-section,
+  .filter-card,
+  .pagination-section,
+  .header-nav,
+  .action-buttons-group,
+  .hamburger-btn,
+  .notification-menu,
+  .modal-backdrop,
+  .modal-dialog {
     display: none !important;
   }
-  
-  main, .main-content {
-    margin-left: 0 !important;
+
+  /* 2. Reset Layout ke Dokumen Cetak Murni */
+  body,
+  html,
+  #app,
+  .main-layout,
+  .main-content,
+  .content-wrapper,
+  .page-content,
+  main {
+    margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* 3. Pengaturan Page Break */
+  tr, .card, .signature-box, .report-summary, .summary-box {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
   }
 }
 

@@ -1,10 +1,10 @@
-/* Report & Rekapitulasi Styles */
+/* Report & Rekapitulasi Styles - SITARA Design System */
 .report-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
   color: #1e293b;
-  padding: 0 0 24px 0;
+  padding: 0 0 32px 0;
 }
 
 .page-header {
@@ -13,6 +13,7 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 16px;
+  margin-bottom: 20px;
 }
 
 .page-title {
@@ -29,6 +30,7 @@
   font-size: 13.5px;
 }
 
+/* Card Container */
 .card {
   background: #ffffff;
   border-radius: 14px;
@@ -51,7 +53,7 @@
   gap: 16px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .filter-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -105,167 +107,6 @@
   flex-wrap: wrap;
 }
 
-/* Stats Summary */
-.stats-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat-item {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.stat-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.stat-icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon-wrapper.blue { background-color: #e0f2fe; color: #006591; }
-.stat-icon-wrapper.green { background-color: #dcfce7; color: #16a34a; }
-.stat-icon-wrapper.orange { background-color: #fef3c7; color: #d97706; }
-.stat-icon-wrapper.red { background-color: #fee2e2; color: #dc2626; }
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.1;
-}
-
-/* Charts Grid */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-@media (max-width: 900px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.chart-card {
-  padding: 24px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.chart-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.chart-container {
-  height: 240px;
-  width: 100%;
-}
-
-/* Table Section */
-.table-card {
-  padding: 0;
-  overflow: hidden;
-}
-
-.table-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.table-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  text-align: left;
-  font-size: 13.5px;
-}
-
-.data-table th {
-  background-color: #f8fafc;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 13px 18px;
-  border-bottom: 1px solid #e2e8f0;
-  white-space: nowrap;
-}
-
-.data-table td {
-  padding: 14px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  vertical-align: middle;
-  color: #334155;
-}
-
-.data-table tbody tr {
-  transition: background-color 0.15s;
-}
-
-.data-table tbody tr:hover {
-  background-color: #f8fafc;
-}
-
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -307,11 +148,426 @@
   color: #0f172a;
 }
 
-.btn-success {
-  background: #16a34a;
-  color: #ffffff !important;
+/* ==========================================================================
+   PRINTABLE REPORT DOCUMENT ON-SCREEN STYLES
+   ========================================================================== */
+.printable-report {
+  background: #ffffff;
+  padding: 32px;
 }
 
-.btn-success:hover {
-  background: #15803d;
+.report-loading {
+  text-align: center;
+  padding: 48px 0;
+  color: #64748b;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 12px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #006591;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.report-logo {
+  flex-shrink: 0;
+}
+
+.report-title-section {
+  flex: 1;
+}
+
+.report-title-section h2 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.report-title-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #006591;
+  margin: 3px 0 0 0;
+}
+
+.report-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.report-meta-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.report-date {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.report-version {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.report-divider {
+  border: none;
+  border-top: 2px solid #0f172a;
+  margin: 16px 0 20px 0;
+}
+
+/* KPI Summary Bar */
+.report-summary {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-box {
+  flex: 1;
+  min-width: 140px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Report Table */
+.report-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 32px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.report-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+}
+
+.report-table td {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.report-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+/* Status Cells */
+.status-cell {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cell-active, .cell-approved, .cell-resolved {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.cell-completed {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.cell-defaulted, .cell-rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.cell-pending, .cell-in_progress {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* Signature Section */
+.report-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 36px;
+  padding-top: 16px;
+}
+
+.signature-box {
+  width: 240px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #1e293b;
+}
+
+.signature-box p {
+  margin: 0;
+}
+
+.signature-box .role {
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.signature-space {
+  height: 60px;
+}
+
+.signature-box .name {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.signature-box .nip {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   PURE PRINT & PDF STYLESHEET (@media print)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm 12mm;
+  }
+
+  /* Hide interactive Web UI controls */
+  .no-print,
+  .filter-card,
+  .page-header,
+  .action-buttons-group,
+  .btn,
+  .btn-primary,
+  .btn-outline,
+  .sidebar,
+  .navbar,
+  .breadcrumb-container,
+  .footer {
+    display: none !important;
+  }
+
+  /* Container Reset */
+  .report-view {
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  .printable-report.card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Header Kop Dokumen */
+  .report-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .report-logo {
+    display: block !important;
+  }
+
+  .report-title-section h2 {
+    font-size: 13pt !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+  }
+
+  .report-title-section h3 {
+    font-size: 11pt !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    margin: 2px 0 !important;
+  }
+
+  .report-subtitle {
+    font-size: 9.5pt !important;
+    color: #334155 !important;
+    margin: 2px 0 0 0 !important;
+  }
+
+  .report-meta-right {
+    text-align: right !important;
+  }
+
+  .report-date {
+    font-size: 8.5pt !important;
+    color: #000000 !important;
+  }
+
+  .report-version {
+    font-size: 8pt !important;
+    color: #64748b !important;
+  }
+
+  .report-divider {
+    display: none !important;
+  }
+
+  /* KPI Summary Box */
+  .report-summary {
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .summary-box {
+    border: 1px solid #94a3b8 !important;
+    border-radius: 4px !important;
+    padding: 6px 10px !important;
+    background: #f8fafc !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .summary-label {
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+  }
+
+  .summary-value {
+    font-size: 12pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  /* Data Table */
+  .report-table-container {
+    width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 20px !important;
+  }
+
+  .report-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8.5pt !important;
+  }
+
+  .report-table th {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border: 1px solid #64748b !important;
+    padding: 6px 8px !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .report-table td {
+    border: 1px solid #94a3b8 !important;
+    padding: 5px 8px !important;
+    color: #000000 !important;
+  }
+
+  .report-table thead {
+    display: table-header-group !important;
+  }
+
+  .report-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .status-cell {
+    border: 1px solid #64748b !important;
+    padding: 2px 5px !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Signatures */
+  .report-signatures {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 24px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .signature-box {
+    width: 220px !important;
+    text-align: center !important;
+    font-size: 9pt !important;
+  }
+
+  .signature-space {
+    height: 50px !important;
+  }
+
+  .signature-box .name {
+    color: #000000 !important;
+  }
 }
