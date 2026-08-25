@@ -74,30 +74,7 @@
             </p>
           </div>
         </div>
-
-        <div class="patient-meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">FASE TERAPI</span>
-            <span class="meta-value">
-              {{ formatPhase(complaint.treatment?.phase) }}
-            </span>
-          </div>
-
-          <div class="meta-item">
-            <span class="meta-label">REGIMEN OBAT</span>
-            <span class="meta-value">
-              {{ formatRegimen(complaint.treatment?.regimen) }}
-            </span>
-          </div>
-
-        <div class="meta-item">
-          <span class="meta-label">DOKTER PJ</span>
-          <span class="meta-value">
-            {{ complaint.treatment?.doctor_name || '-' }}
-          </span>
-        </div>
       </div>
-    </div>
 
       <!-- 2. Grid Layout -->
       <div class="row-grid">
