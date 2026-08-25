@@ -36,38 +36,13 @@ export default defineComponent({
       loadComplaintDetail()
     })
 
-    const fallbackPatientList = [
-      { id: 1, full_name: 'Ahmad Fauzi', nik: '3273012304950001', medical_record_number: 'RM-TB-2026-0001' },
-      { id: 2, full_name: 'Dewi Sartika', nik: '3273014506920002', medical_record_number: 'RM-TB-2026-0002' },
-      { id: 3, full_name: 'Bambang Pamungkas', nik: '3201015502940001', medical_record_number: 'RM-2026-0042' },
-      { id: 4, full_name: 'Siti Mariam', nik: '3201015502940002', medical_record_number: 'RM-2026-0089' },
-      { id: 5, full_name: 'Rahmat Kurnia', nik: '3201015502940003', medical_record_number: 'RM-2026-0112' },
-      { id: 6, full_name: 'Andi Darmawan', nik: '3201015502940004', medical_record_number: 'RM-2026-0150' },
-      { id: 7, full_name: 'Nita Kusuma', nik: '3201015502940005', medical_record_number: 'RM-2026-0188' },
-      { id: 8, full_name: 'Hendra Gunawan', nik: '3273011208880003', medical_record_number: 'RM-TB-2026-0003' },
-      { id: 9, full_name: 'Ratna Sari', nik: '3273016709940004', medical_record_number: 'RM-TB-2026-0004' },
-      { id: 10, full_name: 'Budi Santoso', nik: '3273012211900005', medical_record_number: 'RM-TB-2026-0005' },
-      { id: 11, full_name: 'Eka Prasetya', nik: '3273011503930006', medical_record_number: 'RM-TB-2026-0006' },
-      { id: 12, full_name: 'Maya Indah', nik: '3273015407960007', medical_record_number: 'RM-TB-2026-0007' }
-    ]
-
     const loadComplaintDetail = async () => {
       isLoading.value = true
       try {
         const id = route.params.id
-        const numId = parseInt(id) || 1
-        const fallbackPatient = fallbackPatientList[(numId - 1) % fallbackPatientList.length]
-
         const res = await complaintService.getById(id)
         if (res && res.data) {
-          const patientObj = res.data.treatment?.patient || res.data.patient || fallbackPatient
-          complaint.value = {
-            ...res.data,
-            treatment: {
-              ...(res.data.treatment || {}),
-              patient: patientObj
-            }
-          }
+          complaint.value = res.data
           responseForm.value = {
             status: res.data.status || 'in_progress',
             response: res.data.response || ''

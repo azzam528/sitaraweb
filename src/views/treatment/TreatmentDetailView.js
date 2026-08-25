@@ -32,34 +32,13 @@ export default defineComponent({
       loadTreatmentDetail()
     })
 
-    const fallbackPatientList = [
-      { id: 1, full_name: 'Ahmad Fauzi', nik: '3273012304950001', medical_record_number: 'RM-TB-2026-0001', phone: '081223344556' },
-      { id: 2, full_name: 'Dewi Sartika', nik: '3273014506920002', medical_record_number: 'RM-TB-2026-0002', phone: '081334455667' },
-      { id: 3, full_name: 'Bambang Pamungkas', nik: '3201015502940001', medical_record_number: 'RM-2026-0042', phone: '081234567890' },
-      { id: 4, full_name: 'Siti Mariam', nik: '3201015502940002', medical_record_number: 'RM-2026-0089', phone: '081345678901' },
-      { id: 5, full_name: 'Rahmat Kurnia', nik: '3201015502940003', medical_record_number: 'RM-2026-0112', phone: '081456789012' },
-      { id: 6, full_name: 'Andi Darmawan', nik: '3201015502940004', medical_record_number: 'RM-2026-0150', phone: '081567890123' },
-      { id: 7, full_name: 'Nita Kusuma', nik: '3201015502940005', medical_record_number: 'RM-2026-0188', phone: '081678901234' },
-      { id: 8, full_name: 'Hendra Gunawan', nik: '3273011208880003', medical_record_number: 'RM-TB-2026-0003', phone: '081789012345' },
-      { id: 9, full_name: 'Ratna Sari', nik: '3273016709940004', medical_record_number: 'RM-TB-2026-0004', phone: '081890123456' },
-      { id: 10, full_name: 'Budi Santoso', nik: '3273012211900005', medical_record_number: 'RM-TB-2026-0005', phone: '081901234567' },
-      { id: 11, full_name: 'Eka Prasetya', nik: '3273011503930006', medical_record_number: 'RM-TB-2026-0006', phone: '082112345678' },
-      { id: 12, full_name: 'Maya Indah', nik: '3273015407960007', medical_record_number: 'RM-TB-2026-0007', phone: '082223456789' }
-    ]
-
     const loadTreatmentDetail = async () => {
       isLoading.value = true
       try {
         const id = route.params.id
-        const numId = parseInt(id) || 1
-        const fallbackPatient = fallbackPatientList[(numId - 1) % fallbackPatientList.length]
-
         const response = await treatmentService.getById(id)
         if (response && response.data) {
-          treatment.value = {
-            ...response.data,
-            patient: response.data.patient || fallbackPatient
-          }
+          treatment.value = response.data
         }
       } catch (error) {
         console.error('Failed to load treatment detail:', error)
