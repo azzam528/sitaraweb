@@ -113,13 +113,7 @@
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <h3 class="section-title">Detail Laporan ESO / Keluhan</h3>
-                <h3 class="section-title">Detail Laporan ESO / Keluhan</h3>
               </div>
-              <span class="category-badge">{{ formatCategory(complaint.category) }}</span>
-            </div>
-
-            <div class="complaint-quote-box">
-              <p class="complaint-quote">"{{ complaint.description || 'Tidak ada deskripsi keluhan tertulis.' }}"</p>
               <span class="category-badge">{{ formatCategory(complaint.category) }}</span>
             </div>
 
@@ -173,10 +167,6 @@
                 <span class="detail-val">
                   {{ complaint.treatment.patient.address || "-" }}
                 </span>
-              </div>
-            </div>
-          </div>
-        </div>
               </div>
             </div>
           </div>
