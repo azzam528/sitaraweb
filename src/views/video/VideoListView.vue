@@ -18,7 +18,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">VIDEO DIUNGGAH HARI INI</span>
-          <span class="stat-value">18</span>
+          <span class="stat-value">{{ uploadedTodayCount }}</span>
         </div>
       </div>
 
@@ -32,7 +32,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">BERHASIL DIVERIFIKASI AI</span>
-          <span class="stat-value">15</span>
+          <span class="stat-value">{{ verifiedCount }}</span>
         </div>
       </div>
 
@@ -47,7 +47,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">REVIEW MANUAL</span>
-          <span class="stat-value">2</span>
+          <span class="stat-value">{{ manualReviewCount }}</span>
         </div>
       </div>
 
@@ -62,7 +62,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">GAGAL VERIFIKASI</span>
-          <span class="stat-value">1</span>
+          <span class="stat-value">{{ failedCount }}</span>
         </div>
       </div>
 
@@ -77,7 +77,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">RATA-RATA KEPERCAYAAN</span>
-          <span class="stat-value">94.5%</span>
+          <span class="stat-value">{{ avgConfidence }}</span>
         </div>
       </div>
     </section>
@@ -96,6 +96,7 @@
         <div class="form-group">
           <label>Pencarian</label>
           <input 
+            v-model="searchQuery"
             type="text" 
             placeholder="Cari Nama / NIK Pasien..." 
             class="form-control"
@@ -105,7 +106,7 @@
         <!-- 2. Status Verifikasi AI -->
         <div class="form-group">
           <label>Status Verifikasi AI</label>
-          <select class="form-control">
+          <select v-model="filterStatus" class="form-control">
             <option value="">Semua Status AI</option>
             <option value="Diverifikasi">Diverifikasi (Sukses)</option>
             <option value="Menunggu Tinjauan">Menunggu Tinjauan</option>
@@ -129,7 +130,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in tableData" :key="index">
+            <tr v-if="filteredData.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data verifikasi video yang sesuai.
+              </td>
+            </tr>
+            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index">
               <td>
                 <div class="patient-info">
                   <div class="avatar">{{ item.initials }}</div>
@@ -152,9 +158,9 @@
               </td>
               <td>
                 <span class="status-badge" :class="{
-                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi',
-                  'status-dropped': item.reviewStatus === 'Ditolak',
-                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan'
+                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
+                  'status-dropped': item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
+                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
                 }">
                   {{ item.reviewStatus }}
                 </span>
@@ -202,13 +208,34 @@
       </div>
       
       <!-- 4. Pagination -->
-      <div class="pagination-section">
-        <span class="pagination-info">Menampilkan 1-10 dari 20 entri</span>
-        <div class="pagination-controls">
-          <button class="btn-page" disabled>Prev</button>
-          <button class="btn-page active">1</button>
-          <button class="btn-page">2</button>
-          <button class="btn-page">Next</button>
+      <div v-if="filteredData.length > 0" class="pagination-section">
+        <span class="pagination-info">
+          Menampilkan {{ Math.min((currentPage - 1) * pageSize + 1, filteredData.length) }}-{{ Math.min(currentPage * pageSize, filteredData.length) }} dari {{ filteredData.length }} video
+        </span>
+        <div class="pagination-controls" v-if="totalPages > 1">
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === 1"
+            @click="prevPage"
+          >
+            Prev
+          </button>
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="btn-page"
+            :class="{ active: currentPage === page }"
+            @click="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

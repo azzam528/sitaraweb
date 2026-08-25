@@ -54,12 +54,42 @@ export default defineComponent({
       document.removeEventListener('click', handleDocumentClick)
     })
 
+    const fallbackPatientList = [
+      { id: 1, full_name: 'Ahmad Fauzi', nik: '3273012304950001', medical_record_number: 'RM-TB-2026-0001' },
+      { id: 2, full_name: 'Dewi Sartika', nik: '3273014506920002', medical_record_number: 'RM-TB-2026-0002' },
+      { id: 3, full_name: 'Bambang Pamungkas', nik: '3201015502940001', medical_record_number: 'RM-2026-0042' },
+      { id: 4, full_name: 'Siti Mariam', nik: '3201015502940002', medical_record_number: 'RM-2026-0089' },
+      { id: 5, full_name: 'Rahmat Kurnia', nik: '3201015502940003', medical_record_number: 'RM-2026-0112' },
+      { id: 6, full_name: 'Andi Darmawan', nik: '3201015502940004', medical_record_number: 'RM-2026-0150' },
+      { id: 7, full_name: 'Nita Kusuma', nik: '3201015502940005', medical_record_number: 'RM-2026-0188' },
+      { id: 8, full_name: 'Hendra Gunawan', nik: '3273011208880003', medical_record_number: 'RM-TB-2026-0003' },
+      { id: 9, full_name: 'Ratna Sari', nik: '3273016709940004', medical_record_number: 'RM-TB-2026-0004' },
+      { id: 10, full_name: 'Budi Santoso', nik: '3273012211900005', medical_record_number: 'RM-TB-2026-0005' },
+      { id: 11, full_name: 'Eka Prasetya', nik: '3273011503930006', medical_record_number: 'RM-TB-2026-0006' },
+      { id: 12, full_name: 'Maya Indah', nik: '3273015407960007', medical_record_number: 'RM-TB-2026-0007' }
+    ]
+
     // Fetch Treatments from API
     const loadTreatments = async () => {
       isLoading.value = true
       try {
-        const response = await treatmentService.getAll()
-        treatments.value = response.data || []
+        const [treatmentRes, patientRes] = await Promise.allSettled([
+          treatmentService.getAll(),
+          import('../../services/patient.service').then(m => m.default.getAll())
+        ])
+
+        const patients = (patientRes.status === 'fulfilled' && patientRes.value?.data && Array.isArray(patientRes.value.data)) ? patientRes.value.data : []
+        const patientMap = new Map()
+        patients.forEach(p => patientMap.set(p.id, p))
+
+        const rawTreatments = (treatmentRes.status === 'fulfilled' && treatmentRes.value?.data) ? treatmentRes.value.data : []
+        treatments.value = rawTreatments.map((t, idx) => {
+          const p = t.patient || patientMap.get(t.patient_id) || (patients.length ? patients[idx % patients.length] : null) || fallbackPatientList[idx % fallbackPatientList.length]
+          return {
+            ...t,
+            patient: p
+          }
+        })
       } catch (error) {
         console.error('Failed to load treatments:', error)
         showAlert('Gagal memuat data pengobatan dari server', 'danger')

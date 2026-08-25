@@ -246,19 +246,113 @@ export default defineComponent({
           { day: '19 Agu', date: '19 Agu', time: '16:40 WIB', status: 'verified', label: 'Terverifikasi' }
         ],
         notes: 'Wajah tertutup masker dan obat tidak diperlihatkan ke kamera.'
+      },
+      '6': {
+        id: 6,
+        patient_id: 106,
+        patient: {
+          full_name: 'Ahmad Fauzi',
+          nik: '3273012304950001',
+          medical_record_number: 'RM-TB-2026-0001',
+          phone: '081223344556',
+          address: 'Jl. Dago No. 45, Bandung',
+          pmo_name: 'Siti Aminah',
+          pmo_phone: '081298765430'
+        },
+        treatment: {
+          phase: 'intensive',
+          regimen: 'category_1'
+        },
+        video_url: '',
+        recorded_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        duration_seconds: 42,
+        resolution: '720p HD (1280x720)',
+        fps: 30,
+        file_size: '4.5 MB',
+        status: 'verified',
+        overall_score: 94,
+        ai_details: {
+          face_match: { status: 'MATCH', score: 98.2, label: 'Wajah Terverifikasi Sesuai Data' },
+          pill_detected: { status: 'VERIFIED', score: 95.0, label: 'Tablet OAT Terlihat Jelas' },
+          swallowing_detected: { status: 'DETECTED', score: 96.0, label: 'Gerakan Menelan Terdeteksi' },
+          video_quality: { status: 'CLEAR', score: 94.0, label: 'Kualitas Rekaman Jelas' },
+          tampering_check: { status: 'NO TAMPERING', score: 99.5, label: 'Video Asli' }
+        },
+        timeline: [
+          { day: 'Hari Ini', date: '25 Agu', time: '09:10 WIB', status: 'verified', label: 'Terverifikasi' },
+          { day: 'Kemarin', date: '24 Agu', time: '09:00 WIB', status: 'verified', label: 'Terverifikasi' }
+        ],
+        notes: 'Minum obat teratur di depan PMO.'
+      },
+      '7': {
+        id: 7,
+        patient_id: 107,
+        patient: {
+          full_name: 'Dewi Sartika',
+          nik: '3273014506920002',
+          medical_record_number: 'RM-TB-2026-0002',
+          phone: '081334455667',
+          address: 'Jl. Dipatiukur No. 12, Bandung',
+          pmo_name: 'Budi Santoso',
+          pmo_phone: '081398765431'
+        },
+        treatment: {
+          phase: 'continuation',
+          regimen: 'category_1'
+        },
+        video_url: '',
+        recorded_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        duration_seconds: 35,
+        resolution: '720p HD (1280x720)',
+        fps: 30,
+        file_size: '3.8 MB',
+        status: 'pending',
+        overall_score: 58,
+        ai_details: {
+          face_match: { status: 'MATCH', score: 85.0, label: 'Wajah Cukup Sesuai' },
+          pill_detected: { status: 'UNCERTAIN', score: 55.0, label: 'Tablet Obat Kurang Terlihat Jelas' },
+          swallowing_detected: { status: 'DETECTED', score: 60.0, label: 'Menelan Air Terlihat' },
+          video_quality: { status: 'FAIR', score: 65.0, label: 'Pencahayaan Kurang Terang' },
+          tampering_check: { status: 'NO TAMPERING', score: 98.0, label: 'Video Asli' }
+        },
+        timeline: [
+          { day: 'Hari Ini', date: '25 Agu', time: '08:15 WIB', status: 'warning', label: 'Menunggu Review Manual' }
+        ],
+        notes: 'Pencahayaan ruangan redup, perlu konfirmasi visual nakes.'
       }
     }
+
+    const fallbackPatientList = [
+      { full_name: 'Ahmad Fauzi', nik: '3273012304950001', medical_record_number: 'RM-TB-2026-0001', phone: '081223344556', address: 'Jl. Dago No. 45, Bandung', pmo_name: 'Siti Aminah', pmo_phone: '081298765430' },
+      { full_name: 'Dewi Sartika', nik: '3273014506920002', medical_record_number: 'RM-TB-2026-0002', phone: '081334455667', address: 'Jl. Dipatiukur No. 12, Bandung', pmo_name: 'Budi Santoso', pmo_phone: '081398765431' },
+      { full_name: 'Bambang Pamungkas', nik: '3201015502940001', medical_record_number: 'RM-2026-0042', phone: '081234567890', address: 'Jl. Merdeka No. 12, Kel. Sukajadi', pmo_name: 'Ibu Ratna', pmo_phone: '081298765432' },
+      { full_name: 'Siti Mariam', nik: '3201015502940002', medical_record_number: 'RM-2026-0089', phone: '081345678901', address: 'Kp. Babakan RT 02/05, Desa Cikembar', pmo_name: 'Bpk. Hendra', pmo_phone: '081398765431' },
+      { full_name: 'Rahmat Kurnia', nik: '3201015502940003', medical_record_number: 'RM-2026-0112', phone: '081456789012', address: 'Jl. Cihampelas No. 101, Coblong', pmo_name: 'Ibu Euis', pmo_phone: '081498765430' },
+      { full_name: 'Andi Darmawan', nik: '3201015502940004', medical_record_number: 'RM-2026-0150', phone: '081567890123', address: 'Jl. Riau No. 8', pmo_name: 'Ibu Siti', pmo_phone: '081598765439' },
+      { full_name: 'Nita Kusuma', nik: '3201015502940005', medical_record_number: 'RM-2026-0188', phone: '081678901234', address: 'Perum Grand Mutiara Blok C2 No. 10', pmo_name: 'Bpk. Joko', pmo_phone: '081698765438' },
+      { full_name: 'Hendra Gunawan', nik: '3273011208880003', medical_record_number: 'RM-TB-2026-0003', phone: '081789012345', address: 'Jl. Buah Batu No. 20, Bandung', pmo_name: 'Rina Gunawan', pmo_phone: '081798765437' },
+      { full_name: 'Ratna Sari', nik: '3273016709940004', medical_record_number: 'RM-TB-2026-0004', phone: '081890123456', address: 'Jl. Soekarno Hatta No. 112, Bandung', pmo_name: 'Dedi Kusnadi', pmo_phone: '081898765436' },
+      { full_name: 'Budi Santoso', nik: '3273012211900005', medical_record_number: 'RM-TB-2026-0005', phone: '081901234567', address: 'Jl. Setiabudhi No. 88, Bandung', pmo_name: 'Tati Mulyati', pmo_phone: '081998765435' },
+      { full_name: 'Eka Prasetya', nik: '3273011503930006', medical_record_number: 'RM-TB-2026-0006', phone: '082112345678', address: 'Jl. Sukajadi No. 55, Bandung', pmo_name: 'Agus Prasetya', pmo_phone: '082198765434' },
+      { full_name: 'Maya Indah', nik: '3273015407960007', medical_record_number: 'RM-TB-2026-0007', phone: '082223456789', address: 'Jl. Pasirkaliki No. 72, Bandung', pmo_name: 'Wawan Hermawan', pmo_phone: '082298765433' }
+    ]
 
     const loadVideoDetail = async () => {
       isLoading.value = true
       try {
         const id = String(route.params.id || '1')
+        const numId = parseInt(id) || 1
+        const fallbackPatient = fallbackPatientList[(numId - 1) % fallbackPatientList.length]
+
         try {
           const res = await videoService.getById(id)
           if (res && res.data) {
             videoData.value = {
               ...mockVideos[id] || mockVideos['1'],
-              ...res.data
+              ...res.data,
+              patient: res.data.patient || (mockVideos[id]?.patient) || fallbackPatient
             }
             notes.value = videoData.value.notes || ''
             return
@@ -271,11 +365,8 @@ export default defineComponent({
         // Fallback to mock item based on ID
         const matched = mockVideos[id] || {
           ...mockVideos['1'],
-          id: parseInt(id) || 1,
-          patient: {
-            ...mockVideos['1'].patient,
-            full_name: `Pasien Verifikasi #${id}`
-          }
+          id: numId,
+          patient: fallbackPatient
         }
         videoData.value = matched
         notes.value = matched.notes || ''
