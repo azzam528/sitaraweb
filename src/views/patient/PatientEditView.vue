@@ -330,17 +330,6 @@ const {
               />
             </div>
 
-            <!-- Dokter -->
-            <div class="form-group">
-              <label>Dokter Penanggung Jawab</label>
-              <input
-                type="text"
-                :value="treatment?.doctor_name || '-'"
-                class="form-control"
-                disabled
-              />
-            </div>
-
             <div v-if="treatment" class="medical-info-note">
               Untuk mengubah data pengobatan, gunakan modul <strong>Monitoring Pengobatan</strong>.
             </div>

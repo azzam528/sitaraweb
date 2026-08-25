@@ -171,12 +171,11 @@
                 <th>Tgl Mulai</th>
                 <th>Tgl Selesai (Target)</th>
                 <th>Status Terapi</th>
-                <th>Dokter PJ</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="filteredTreatments.length === 0">
-                <td colspan="10" class="text-center py-6 text-muted">Tidak ada data pengobatan pada periode ini.</td>
+                <td colspan="9" class="text-center py-6 text-muted">Tidak ada data pengobatan pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredTreatments" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>
@@ -192,7 +191,6 @@
                     {{ formatTreatmentStatus(item.status) }}
                   </span>
                 </td>
-                <td>{{ item.doctor_name || '-' }}</td>
               </tr>
             </tbody>
           </table>

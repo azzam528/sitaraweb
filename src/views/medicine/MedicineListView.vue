@@ -537,9 +537,6 @@
                 <div class="patient-meta text-xs text-muted">
                   NIK: {{ selectedRequest?.treatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedRequest?.treatment?.patient?.medical_record_number || "-" }}
                 </div>
-                <div class="text-xs text-secondary mt-1" v-if="selectedRequest?.treatment?.doctor_name">
-                  Dokter PJ: {{ selectedRequest?.treatment?.doctor_name }}
-                </div>
                 <div class="text-xs text-muted" v-if="selectedRequest?.treatment?.patient?.pmo_name">
                   PMO: {{ selectedRequest?.treatment?.patient?.pmo_name }} ({{ selectedRequest?.treatment?.patient?.pmo_phone || "-" }})
                 </div>

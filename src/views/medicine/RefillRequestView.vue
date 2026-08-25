@@ -760,9 +760,6 @@
                 <div class="patient-meta text-xs text-muted">
                   NIK: {{ selectedRefill?.treatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedRefill?.treatment?.patient?.medical_record_number || "-" }}
                 </div>
-                <div class="text-xs text-secondary mt-1" v-if="selectedRefill?.treatment?.doctor_name">
-                  Dokter PJ: {{ selectedRefill?.treatment?.doctor_name }}
-                </div>
                 <div class="text-xs text-muted" v-if="selectedRefill?.treatment?.patient?.address">
                   Alamat: {{ selectedRefill?.treatment?.patient?.address }}
                 </div>

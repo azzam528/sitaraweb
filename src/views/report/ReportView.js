@@ -189,7 +189,7 @@ export default defineComponent({
       let filename = `laporan_${selectedReportType.value}_${Date.now()}.csv`
 
       if (selectedReportType.value === 'treatment') {
-        csvContent += 'No,NIK,Nama Pasien,No RM,Regimen,Fase Terapi,Tanggal Mulai,Tanggal Target Selesai,Status,Dokter PJ\r\n'
+        csvContent += 'No,NIK,Nama Pasien,No RM,Regimen,Fase Terapi,Tanggal Mulai,Tanggal Target Selesai,Status\r\n'
         filteredTreatments.value.forEach((t, i) => {
           const row = [
             i + 1,
@@ -200,8 +200,7 @@ export default defineComponent({
             `"${formatPhase(t.phase)}"`,
             `"${formatDate(t.start_date)}"`,
             `"${formatDate(t.end_date)}"`,
-            `"${formatTreatmentStatus(t.status)}"`,
-            `"${t.doctor_name || ''}"`
+            `"${formatTreatmentStatus(t.status)}"`
           ]
           csvContent += row.join(',') + '\r\n'
         })

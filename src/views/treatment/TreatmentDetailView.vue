@@ -130,7 +130,7 @@
           </p>
         </div>
 
-        <!-- DOKTER PENANGGUNG JAWAB -->
+        <!-- TANGGAL DIAGNOSIS & TERAPI -->
         <div class="card info-card doctor-card">
           <div class="doctor-card-content">
             <div class="doctor-icon">
@@ -145,21 +145,23 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
             </div>
 
             <div>
-              <span class="info-label"> Dokter Penanggung Jawab </span>
+              <span class="info-label"> Tanggal Diagnosis </span>
 
               <p class="doctor-name">
-                {{ treatment.doctor_name || "Belum Ditentukan" }}
+                {{ formatDate(treatment.diagnosis_date) }}
               </p>
 
               <p class="info-subtext text-muted">
-                Diagnosis:
-                {{ formatDate(treatment.diagnosis_date) }}
+                Mulai Terapi:
+                {{ formatDate(treatment.therapy_start_date) }}
               </p>
             </div>
           </div>
@@ -220,11 +222,6 @@
                 <span class="detail-val">{{
                   formatDate(treatment.therapy_end_date)
                 }}</span>
-              </div>
-
-              <div class="detail-row">
-                <span class="detail-label">Dokter PJ:</span>
-                <span class="detail-val">{{ treatment.doctor_name }}</span>
               </div>
             </div>
 
