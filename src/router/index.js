@@ -23,6 +23,18 @@ const routes = [
         component: () => import("@/views/auth/RegisterView.vue"),
         meta: { title: "Register - SITARA" },
       },
+      {
+        path: "forgot-password",
+        name: "ForgotPassword",
+        component: () => import("@/views/auth/ForgotPasswordView.vue"),
+        meta: { title: "Lupa Password - SITARA" },
+      },
+      {
+        path: "activate",
+        name: "ActivateAccount",
+        component: () => import("@/views/auth/ActivateAccountView.vue"),
+        meta: { title: "Aktivasi Akun - SITARA" },
+      },
     ],
   },
   {

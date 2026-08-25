@@ -28,11 +28,14 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('sitara_token');
-      // We can't easily use vue-router here directly without passing it in or importing the router instance.
-      // Usually, the app redirects when the store auth state changes or via a global event bus.
-      // Assuming window.location or router injection is handled elsewhere if needed, 
-      // but simple window.location.href works for hard redirects.
-      window.location.href = '/login';
+      
+      // Jangan reload/redirect jika 401 berasal dari endpoint login atau sedang di halaman login
+      const isLoginRequest = error.config?.url?.includes('/auth/login');
+      const isAlreadyOnLoginPage = window.location.pathname === '/login' || window.location.pathname.includes('/login');
+
+      if (!isLoginRequest && !isAlreadyOnLoginPage) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

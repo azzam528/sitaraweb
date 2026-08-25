@@ -31,6 +31,15 @@ export default defineComponent({
       showPassword.value = !showPassword.value
     }
 
+    const isWrongPassword = ref(false)
+    const shakeForm = ref(false)
+
+    const clearError = (field) => {
+      if (errors.value[field]) {
+        delete errors.value[field]
+      }
+    }
+
     const validateForm = () => {
       const newErrors = {}
 
@@ -49,26 +58,36 @@ export default defineComponent({
     }
 
     const handleLogin = async () => {
-      if (!validateForm()) return
+      if (!validateForm()) {
+        shakeForm.value = true
+        setTimeout(() => { shakeForm.value = false }, 500)
+        return
+      }
 
       isLoading.value = true
       errors.value = {}
+      isWrongPassword.value = false
 
       try {
         await authStore.login({
-          username: username.value,
+          username: username.value.trim(),
           password: password.value
         })
 
         router.push('/dashboard')
       } catch (error) {
         console.error('Login error:', error)
-        errors.value = {
-          general:
-            error.message ||
-            error.response?.data?.detail ||
-            'Username atau password salah'
+        let detailMsg = error.response?.data?.detail || error.message || 'Username atau password salah.'
+        if (typeof detailMsg !== 'string' || detailMsg.toLowerCase().includes('unauthorized') || detailMsg.toLowerCase().includes('not authenticated') || detailMsg.toLowerCase().includes('incorrect')) {
+          detailMsg = 'Username atau password salah.'
         }
+        
+        errors.value = {
+          general: detailMsg
+        }
+
+        shakeForm.value = true
+        setTimeout(() => { shakeForm.value = false }, 500)
       } finally {
         isLoading.value = false
       }
@@ -81,6 +100,9 @@ export default defineComponent({
       showPassword,
       isLoading,
       errors,
+      isWrongPassword,
+      shakeForm,
+      clearError,
       togglePassword,
       handleLogin
     }
