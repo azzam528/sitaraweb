@@ -115,14 +115,25 @@
                   </span>
                 </span>
               </div>
+              <div class="detail-row">
+                <span class="detail-label">Status Penanganan:</span>
+                <span class="detail-val">
+                  <span class="status-badge" :class="'status-' + complaint.status">
+                    {{ formatStatus(complaint.status) }}
+                  </span>
+                </span>
+              </div>
             </div>
 
-            <!-- Respon Medis Sebelumnya -->
+            <!-- Respon Medis Tersimpan -->
             <div v-if="complaint.response" class="response-history-box">
-              <h4 class="response-title">Respon Medis Sebelumnya:</h4>
+              <div class="response-header-row mb-1">
+                <h4 class="response-title">Tanggapan & Rekomendasi Medis:</h4>
+                <span class="status-badge status-resolved text-xs">Telah Ditanggapi</span>
+              </div>
               <p class="response-text">{{ complaint.response }}</p>
-              <span class="response-meta" v-if="complaint.responded_at">
-                Dijawab pada: {{ formatDate(complaint.responded_at) }}
+              <span class="response-meta" v-if="complaint.responded_at || complaint.updated_at">
+                Diperbarui: {{ formatDate(complaint.responded_at || complaint.updated_at) }} ({{ formatTime(complaint.responded_at || complaint.updated_at) }} WIB)
               </span>
             </div>
           </div>
@@ -209,6 +220,7 @@
                   <label>Tanggapan / Rekomendasi Medis</label>
                   <textarea
                     v-model="responseForm.response"
+                    @input="onResponseInput"
                     rows="4"
                     placeholder="Tuliskan instruksi penanganan klinis, resep obat simtomatis, atau anjuran kontrol ke faskes..."
                     class="form-control"

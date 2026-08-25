@@ -50,14 +50,47 @@ export default defineComponent({
       }
     }
 
+    const onResponseInput = () => {
+      if (responseForm.value.status === 'pending' && responseForm.value.response?.trim()) {
+        responseForm.value.status = 'resolved'
+      }
+    }
+
     const submitUpdateStatus = async () => {
       if (!complaint.value) return
       isSubmitting.value = true
       try {
-        await complaintService.update(complaint.value.id, {
-          status: responseForm.value.status,
-          response: responseForm.value.response || null
-        })
+        let targetStatus = responseForm.value.status
+        const text = responseForm.value.response ? responseForm.value.response.trim() : ''
+
+        // Jika nakes memberikan tanggapan dan status masih pending, otomatis perbarui status menjadi resolved
+        if (text && targetStatus === 'pending') {
+          targetStatus = 'resolved'
+          responseForm.value.status = 'resolved'
+        }
+
+        const payload = {
+          status: targetStatus,
+          response: text || null
+        }
+
+        const res = await complaintService.update(complaint.value.id, payload)
+        
+        // Langsung perbarui local reactive state seketika
+        if (res && res.data) {
+          complaint.value = {
+            ...complaint.value,
+            ...res.data,
+            status: targetStatus,
+            response: payload.response,
+            updated_at: new Date().toISOString()
+          }
+        } else {
+          complaint.value.status = targetStatus
+          complaint.value.response = payload.response
+          complaint.value.updated_at = new Date().toISOString()
+        }
+
         showAlert('Tanggapan dan status penanganan keluhan berhasil diperbarui!')
         await loadComplaintDetail()
       } catch (error) {
@@ -98,19 +131,6 @@ export default defineComponent({
       if (status === 'in_progress') return 'Sedang Diproses'
       if (status === 'resolved') return 'Selesai'
       return status || '-'
-    }
-
-    const formatPhase = (phase) => {
-      if (phase === 'intensive') return 'Fase Intensif'
-      if (phase === 'continuation') return 'Fase Lanjutan'
-      return phase || '-'
-    }
-
-    const formatRegimen = (regimen) => {
-      if (regimen === 'category_1') return 'Kategori 1'
-      if (regimen === 'category_2') return 'Kategori 2'
-      if (regimen === 'mdr') return 'TB-RO'
-      return regimen || '-'
     }
 
     const formatDate = (dateStr) => {
@@ -164,12 +184,11 @@ export default defineComponent({
       alertType,
       showAlert,
       responseForm,
+      onResponseInput,
       submitUpdateStatus,
       confirmDelete,
       sendWhatsApp,
       formatStatus,
-      formatPhase,
-      formatRegimen,
       formatCategory,
       formatSeverity,
       formatDate,

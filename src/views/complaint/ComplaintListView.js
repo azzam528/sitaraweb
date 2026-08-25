@@ -152,42 +152,6 @@ export default defineComponent({
       window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
     }
 
-    // Modal Response
-    const showResponseModal = ref(false)
-    const selectedComplaint = ref(null)
-    const responseForm = ref({
-      status: 'in_progress',
-      response: ''
-    })
-
-    const openResponseModal = (comp) => {
-      selectedComplaint.value = comp
-      responseForm.value = {
-        status: comp.status || 'in_progress',
-        response: comp.response || ''
-      }
-      showResponseModal.value = true
-    }
-
-    const submitResponseForm = async () => {
-      if (!selectedComplaint.value) return
-      isSubmitting.value = true
-      try {
-        await complaintService.update(selectedComplaint.value.id, {
-          status: responseForm.value.status,
-          response: responseForm.value.response || null
-        })
-        showAlert('Tanggapan keluhan berhasil disimpan!')
-        showResponseModal.value = false
-        await loadComplaints()
-      } catch (error) {
-        console.error('Failed to update complaint response:', error)
-        showAlert('Gagal memperbarui tanggapan keluhan', 'danger')
-      } finally {
-        isSubmitting.value = false
-      }
-    }
-
     // Delete Complaint
     const confirmDelete = async (comp) => {
       const name = comp.treatment?.patient?.full_name || 'Pasien'
@@ -232,11 +196,6 @@ export default defineComponent({
       getAvatarColor,
       viewDetail,
       sendWhatsApp,
-      showResponseModal,
-      selectedComplaint,
-      responseForm,
-      openResponseModal,
-      submitResponseForm,
       confirmDelete
     }
   }
