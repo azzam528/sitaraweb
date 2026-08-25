@@ -143,23 +143,6 @@
             />
           </div>
 
-          <!-- DOCTOR NAME -->
-          <div class="form-group">
-            <label for="doctor_name">
-              Dokter Penanggung Jawab
-              <span class="required">*</span>
-            </label>
-            <input
-              id="doctor_name"
-              v-model="form.doctor_name"
-              type="text"
-              class="form-control"
-              placeholder="Contoh: dr. Andi Pratama, Sp.P"
-              :disabled="hasActiveTreatment"
-              required
-            />
-          </div>
-
           <!-- THERAPY START -->
           <div class="form-group">
             <label for="therapy_start_date">

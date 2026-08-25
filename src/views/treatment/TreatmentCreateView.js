@@ -29,7 +29,6 @@ export function useTreatmentCreateView() {
     phase: "intensive",
     regimen: "category_1",
     status: "active",
-    doctor_name: "",
     doctor_note: "",
   });
 
@@ -118,11 +117,6 @@ export function useTreatmentCreateView() {
       return;
     }
 
-    if (!form.value.doctor_name?.trim()) {
-      error.value = "Nama dokter penanggung jawab wajib diisi.";
-      return;
-    }
-
     submitting.value = true;
     error.value = null;
 
@@ -142,7 +136,7 @@ export function useTreatmentCreateView() {
         phase: form.value.phase || "intensive",
         regimen: form.value.regimen || "category_1",
         status: form.value.status || "active",
-        doctor_name: form.value.doctor_name.trim(),
+        doctor_name: "Tim Medis Faskes",
         doctor_note: form.value.doctor_note?.trim() || null,
       };
 

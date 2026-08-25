@@ -318,7 +318,7 @@ const userName = computed(() => {
 
 const userRoleLabel = computed(() => {
   const role = currentUser.value?.role;
-  if (role === "doctor") return "Dokter Spesialis / PJ";
+  if (role === "doctor") return "Dokter Spesialis";
   if (role === "nurse") return "Perawat TB";
   if (role === "admin") return "Admin Puskesmas";
   if (role === "kader") return "Kader TB";
