@@ -173,10 +173,9 @@ export default defineComponent({
     }
 
     const formatComplaintStatus = (status) => {
-      if (status === 'pending') return 'Menunggu'
-      if (status === 'in_progress') return 'Diproses'
-      if (status === 'resolved') return 'Selesai'
-      return status || '-'
+      if (status === 'pending') return 'Menunggu Tanggapan'
+      if (status === 'resolved' || status === 'in_progress') return 'Selesai'
+      return 'Menunggu Tanggapan'
     }
 
     // Actions

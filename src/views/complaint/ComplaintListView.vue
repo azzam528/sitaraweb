@@ -64,34 +64,8 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">MENUNGGU RESPON</span>
+          <span class="stat-label">MENUNGGU TANGGAPAN</span>
           <span class="stat-value">{{ pendingCount }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper teal-circle">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path
-              d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-            ></path>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">SEDANG DIPROSES</span>
-          <span class="stat-value">{{ inProgressCount }}</span>
         </div>
       </div>
 
@@ -113,7 +87,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">SELESAI / TERATASI</span>
+          <span class="stat-label">SELESAI / DITANGGAPI</span>
           <span class="stat-value">{{ resolvedCount }}</span>
         </div>
       </div>
@@ -181,9 +155,8 @@
           <label>Status Penanganan</label>
           <select v-model="filterStatus" class="form-control">
             <option value="">Semua Status</option>
-            <option value="pending">Menunggu Respon (Pending)</option>
-            <option value="in_progress">Sedang Diproses (In Progress)</option>
-            <option value="resolved">Selesai (Resolved)</option>
+            <option value="pending">Menunggu Tanggapan</option>
+            <option value="resolved">Selesai</option>
           </select>
         </div>
 

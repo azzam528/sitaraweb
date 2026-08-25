@@ -160,80 +160,61 @@
           </div>
         </div>
 
-          <!-- Right Column: Tindakan Medis & Pembaruan Status -->
+          <!-- Right Column: Tindakan Medis (Beri / Perbarui Tanggapan) -->
           <div class="col-side">
-            <!-- Form Pembaruan Status -->
+            <!-- Form Tanggapan Medis -->
             <div class="card action-card">
-              <h3 class="side-title">Pembaruan & Tindakan Medis</h3>
+              <div class="card-header-row mb-3">
+                <h3 class="side-title">
+                  {{ complaint.status === 'resolved' || complaint.response ? 'Perbarui Tanggapan Medis' : 'Beri Tanggapan Medis' }}
+                </h3>
+                <span class="status-badge" :class="'status-' + (complaint.status || 'pending')">
+                  {{ formatStatus(complaint.status) }}
+                </span>
+              </div>
 
               <form @submit.prevent="submitUpdateStatus">
                 <div class="form-group mb-3">
-                  <label
-                    >Status Penanganan <span class="text-danger">*</span></label
-                  >
-                  <div class="status-radio-group">
-                    <label
-                      class="status-radio"
-                      :class="{
-                        'is-selected': responseForm.status === 'pending',
-                      }"
-                    >
-                      <input
-                        type="radio"
-                        value="pending"
-                        v-model="responseForm.status"
-                      />
-                      <span>Menunggu Respon (Pending)</span>
-                    </label>
-
-                    <label
-                      class="status-radio"
-                      :class="{
-                        'is-selected': responseForm.status === 'in_progress',
-                      }"
-                    >
-                      <input
-                        type="radio"
-                        value="in_progress"
-                        v-model="responseForm.status"
-                      />
-                      <span>Sedang Diproses / Observasi</span>
-                    </label>
-
-                    <label
-                      class="status-radio"
-                      :class="{
-                        'is-selected': responseForm.status === 'resolved',
-                      }"
-                    >
-                      <input
-                        type="radio"
-                        value="resolved"
-                        v-model="responseForm.status"
-                      />
-                      <span>Selesai / Teratasi (Resolved)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-group mb-4">
-                  <label>Tanggapan / Rekomendasi Medis</label>
+                  <label for="clinicalResponse">
+                    Instruksi / Rekomendasi Klinis <span class="text-danger">*</span>
+                  </label>
                   <textarea
+                    id="clinicalResponse"
                     v-model="responseForm.response"
-                    @input="onResponseInput"
-                    rows="4"
-                    placeholder="Tuliskan instruksi penanganan klinis, resep obat simtomatis, atau anjuran kontrol ke faskes..."
+                    rows="5"
+                    placeholder="Tuliskan instruksi penanganan klinis, anjuran kontrol, atau resep obat simtomatis untuk pasien..."
                     class="form-control"
+                    required
                   ></textarea>
+                  <p class="text-xs text-muted mt-2">
+                    * Laporan keluhan akan otomatis berstatus <strong>Selesai</strong> setelah tanggapan disimpan.
+                  </p>
                 </div>
 
                 <button
                   type="submit"
                   class="btn btn-primary btn-block"
-                  :disabled="isSubmitting"
+                  :disabled="isSubmitting || !responseForm.response?.trim()"
                 >
                   <span v-if="isSubmitting" class="spinner-sm"></span>
-                  <span v-else>Simpan Tanggapan & Status</span>
+                  <span v-else>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="btn-icon"
+                    >
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    {{ complaint.status === 'resolved' || complaint.response ? 'Simpan Perubahan Tanggapan' : 'Kirim Tanggapan (Selesaikan)' }}
+                  </span>
                 </button>
               </form>
             </div>

@@ -70,7 +70,7 @@ export default defineComponent({
     // Computed Statistics
     const pendingCount = computed(() => complaints.value.filter(c => c.status === 'pending').length)
     const inProgressCount = computed(() => complaints.value.filter(c => c.status === 'in_progress').length)
-    const resolvedCount = computed(() => complaints.value.filter(c => c.status === 'resolved').length)
+    const resolvedCount = computed(() => complaints.value.filter(c => c.status === 'resolved' || c.status === 'in_progress' || !!c.response).length)
     const resolutionRate = computed(() => {
       if (complaints.value.length === 0) return '100%'
       return Math.round((resolvedCount.value / complaints.value.length) * 100) + '%'
@@ -87,7 +87,8 @@ export default defineComponent({
         const desc = c.description?.toLowerCase() || ''
 
         const matchSearch = !q || pName.includes(q) || pNik.includes(q) || pRm.includes(q) || cat.includes(q) || desc.includes(q)
-        const matchStatus = !filterStatus.value || c.status === filterStatus.value
+        const matchStatus = !filterStatus.value ||
+          (filterStatus.value === 'pending' ? c.status === 'pending' : (c.status === 'resolved' || c.status === 'in_progress' || !!c.response))
         const matchCategory = !filterCategory.value || c.category?.toLowerCase().includes(filterCategory.value.toLowerCase())
 
         return matchSearch && matchStatus && matchCategory
@@ -103,10 +104,9 @@ export default defineComponent({
 
     // Helpers
     const formatStatus = (status) => {
-      if (status === 'pending') return 'Menunggu Respon'
-      if (status === 'in_progress') return 'Sedang Diproses'
-      if (status === 'resolved') return 'Selesai'
-      return status || '-'
+      if (status === 'pending') return 'Menunggu Tanggapan'
+      if (status === 'resolved' || status === 'in_progress') return 'Selesai'
+      return 'Menunggu Tanggapan'
     }
 
     const formatDate = (dateStr) => {

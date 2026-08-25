@@ -58,20 +58,17 @@ export default defineComponent({
 
     const submitUpdateStatus = async () => {
       if (!complaint.value) return
+      const text = responseForm.value.response ? responseForm.value.response.trim() : ''
+      if (!text) {
+        showAlert('Silakan tuliskan tanggapan / instruksi klinis terlebih dahulu.', 'warning')
+        return
+      }
+
       isSubmitting.value = true
       try {
-        let targetStatus = responseForm.value.status
-        const text = responseForm.value.response ? responseForm.value.response.trim() : ''
-
-        // Jika nakes memberikan tanggapan dan status masih pending, otomatis perbarui status menjadi resolved
-        if (text && targetStatus === 'pending') {
-          targetStatus = 'resolved'
-          responseForm.value.status = 'resolved'
-        }
-
         const payload = {
-          status: targetStatus,
-          response: text || null
+          status: 'resolved',
+          response: text
         }
 
         const res = await complaintService.update(complaint.value.id, payload)
@@ -81,21 +78,21 @@ export default defineComponent({
           complaint.value = {
             ...complaint.value,
             ...res.data,
-            status: targetStatus,
-            response: payload.response,
+            status: 'resolved',
+            response: text,
             updated_at: new Date().toISOString()
           }
         } else {
-          complaint.value.status = targetStatus
-          complaint.value.response = payload.response
+          complaint.value.status = 'resolved'
+          complaint.value.response = text
           complaint.value.updated_at = new Date().toISOString()
         }
 
-        showAlert('Tanggapan dan status penanganan keluhan berhasil diperbarui!')
+        showAlert('Tanggapan berhasil disimpan dan status keluhan otomatis SELESAI!')
         await loadComplaintDetail()
       } catch (error) {
         console.error('Failed to update complaint:', error)
-        showAlert('Gagal memperbarui status keluhan', 'danger')
+        showAlert('Gagal memperbarui tanggapan keluhan', 'danger')
       } finally {
         isSubmitting.value = false
       }
@@ -127,10 +124,9 @@ export default defineComponent({
 
     // Helpers
     const formatStatus = (status) => {
-      if (status === 'pending') return 'Menunggu Respon'
-      if (status === 'in_progress') return 'Sedang Diproses'
-      if (status === 'resolved') return 'Selesai'
-      return status || '-'
+      if (status === 'pending') return 'Menunggu Tanggapan'
+      if (status === 'resolved' || status === 'in_progress') return 'Selesai'
+      return 'Menunggu Tanggapan'
     }
 
     const formatDate = (dateStr) => {
