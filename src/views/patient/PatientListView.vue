@@ -211,67 +211,12 @@ const {
             <option value="female">Perempuan</option>
           </select>
         </div>
-
-        <!-- Reset -->
-        <div class="form-group filter-reset-wrapper">
-          <label>&nbsp;</label>
-          <button type="button" class="btn-reset-filter" @click="resetFilters">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
-              ></path>
-              <path d="M21 3v5h-5"></path>
-              <path
-                d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
-              ></path>
-              <path d="M3 21v-5h5"></path>
-            </svg>
-            Reset Filter
-          </button>
-        </div>
       </div>
     </section>
 
     <!-- PATIENT TABLE -->
     <section class="table-section card">
-      <!-- Loading -->
-      <div v-if="patientStore.loading" class="loading-state">
-        Memuat data pasien...
-      </div>
-
-      <!-- Error -->
-      <div v-else-if="patientStore.error" class="error-state">
-        <p>{{ patientStore.error }}</p>
-        <button type="button" class="btn-retry" @click="loadPatients">
-          Coba Lagi
-        </button>
-      </div>
-
-      <!-- Empty -->
-      <div v-else-if="filteredPatients.length === 0" class="empty-state">
-        <p>Tidak ada data pasien yang sesuai.</p>
-        <button
-          v-if="filters.search || filters.gender"
-          type="button"
-          class="btn-retry"
-          @click="resetFilters"
-        >
-          Reset Filter
-        </button>
-      </div>
-
-      <!-- Table -->
-      <div v-else class="table-responsive">
+      <div class="table-responsive">
         <table class="custom-table">
           <thead>
             <tr>
@@ -285,7 +230,22 @@ const {
           </thead>
 
           <tbody>
-            <tr v-for="patient in paginatedPatients" :key="patient.id">
+            <tr v-if="patientStore.loading">
+              <td colspan="6" class="text-center py-6 text-muted">
+                Memuat data pasien...
+              </td>
+            </tr>
+            <tr v-else-if="patientStore.error">
+              <td colspan="6" class="text-center py-6 text-danger">
+                {{ patientStore.error }}
+              </td>
+            </tr>
+            <tr v-else-if="filteredPatients.length === 0">
+              <td colspan="6" class="text-center py-6 text-muted">
+                Tidak ada data pasien yang sesuai.
+              </td>
+            </tr>
+            <tr v-else v-for="patient in paginatedPatients" :key="patient.id">
               <!-- PASIEN & NIK -->
               <td>
                 <div class="patient-profile">
