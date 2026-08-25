@@ -85,18 +85,37 @@
 }
 
 /* Stats Grid */
-.stats-grid {
+.stats-grid,
+.stats-grid-5,
+.stats-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
+  margin-bottom: 20px;
 }
 
-@media (max-width: 1024px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1300px) {
+  .stats-grid,
+  .stats-grid-5,
+  .stats-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-@media (max-width: 600px) {
-  .stats-grid { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .stats-grid,
+  .stats-grid-5,
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .stats-grid,
+  .stats-grid-5,
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
@@ -108,7 +127,9 @@
   gap: 14px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 82px;
+  box-sizing: border-box;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-card:hover {
@@ -126,14 +147,48 @@
   flex-shrink: 0;
 }
 
-.blue-circle { background-color: #e0f2fe; color: #006591; }
-.green-circle { background-color: #dcfce7; color: #16a34a; }
-.orange-circle { background-color: #fef3c7; color: #d97706; }
-.red-circle { background-color: #fee2e2; color: #dc2626; }
+.stat-icon-wrapper svg,
+.stat-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.teal-circle,
+.blue-circle,
+.stat-icon-wrapper.teal,
+.stat-icon-wrapper.primary {
+  background-color: #e0f2fe;
+  color: #006591;
+}
+
+.green-circle,
+.stat-icon-wrapper.green,
+.stat-icon-wrapper.success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.orange-circle,
+.yellow-circle,
+.stat-icon-wrapper.orange,
+.stat-icon-wrapper.warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.red-circle,
+.stat-icon-wrapper.red,
+.stat-icon-wrapper.danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat-label {
@@ -143,6 +198,9 @@
   color: #64748b;
   text-transform: uppercase;
   margin-bottom: 2px;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .stat-value {

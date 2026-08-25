@@ -6,10 +6,10 @@
     </header>
 
     <!-- 1. Statistic Cards Row -->
-    <div class="stats-row">
+    <section class="stats-grid stats-grid-5">
       <!-- Card 1 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper teal">
+        <div class="stat-icon-wrapper teal-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
@@ -24,7 +24,7 @@
 
       <!-- Card 2 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper success">
+        <div class="stat-icon-wrapper green-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -38,7 +38,7 @@
 
       <!-- Card 3 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper primary">
+        <div class="stat-icon-wrapper orange-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
             <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -53,7 +53,7 @@
 
       <!-- Card 4 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper danger">
+        <div class="stat-icon-wrapper red-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -68,7 +68,7 @@
 
       <!-- Card 5 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper teal">
+        <div class="stat-icon-wrapper teal-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"></line>
             <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -80,7 +80,7 @@
           <span class="stat-value">94.5%</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- 2. Filter Section -->
     <section class="filter-section card">

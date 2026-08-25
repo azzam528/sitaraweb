@@ -56,23 +56,18 @@
 /* 2. Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-@media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }
@@ -82,16 +77,14 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.04),
-    0 1px 2px -1px rgba(0, 0, 0, 0.02);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  gap: 14px;
+  min-height: 82px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-card:hover {
@@ -100,8 +93,8 @@
 }
 
 .stat-icon-wrapper {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -109,19 +102,37 @@
   flex-shrink: 0;
 }
 
-.teal-circle {
+.stat-icon-wrapper svg {
+  width: 22px;
+  height: 22px;
+}
+
+.teal-circle,
+.blue-circle,
+.stat-icon-wrapper.teal,
+.stat-icon-wrapper.primary {
   background-color: #e0f2fe;
   color: #006591;
 }
-.green-circle {
+
+.green-circle,
+.stat-icon-wrapper.green,
+.stat-icon-wrapper.success {
   background-color: #dcfce7;
   color: #16a34a;
 }
-.orange-circle {
+
+.orange-circle,
+.yellow-circle,
+.stat-icon-wrapper.orange,
+.stat-icon-wrapper.warning {
   background-color: #fef3c7;
   color: #d97706;
 }
-.red-circle {
+
+.red-circle,
+.stat-icon-wrapper.red,
+.stat-icon-wrapper.danger {
   background-color: #fee2e2;
   color: #dc2626;
 }
@@ -129,15 +140,21 @@
 .stat-info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .stat-value {

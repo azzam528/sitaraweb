@@ -20,9 +20,9 @@
     </div>
 
     <!-- Stats Row -->
-    <section class="stats-grid">
+    <section class="stats-grid stats-grid-4">
       <div class="stat-card">
-        <div class="stat-icon-wrapper blue-circle">
+        <div class="stat-icon-wrapper teal-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
@@ -93,7 +93,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon-wrapper blue-circle">
+        <div class="stat-icon-wrapper teal-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
