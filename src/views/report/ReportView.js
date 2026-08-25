@@ -51,7 +51,7 @@ export default defineComponent({
           const u = JSON.parse(userStr)
           if (u.name) currentOfficerName.value = u.name
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Period Filter Helper
