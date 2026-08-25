@@ -156,7 +156,7 @@
         </div>
 
         <!-- ============================================================= -->
-        <!-- TABLE 1: REKAPITULASI PENGOBATAN PASIEN TB -->
+        <!-- TABLE 1: REKAPITULASI PROGRAM PENGOBATAN TB -->
         <!-- ============================================================= -->
         <div v-if="selectedReportType === 'treatment'" class="report-table-container">
           <table class="report-table">
@@ -166,8 +166,6 @@
                 <th>NIK</th>
                 <th>Nama Pasien</th>
                 <th>No. RM</th>
-                <th>Regimen / Tipe TB</th>
-                <th>Fase Terapi</th>
                 <th>Tgl Mulai</th>
                 <th>Tgl Selesai (Target)</th>
                 <th>Status Terapi</th>
@@ -175,15 +173,13 @@
             </thead>
             <tbody>
               <tr v-if="filteredTreatments.length === 0">
-                <td colspan="9" class="text-center py-6 text-muted">Tidak ada data pengobatan pada periode ini.</td>
+                <td colspan="7" class="text-center py-6 text-muted">Tidak ada data pengobatan pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredTreatments" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>
                 <td class="font-mono text-xs">{{ item.patient?.nik || '-' }}</td>
                 <td class="font-semibold">{{ item.patient?.full_name || 'Pasien #' + item.patient_id }}</td>
                 <td class="font-mono text-xs">{{ item.patient?.medical_record_number || '-' }}</td>
-                <td>{{ formatRegimen(item.regimen) }}</td>
-                <td>{{ formatPhase(item.phase) }}</td>
                 <td>{{ formatDate(item.start_date) }}</td>
                 <td>{{ formatDate(item.end_date) }}</td>
                 <td>
@@ -206,32 +202,28 @@
                 <th style="width: 40px;">No.</th>
                 <th>Nama Pasien</th>
                 <th>NIK</th>
-                <th>Obat Diminta</th>
-                <th>Jumlah</th>
-                <th>Alasan Permintaan</th>
+                <th>No. RM</th>
+                <th>Sisa Obat</th>
                 <th>Waktu Pengajuan</th>
-                <th>Status Verifikasi</th>
-                <th>Catatan Nakes</th>
+                <th>Status Permintaan</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="filteredRefills.length === 0">
-                <td colspan="9" class="text-center py-6 text-muted">Tidak ada data permintaan refill pada periode ini.</td>
+                <td colspan="7" class="text-center py-6 text-muted">Tidak ada data permintaan refill pada periode ini.</td>
               </tr>
               <tr v-for="(item, index) in filteredRefills" :key="item.id">
                 <td class="text-center">{{ index + 1 }}</td>
                 <td class="font-semibold">{{ item.treatment?.patient?.full_name || 'Pengobatan #' + item.treatment_id }}</td>
                 <td class="font-mono text-xs">{{ item.treatment?.patient?.nik || '-' }}</td>
-                <td>{{ item.medicine?.name || 'Obat #' + item.medicine_id }} ({{ item.medicine?.code || '-' }})</td>
-                <td class="font-semibold">{{ item.quantity }} {{ item.medicine?.unit || 'Tab' }}</td>
-                <td>{{ item.reason }}</td>
-                <td>{{ formatDate(item.created_at) }}</td>
+                <td class="font-mono text-xs">{{ item.treatment?.patient?.medical_record_number || '-' }}</td>
+                <td>{{ item.remaining_days }} Hari</td>
+                <td>{{ formatDate(item.request_date) }}</td>
                 <td>
                   <span class="status-cell" :class="'cell-' + item.status">
                     {{ formatRefillStatus(item.status) }}
                   </span>
                 </td>
-                <td class="text-xs">{{ item.nurse_note || '-' }}</td>
               </tr>
             </tbody>
           </table>
@@ -250,7 +242,7 @@
                 <th>Kategori Keluhan</th>
                 <th>Deskripsi Keluhan Pasien</th>
                 <th>Waktu Laporan</th>
-                <th>Tanggapan / Tindakan Dokter</th>
+                <th>Tanggapan / Tindakan Medis</th>
                 <th>Status</th>
               </tr>
             </thead>

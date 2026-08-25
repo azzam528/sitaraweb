@@ -188,15 +188,13 @@ export default defineComponent({
       let filename = `laporan_${selectedReportType.value}_${Date.now()}.csv`
 
       if (selectedReportType.value === 'treatment') {
-        csvContent += 'No,NIK,Nama Pasien,No RM,Regimen,Fase Terapi,Tanggal Mulai,Tanggal Target Selesai,Status\r\n'
+        csvContent += 'No,NIK,Nama Pasien,No RM,Tanggal Mulai,Tanggal Target Selesai,Status\r\n'
         filteredTreatments.value.forEach((t, i) => {
           const row = [
             i + 1,
             `"${t.patient?.nik || ''}"`,
             `"${t.patient?.full_name || ''}"`,
             `"${t.patient?.medical_record_number || ''}"`,
-            `"${formatRegimen(t.regimen)}"`,
-            `"${formatPhase(t.phase)}"`,
             `"${formatDate(t.start_date)}"`,
             `"${formatDate(t.end_date)}"`,
             `"${formatTreatmentStatus(t.status)}"`
@@ -204,30 +202,28 @@ export default defineComponent({
           csvContent += row.join(',') + '\r\n'
         })
       } else if (selectedReportType.value === 'refill') {
-        csvContent += 'No,Nama Pasien,NIK,Obat Diminta,Jumlah,Alasan,Tanggal Pengajuan,Status,Catatan Nakes\r\n'
+        csvContent += 'No,Nama Pasien,NIK,No RM,Sisa Obat,Tanggal Pengajuan,Status Permintaan\r\n'
         filteredRefills.value.forEach((r, i) => {
           const row = [
             i + 1,
             `"${r.treatment?.patient?.full_name || ''}"`,
             `"${r.treatment?.patient?.nik || ''}"`,
-            `"${r.medicine?.name || ''}"`,
-            `"${r.quantity} ${r.medicine?.unit || ''}"`,
-            `"${r.reason}"`,
-            `"${formatDate(r.created_at)}"`,
-            `"${formatRefillStatus(r.status)}"`,
-            `"${r.nurse_note || ''}"`
+            `"${r.treatment?.patient?.medical_record_number || ''}"`,
+            `"${r.remaining_days || 0} Hari"`,
+            `"${formatDate(r.request_date)}"`,
+            `"${formatRefillStatus(r.status)}"`
           ]
           csvContent += row.join(',') + '\r\n'
         })
       } else {
-        csvContent += 'No,Nama Pasien,NIK,Kategori Keluhan,Deskripsi,Waktu Laporan,Tanggapan Dokter,Status\r\n'
+        csvContent += 'No,Nama Pasien,NIK,Kategori Keluhan,Deskripsi,Waktu Laporan,Tanggapan Medis,Status\r\n'
         filteredComplaints.value.forEach((c, i) => {
           const row = [
             i + 1,
             `"${c.treatment?.patient?.full_name || ''}"`,
             `"${c.treatment?.patient?.nik || ''}"`,
             `"${c.category}"`,
-            `"${c.description.replace(/"/g, '""')}"`,
+            `"${(c.description || '').replace(/"/g, '""')}"`,
             `"${formatDate(c.created_at)}"`,
             `"${(c.response || '').replace(/"/g, '""')}"`,
             `"${formatComplaintStatus(c.status)}"`

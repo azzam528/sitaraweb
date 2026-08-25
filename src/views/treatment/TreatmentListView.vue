@@ -14,46 +14,39 @@
       <button class="btn-close-toast" @click="alertMessage = ''">&times;</button>
     </div>
 
-    <!-- 2. Statistic Cards Row -->
+    <!-- 2. Summary Statistics (4 Cards) -->
     <section class="stats-grid">
+      <!-- Total Pengobatan -->
       <div class="stat-card">
         <div class="stat-icon-wrapper blue-circle">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">PENGOBATAN AKTIF</span>
-          <span class="stat-value">{{ activeCount }}</span>
+          <span class="stat-label">TOTAL PENGOBATAN</span>
+          <span class="stat-value">{{ treatments.length }}</span>
         </div>
       </div>
 
+      <!-- Terapi Aktif -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper orange-circle">
+        <div class="stat-icon-wrapper teal-circle">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">FASE INTENSIF</span>
-          <span class="stat-value">{{ intensiveCount }}</span>
+          <span class="stat-label">TERAPI AKTIF</span>
+          <span class="stat-value">{{ activeCount }}</span>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon-wrapper teal-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">FASE LANJUTAN</span>
-          <span class="stat-value">{{ continuationCount }}</span>
-        </div>
-      </div>
-
+      <!-- Selesai / Sembuh -->
       <div class="stat-card">
         <div class="stat-icon-wrapper green-circle">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -67,6 +60,7 @@
         </div>
       </div>
 
+      <!-- Putus Obat -->
       <div class="stat-card">
         <div class="stat-icon-wrapper red-circle">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -85,53 +79,49 @@
     <!-- 3. Filter Section -->
     <section class="filter-section card">
       <div class="filter-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon
+            points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+          ></polygon>
         </svg>
         <h2>Filter Data Pengobatan</h2>
       </div>
 
       <div class="filter-grid-simple">
-        <!-- 1. Search Name / NIK / Doctor -->
+        <!-- Search -->
         <div class="form-group">
-          <label>Pencarian</label>
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Cari Nama Pasien, NIK, No RM, atau Dokter..." 
+          <label>Nama, NIK, atau No. RM</label>
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Cari nama, NIK, atau No. RM..."
             class="form-control"
+            @input="currentPage = 1"
           />
         </div>
 
-        <!-- 2. Fase Pengobatan -->
+        <!-- Status -->
         <div class="form-group">
-          <label>Fase Terapi</label>
-          <select v-model="filterPhase" class="form-control">
-            <option value="">Semua Fase</option>
-            <option value="intensive">Fase Intensif</option>
-            <option value="continuation">Fase Lanjutan</option>
-          </select>
-        </div>
-
-        <!-- 3. Status Pengobatan -->
-        <div class="form-group">
-          <label>Status</label>
-          <select v-model="filterStatus" class="form-control">
+          <label>Status Pengobatan</label>
+          <select
+            v-model="filterStatus"
+            class="form-control"
+            @change="currentPage = 1"
+          >
             <option value="">Semua Status</option>
             <option value="active">Aktif</option>
             <option value="completed">Selesai</option>
             <option value="dropped">Putus Obat</option>
-          </select>
-        </div>
-
-        <!-- 4. Regimen -->
-        <div class="form-group">
-          <label>Regimen</label>
-          <select v-model="filterRegimen" class="form-control">
-            <option value="">Semua Regimen</option>
-            <option value="category_1">Kategori 1</option>
-            <option value="category_2">Kategori 2</option>
-            <option value="mdr">TB-RO (MDR)</option>
           </select>
         </div>
       </div>
@@ -144,7 +134,6 @@
           <thead>
             <tr>
               <th>Pasien</th>
-              <th>Fase Terapi</th>
               <th>Progres Pengobatan</th>
               <th>Status</th>
               <th class="text-center">Aksi</th>
@@ -176,11 +165,6 @@
                     </div>
                   </div>
                 </div>
-              </td>
-              <td>
-                <span class="phase-badge" :class="'badge-' + treatment.phase">
-                  {{ formatPhase(treatment.phase) }}
-                </span>
               </td>
               <td>
                 <div class="progress-wrapper">
@@ -225,7 +209,7 @@
                   <div v-if="activeDropdown === treatment.id" class="dropdown-menu-floating" @click.stop>
                     <button class="dropdown-item" @click="viewDetail(treatment.id); activeDropdown = null">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                       <span>Lihat Detail</span>
@@ -305,7 +289,7 @@
         <div class="modal-header">
           <div>
             <h3>Pembaruan Status Pengobatan</h3>
-            <p>Ubah status terapi dan fase pengobatan pasien TB</p>
+            <p>Ubah status terapi pasien TB</p>
           </div>
           <button class="modal-close" @click="showStatusModal = false" title="Tutup">&times;</button>
         </div>
@@ -338,16 +322,8 @@
               </select>
             </div>
 
-            <div class="form-group mb-3">
-              <label>Fase Pengobatan</label>
-              <select v-model="statusForm.phase" class="form-control">
-                <option value="intensive">Fase Intensif</option>
-                <option value="continuation">Fase Lanjutan</option>
-              </select>
-            </div>
-
             <div class="form-group">
-              <label>Catatan Dokter / Keterangan</label>
+              <label>Catatan / Keterangan Tambahan</label>
               <textarea 
                 v-model="statusForm.doctor_note" 
                 rows="3" 

@@ -77,23 +77,22 @@ export function useTreatmentCreateView() {
     error.value = null;
 
     try {
+      let defaultEndDate = form.value.therapy_end_date;
+      if (!defaultEndDate && form.value.therapy_start_date) {
+        const start = new Date(form.value.therapy_start_date);
+        start.setMonth(start.getMonth() + 6);
+        defaultEndDate = start.toISOString().split("T")[0];
+      }
+
       const payload = {
         patient_id: Number(patientId),
-
         diagnosis_date: form.value.diagnosis_date,
-
         therapy_start_date: form.value.therapy_start_date,
-
-        therapy_end_date: form.value.therapy_end_date || null,
-
-        phase: form.value.phase,
-
-        regimen: form.value.regimen,
-
-        status: form.value.status,
-
-        doctor_name: form.value.doctor_name,
-
+        therapy_end_date: defaultEndDate || form.value.therapy_start_date,
+        phase: "intensive",
+        regimen: "category_1",
+        status: form.value.status || "active",
+        doctor_name: "Tim Medis Faskes",
         doctor_note: form.value.doctor_note || null,
       };
 

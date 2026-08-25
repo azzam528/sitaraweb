@@ -26,9 +26,7 @@ export default defineComponent({
 
     // Filters & Search
     const searchQuery = ref('')
-    const filterPhase = ref('')
     const filterStatus = ref('')
-    const filterRegimen = ref('')
 
     // Pagination
     const currentPage = ref(1)
@@ -70,8 +68,6 @@ export default defineComponent({
 
     // Computed Statistics
     const activeCount = computed(() => treatments.value.filter(t => t.status === 'active').length)
-    const intensiveCount = computed(() => treatments.value.filter(t => t.phase === 'intensive' && t.status === 'active').length)
-    const continuationCount = computed(() => treatments.value.filter(t => t.phase === 'continuation' && t.status === 'active').length)
     const completedCount = computed(() => treatments.value.filter(t => t.status === 'completed').length)
     const droppedCount = computed(() => treatments.value.filter(t => t.status === 'dropped').length)
 
@@ -82,19 +78,15 @@ export default defineComponent({
         const patientName = t.patient?.full_name?.toLowerCase() || ''
         const nik = t.patient?.nik || ''
         const medRecord = t.patient?.medical_record_number?.toLowerCase() || ''
-        const doctor = t.doctor_name?.toLowerCase() || ''
 
         const matchesSearch = !query || 
           patientName.includes(query) || 
           nik.includes(query) || 
-          medRecord.includes(query) || 
-          doctor.includes(query)
+          medRecord.includes(query)
 
-        const matchesPhase = !filterPhase.value || t.phase === filterPhase.value
         const matchesStatus = !filterStatus.value || t.status === filterStatus.value
-        const matchesRegimen = !filterRegimen.value || t.regimen === filterRegimen.value
 
-        return matchesSearch && matchesPhase && matchesStatus && matchesRegimen
+        return matchesSearch && matchesStatus
       })
     })
 
@@ -113,19 +105,6 @@ export default defineComponent({
       return status || '-'
     }
 
-    const formatPhase = (phase) => {
-      if (phase === 'intensive') return 'Fase Intensif'
-      if (phase === 'continuation') return 'Fase Lanjutan'
-      return phase || '-'
-    }
-
-    const formatRegimen = (regimen) => {
-      if (regimen === 'category_1') return 'Kategori 1 (2RHZE / 4RH)'
-      if (regimen === 'category_2') return 'Kategori 2 (2RHZES / 1RHZE / 5RHE)'
-      if (regimen === 'mdr') return 'TB-RO / Resistan Obat'
-      return regimen || '-'
-    }
-
     const formatDate = (dateStr) => {
       if (!dateStr) return '-'
       const d = new Date(dateStr)
@@ -138,50 +117,38 @@ export default defineComponent({
     }
 
     const getAvatarColor = (id) => {
-      const colors = ['teal', 'primary', 'orange', 'green', 'purple']
-      return colors[id % colors.length]
+      const colors = ['#0284c7', '#0d9488', '#16a34a', '#d97706', '#dc2626', '#7c3aed']
+      return colors[(id || 0) % colors.length]
     }
 
     const calculateProgress = (treatment) => {
-      if (!treatment.therapy_start_date || !treatment.therapy_end_date) {
+      if (!treatment.start_date || !treatment.estimated_end_date) {
         return { percentage: 0, daysPassed: 0, totalDays: 180 }
       }
-      const start = new Date(treatment.therapy_start_date).getTime()
-      const end = new Date(treatment.therapy_end_date).getTime()
+
+      const start = new Date(treatment.start_date).getTime()
+      const end = new Date(treatment.estimated_end_date).getTime()
       const now = new Date().getTime()
 
       const totalDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)))
-      const daysPassed = Math.max(0, Math.round((now - start) / (1000 * 60 * 60 * 24)))
-      const percentage = Math.min(100, Math.round((daysPassed / totalDays) * 100))
+      const daysPassed = Math.max(0, Math.min(totalDays, Math.round((now - start) / (1000 * 60 * 60 * 24))))
+      
+      let percentage = Math.round((daysPassed / totalDays) * 100)
+      if (treatment.status === 'completed') percentage = 100
 
-      return {
-        percentage,
-        daysPassed: Math.min(daysPassed, totalDays),
-        totalDays
-      }
+      return { percentage: Math.min(100, Math.max(0, percentage)), daysPassed, totalDays }
     }
 
     const getProgressColor = (treatment) => {
-      if (treatment.status === 'dropped' || treatment.status === 'defaulted') return '#DC2626'
-      if (treatment.status === 'completed') return '#16A34A'
-      const pct = calculateProgress(treatment).percentage
-      if (pct >= 100) return '#16A34A' // 100% Hijau Sempurna
-      if (pct >= 75) return '#10B981'  // 75%-99% Hijau Emerald
-      if (pct >= 50) return '#0D9488'  // 50%-74% Tosca / Hijau Kebiruan
-      if (pct >= 25) return '#0284C7'  // 25%-49% Biru
-      return '#38BDF8'                 // 0%-24% Biru Muda (Awal)
+      const { percentage } = calculateProgress(treatment)
+      if (treatment.status === 'completed') return '#16a34a'
+      if (treatment.status === 'dropped') return '#dc2626'
+      if (percentage >= 75) return '#16a34a'
+      if (percentage >= 40) return '#0284c7'
+      return '#d97706'
     }
 
-    const getProgressColorClass = (treatment) => {
-      if (treatment.status === 'completed') return 'bg-success'
-      if (treatment.status === 'dropped' || treatment.status === 'defaulted') return 'bg-danger'
-      const pct = calculateProgress(treatment).percentage
-      if (pct >= 80) return 'bg-success'
-      if (pct >= 40) return 'bg-primary'
-      return 'bg-teal'
-    }
-
-    // Navigation & Interaction
+    // Actions
     const viewDetail = (id) => {
       router.push(`/dashboard/treatments/${id}`)
     }
@@ -193,7 +160,7 @@ export default defineComponent({
         return
       }
       const cleanPhone = phone.replace(/^0/, '62').replace(/\D/g, '')
-      const msg = encodeURIComponent(`Halo Bpk/Ibu ${treatment.patient?.full_name}, kami dari tim medis SITARA mengingatkan terkait kelanjutan pengobatan TB Anda (${formatPhase(treatment.phase)}). Mohon tetap rutin minum obat tepat waktu.`)
+      const msg = encodeURIComponent(`Halo Bpk/Ibu ${treatment.patient?.full_name}, kami dari tim medis SITARA mengingatkan terkait kelanjutan pengobatan TB Anda. Mohon tetap rutin minum obat tepat waktu.`)
       window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
     }
 
@@ -202,7 +169,6 @@ export default defineComponent({
     const selectedTreatment = ref(null)
     const statusForm = ref({
       status: 'active',
-      phase: 'intensive',
       doctor_note: ''
     })
 
@@ -210,7 +176,6 @@ export default defineComponent({
       selectedTreatment.value = treatment
       statusForm.value = {
         status: treatment.status || 'active',
-        phase: treatment.phase || 'intensive',
         doctor_note: treatment.doctor_note || ''
       }
       showStatusModal.value = true
@@ -223,7 +188,6 @@ export default defineComponent({
       try {
         await treatmentService.update(selectedTreatment.value.id, {
           status: statusForm.value.status,
-          phase: statusForm.value.phase,
           doctor_note: statusForm.value.doctor_note || null
         })
 
@@ -253,6 +217,12 @@ export default defineComponent({
       }
     }
 
+    const resetFilters = () => {
+      searchQuery.value = ''
+      filterStatus.value = ''
+      currentPage.value = 1
+    }
+
     return {
       treatments,
       isLoading,
@@ -261,30 +231,24 @@ export default defineComponent({
       alertType,
       showAlert,
       searchQuery,
-      filterPhase,
       filterStatus,
-      filterRegimen,
+      resetFilters,
       currentPage,
       pageSize,
       activeDropdown,
       toggleDropdown,
       activeCount,
-      intensiveCount,
-      continuationCount,
       completedCount,
       droppedCount,
       filteredTreatments,
       totalPages,
       paginatedTreatments,
       formatStatus,
-      formatPhase,
-      formatRegimen,
       formatDate,
       getInitials,
       getAvatarColor,
       calculateProgress,
       getProgressColor,
-      getProgressColorClass,
       viewDetail,
       sendWhatsApp,
       showStatusModal,

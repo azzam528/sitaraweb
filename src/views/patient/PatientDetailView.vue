@@ -14,8 +14,7 @@ const {
   formatDateTime,
   calculateAge,
   formatGender,
-  formatPhase,
-  formatRegimen,
+  formatStatus,
   formatRefillStatus,
   getRefillBadgeClass,
   getInitials,
@@ -124,16 +123,9 @@ const {
         </div>
 
         <div class="data-field">
-          <div class="field-label">FASE</div>
+          <div class="field-label">ESTIMASI SELESAI</div>
           <div class="field-value">
-            {{ formatPhase(treatment?.phase) }}
-          </div>
-        </div>
-
-        <div class="data-field">
-          <div class="field-label">REGIMEN</div>
-          <div class="field-value">
-            {{ formatRegimen(treatment?.regimen) }}
+            {{ formatDate(treatment?.therapy_end_date) }}
           </div>
         </div>
       </template>
@@ -190,8 +182,8 @@ const {
 
         <div class="card-body">
           <div class="key-value">
-            <span class="key">Fase</span>
-            <span class="value text-primary font-semibold">{{ formatPhase(treatment?.phase) }}</span>
+            <span class="key">Status Terapi</span>
+            <span class="value text-primary font-semibold">{{ formatStatus(treatment?.status) }}</span>
           </div>
           <div class="key-value">
             <span class="key">Tanggal Diagnosis</span>
@@ -204,10 +196,6 @@ const {
           <div class="key-value">
             <span class="key">Selesai Terapi</span>
             <span class="value">{{ formatDate(treatment?.therapy_end_date) }}</span>
-          </div>
-          <div class="key-value">
-            <span class="key">Regimen</span>
-            <span class="value">{{ formatRegimen(treatment?.regimen) }}</span>
           </div>
         </div>
       </div>
@@ -330,17 +318,7 @@ const {
               <div class="timeline-content">
                 <div class="timeline-date">{{ formatDate(treatment.therapy_start_date) }}</div>
                 <div class="timeline-title">Mulai Terapi (OAT)</div>
-                <div class="timeline-desc">{{ formatPhase(treatment.phase) }}</div>
-              </div>
-            </div>
-
-            <!-- Perubahan fase -->
-            <div v-if="treatment?.phase" class="timeline-item">
-              <div class="timeline-dot dot-primary"></div>
-              <div class="timeline-content">
-                <div class="timeline-date">Fase Pengobatan</div>
-                <div class="timeline-title">{{ formatPhase(treatment.phase) }}</div>
-                <div class="timeline-desc">Regimen: {{ formatRegimen(treatment.regimen) }}</div>
+                <div class="timeline-desc">Program pengobatan TB aktif tercatat.</div>
               </div>
             </div>
           </div>

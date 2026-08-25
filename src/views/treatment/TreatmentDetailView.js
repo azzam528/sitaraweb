@@ -129,12 +129,10 @@ export default defineComponent({
       window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
     }
 
-    // Modal Update Status & Phase
+    // Modal Update Status
     const showStatusModal = ref(false)
     const statusForm = ref({
       status: 'active',
-      phase: 'intensive',
-      regimen: 'category_1',
       doctor_note: ''
     })
 
@@ -142,8 +140,6 @@ export default defineComponent({
       if (!treatment.value) return
       statusForm.value = {
         status: treatment.value.status || 'active',
-        phase: treatment.value.phase || 'intensive',
-        regimen: treatment.value.regimen || 'category_1',
         doctor_note: treatment.value.doctor_note || ''
       }
       showStatusModal.value = true
@@ -155,12 +151,10 @@ export default defineComponent({
       try {
         await treatmentService.update(treatment.value.id, {
           status: statusForm.value.status,
-          phase: statusForm.value.phase,
-          regimen: statusForm.value.regimen,
           doctor_note: statusForm.value.doctor_note || null
         })
 
-        showAlert('Status dan fase terapi berhasil diperbarui!')
+        showAlert('Status pengobatan berhasil diperbarui!')
         showStatusModal.value = false
         await loadTreatmentDetail()
       } catch (error) {
@@ -197,8 +191,6 @@ export default defineComponent({
       progressData,
       getProgressColor,
       getProgressColorClass,
-      formatPhase,
-      formatRegimen,
       formatStatus,
       formatDate,
       getInitials,

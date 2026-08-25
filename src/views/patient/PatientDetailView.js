@@ -83,26 +83,7 @@ export function usePatientDetailView() {
     return g === 'female' || g === 'p' || g === 'perempuan' ? 'Perempuan' : 'Laki-laki'
   }
 
-  const formatPhase = (phase) => {
-    if (!phase) return '-'
-    const phaseMap = {
-      intensive: 'Fase Intensif',
-      continuation: 'Fase Lanjutan'
-    }
-    return phaseMap[phase] || phase
-  }
-
-  const formatRegimen = (regimen) => {
-    if (!regimen) return '-'
-    const regimenMap = {
-      category_1: 'Kategori 1',
-      category_2: 'Kategori 2',
-      mdr: 'MDR'
-    }
-    return regimenMap[regimen] || regimen
-  }
-
-  const formatTreatmentStatus = (status) => {
+  const formatStatus = (status) => {
     if (!status) return '-'
     const statusMap = {
       active: 'Aktif Pengobatan',
@@ -125,57 +106,42 @@ export function usePatientDetailView() {
   const getRefillBadgeClass = (status) => {
     if (status === 'approved') return 'badge-success'
     if (status === 'rejected') return 'badge-danger'
-    return ''
+    return 'badge-warning'
   }
 
   const getInitials = (name) => {
-    if (!name) return 'TB'
-    const words = name.trim().split(/\s+/).filter(Boolean)
-    if (words.length === 1) {
-      return words[0].substring(0, 2).toUpperCase()
-    }
-    return (words[0][0] + words[words.length - 1][0]).toUpperCase()
+    if (!name) return '?'
+    const parts = name.trim().split(' ')
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
   }
 
-  const contactPatient = () => {
-    const phone = patient.value?.phone || patient.value?.pmo_phone
-    if (!phone) {
-      alert('Nomor telepon pasien belum tersedia.')
-      return
-    }
-    window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}`, '_blank')
+  const contactPatient = (phone) => {
+    if (!phone) return
+    const cleanPhone = phone.replace(/[^0-9]/g, '')
+    const formattedPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.substring(1) : cleanPhone
+    window.open(`https://wa.me/${formattedPhone}`, '_blank')
   }
 
   const callNumber = (phone) => {
-    if (!phone) {
-      alert('Nomor telepon belum tersedia.')
-      return
-    }
-    window.location.href = `tel:${phone}`
+    if (!phone) return
+    window.open(`tel:${phone}`, '_self')
   }
 
   const showPatientMenu = () => {
-    console.log('Patient menu:', patient.value)
+    // Actions menu trigger
   }
 
   const addNote = () => {
-    alert('Fitur tambah catatan akan dihubungkan setelah endpoint catatan tersedia.')
+    // Add medical note action
   }
 
-  const rescheduleControl = () => {
-    if (!nextControl.value) {
-      alert('Belum ada jadwal kontrol yang bisa dijadwalkan ulang.')
-      return
-    }
-    console.log('Reschedule:', nextControl.value)
+  const rescheduleControl = (controlId) => {
+    // Reschedule control
   }
 
-  const shareSchedule = () => {
-    if (!nextControl.value) {
-      alert('Belum ada jadwal kontrol.')
-      return
-    }
-
+  const shareSchedule = (controlId) => {
+    // Share schedule via WhatsApp
     const text = `Jadwal kontrol pasien ${patient.value?.full_name || ''}: ${formatDate(nextControl.value.control_date)} pukul ${nextControl.value.control_time || '-'} WIB`
     if (navigator.share) {
       navigator.share({ title: 'Jadwal Kontrol', text }).catch(() => {})

@@ -130,33 +130,6 @@
             />
           </div>
 
-          <!-- PHASE -->
-          <div class="form-group">
-            <label for="phase">
-              Fase Pengobatan
-              <span class="required">*</span>
-            </label>
-            <select id="phase" v-model="form.phase" class="form-control" required>
-              <option value="">Pilih Fase</option>
-              <option value="intensive">Fase Intensif (2 Bulan)</option>
-              <option value="continuation">Fase Lanjutan (4 Bulan)</option>
-            </select>
-          </div>
-
-          <!-- REGIMEN -->
-          <div class="form-group">
-            <label for="regimen">
-              Regimen Obat
-              <span class="required">*</span>
-            </label>
-            <select id="regimen" v-model="form.regimen" class="form-control" required>
-              <option value="">Pilih Regimen</option>
-              <option value="category_1">Kategori 1 (2HRZE / 4H3R3)</option>
-              <option value="category_2">Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)</option>
-              <option value="mdr">TB-RO (MDR)</option>
-            </select>
-          </div>
-
           <!-- STATUS -->
           <div class="form-group">
             <label for="status">
@@ -170,31 +143,15 @@
             </select>
           </div>
 
-          <!-- DOCTOR -->
-          <div class="form-group full-width">
-            <label for="doctor_name">
-              Dokter Penanggung Jawab
-              <span class="required">*</span>
-            </label>
-            <input
-              id="doctor_name"
-              v-model="form.doctor_name"
-              type="text"
-              class="form-control"
-              placeholder="Contoh: dr. Budi Santoso, Sp.P"
-              required
-            />
-          </div>
-
           <!-- NOTE -->
           <div class="form-group full-width">
-            <label for="doctor_note">Catatan Dokter / Instruksi Klinis</label>
+            <label for="doctor_note">Catatan Klinis / Keterangan Tambahan</label>
             <textarea
               id="doctor_note"
               v-model="form.doctor_note"
               rows="4"
               class="form-control"
-              placeholder="Masukkan catatan atau instruksi khusus terapi..."
+              placeholder="Masukkan catatan klinis atau instruksi khusus terapi..."
             ></textarea>
           </div>
         </div>

@@ -174,20 +174,6 @@
               </div>
 
               <div class="detail-row">
-                <span class="detail-label">Fase Terapi:</span>
-                <span class="detail-val font-semibold">{{
-                  formatPhase(treatment.phase)
-                }}</span>
-              </div>
-
-              <div class="detail-row">
-                <span class="detail-label">Regimen Obat:</span>
-                <span class="detail-val font-semibold">{{
-                  formatRegimen(treatment.regimen)
-                }}</span>
-              </div>
-
-              <div class="detail-row">
                 <span class="detail-label">Tanggal Diagnosis:</span>
                 <span class="detail-val">{{
                   formatDate(treatment.diagnosis_date)
@@ -210,7 +196,7 @@
             </div>
 
             <div class="note-box mt-3" v-if="treatment.doctor_note">
-              <h4>Catatan Dokter / Instruksi Klinis:</h4>
+              <h4>Catatan Klinis / Keterangan:</h4>
               <p>{{ treatment.doctor_note }}</p>
             </div>
           </div>
@@ -301,7 +287,7 @@
                     d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
                   ></path>
                 </svg>
-                Ubah Status & Fase
+                Ubah Status Terapi
               </button>
 
               <button
@@ -390,7 +376,7 @@
       </div>
     </div>
 
-    <!-- MODAL: Ubah Status & Fase -->
+    <!-- MODAL: Ubah Status Terapi -->
     <div
       v-if="showStatusModal"
       class="modal-backdrop"
@@ -398,7 +384,7 @@
     >
       <div class="modal-dialog modal-sm" @click.stop>
         <div class="modal-header">
-          <h3>Ubah Status & Fase Terapi</h3>
+          <h3>Ubah Status Terapi</h3>
           <button class="modal-close" @click="showStatusModal = false">
             &times;
           </button>
@@ -419,27 +405,8 @@
               </select>
             </div>
 
-            <div class="form-group mb-3">
-              <label>Fase Pengobatan <span class="text-danger">*</span></label>
-              <select v-model="statusForm.phase" class="form-control" required>
-                <option value="intensive">Fase Intensif (2 Bulan)</option>
-                <option value="continuation">Fase Lanjutan (4 Bulan)</option>
-              </select>
-            </div>
-
-            <div class="form-group mb-3">
-              <label>Regimen</label>
-              <select v-model="statusForm.regimen" class="form-control">
-                <option value="category_1">Kategori 1 (2HRZE / 4H3R3)</option>
-                <option value="category_2">
-                  Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)
-                </option>
-                <option value="mdr">TB-RO (MDR)</option>
-              </select>
-            </div>
-
             <div class="form-group">
-              <label>Catatan Dokter / Keterangan Tambahan</label>
+              <label>Catatan / Keterangan Tambahan</label>
               <textarea
                 v-model="statusForm.doctor_note"
                 rows="3"

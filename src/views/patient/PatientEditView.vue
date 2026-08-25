@@ -242,23 +242,6 @@ const {
               Data diagnosis dan pengobatan pasien dikelola melalui modul Treatment.
             </p>
 
-            <!-- Fase -->
-            <div class="form-group">
-              <label>Fase Pengobatan</label>
-              <input
-                type="text"
-                :value="
-                  treatment?.phase === 'intensive'
-                    ? 'Fase Intensif'
-                    : treatment?.phase === 'continuation'
-                      ? 'Fase Lanjutan'
-                      : '-'
-                "
-                class="form-control"
-                disabled
-              />
-            </div>
-
             <!-- Diagnosis -->
             <div class="form-group">
               <label>Tanggal Diagnosis</label>
@@ -287,25 +270,6 @@ const {
               <input
                 type="date"
                 :value="treatment?.therapy_end_date || ''"
-                class="form-control"
-                disabled
-              />
-            </div>
-
-            <!-- Regimen -->
-            <div class="form-group">
-              <label>Regimen</label>
-              <input
-                type="text"
-                :value="
-                  treatment?.regimen === 'category_1'
-                    ? 'Kategori 1'
-                    : treatment?.regimen === 'category_2'
-                      ? 'Kategori 2'
-                      : treatment?.regimen === 'mdr'
-                        ? 'MDR'
-                        : '-'
-                "
                 class="form-control"
                 disabled
               />
