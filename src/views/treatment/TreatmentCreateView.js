@@ -1,4 +1,4 @@
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import patientService from "@/services/patient.service";
@@ -9,6 +9,7 @@ export function useTreatmentCreateView() {
   const router = useRouter();
 
   const patient = ref(null);
+  const existingTreatment = ref(null);
 
   const loading = ref(false);
   const submitting = ref(false);
@@ -16,19 +17,56 @@ export function useTreatmentCreateView() {
 
   const patientId = route.params.id;
 
+  const todayStr = new Date().toISOString().split("T")[0];
+  const defaultEnd = new Date();
+  defaultEnd.setMonth(defaultEnd.getMonth() + 6);
+  const defaultEndStr = defaultEnd.toISOString().split("T")[0];
+
   const form = ref({
-    diagnosis_date: "",
-    therapy_start_date: "",
-    therapy_end_date: "",
-    phase: "",
-    regimen: "",
+    diagnosis_date: todayStr,
+    therapy_start_date: todayStr,
+    therapy_end_date: defaultEndStr,
+    phase: "intensive",
+    regimen: "category_1",
     status: "active",
     doctor_name: "",
     doctor_note: "",
   });
 
+  const hasActiveTreatment = computed(() => {
+    return (
+      !!existingTreatment.value &&
+      existingTreatment.value.status === "active" &&
+      existingTreatment.value.is_active !== false
+    );
+  });
+
+  const onStartDateChange = () => {
+    if (form.value.therapy_start_date) {
+      const start = new Date(form.value.therapy_start_date);
+      start.setMonth(start.getMonth() + 6);
+      form.value.therapy_end_date = start.toISOString().split("T")[0];
+    }
+  };
+
+  const formatPhase = (phase) => {
+    if (phase === "intensive") return "Fase Intensif";
+    if (phase === "continuation") return "Fase Lanjutan";
+    return phase || "-";
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   // ==========================================
-  // GET PATIENT
+  // GET PATIENT & EXISTING TREATMENT
   // ==========================================
 
   const fetchPatient = async () => {
@@ -41,6 +79,7 @@ export function useTreatmentCreateView() {
       const data = response.data || {};
 
       patient.value = data.patient || data;
+      existingTreatment.value = data.treatment || null;
     } catch (err) {
       console.warn(
         "Gagal mengambil detail pasien, mencoba getById fallback:",
@@ -73,6 +112,17 @@ export function useTreatmentCreateView() {
       return;
     }
 
+    if (hasActiveTreatment.value) {
+      error.value =
+        "Pasien sudah memiliki pengobatan aktif. Selesaikan atau nonaktifkan pengobatan yang sedang berjalan sebelum membuat pengobatan baru.";
+      return;
+    }
+
+    if (!form.value.doctor_name?.trim()) {
+      error.value = "Nama dokter penanggung jawab wajib diisi.";
+      return;
+    }
+
     submitting.value = true;
     error.value = null;
 
@@ -89,11 +139,11 @@ export function useTreatmentCreateView() {
         diagnosis_date: form.value.diagnosis_date,
         therapy_start_date: form.value.therapy_start_date,
         therapy_end_date: defaultEndDate || form.value.therapy_start_date,
-        phase: "intensive",
-        regimen: "category_1",
+        phase: form.value.phase || "intensive",
+        regimen: form.value.regimen || "category_1",
         status: form.value.status || "active",
-        doctor_name: "Tim Medis Faskes",
-        doctor_note: form.value.doctor_note || null,
+        doctor_name: form.value.doctor_name.trim(),
+        doctor_note: form.value.doctor_note?.trim() || null,
       };
 
       console.log("Create treatment payload:", payload);
@@ -109,8 +159,16 @@ export function useTreatmentCreateView() {
     } catch (err) {
       console.error("Gagal membuat treatment:", err);
 
-      error.value =
-        err.response?.data?.detail || "Gagal membuat data pengobatan.";
+      const backendDetail = err.response?.data?.detail;
+      if (
+        typeof backendDetail === "string" &&
+        backendDetail.toLowerCase().includes("already has an active treatment")
+      ) {
+        error.value =
+          "Pasien ini masih memiliki rekam pengobatan aktif. Selesaikan atau ubah status terapi sebelumnya sebelum mendaftarkan pengobatan baru.";
+      } else {
+        error.value = backendDetail || "Gagal membuat data pengobatan.";
+      }
     } finally {
       submitting.value = false;
     }
@@ -135,11 +193,16 @@ export function useTreatmentCreateView() {
 
   return {
     patient,
+    existingTreatment,
+    hasActiveTreatment,
     loading,
     submitting,
     error,
 
     form,
+    onStartDateChange,
+    formatPhase,
+    formatDate,
 
     submitTreatment,
     goBack,

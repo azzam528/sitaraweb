@@ -77,6 +77,44 @@
         </div>
       </section>
 
+      <!-- ACTIVE TREATMENT WARNING BANNER -->
+      <div v-if="hasActiveTreatment" class="active-treatment-banner card mb-4">
+        <div class="warning-icon-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="warning-body">
+          <h3 class="warning-title">Pasien Sudah Memiliki Pengobatan Aktif</h3>
+          <p class="warning-desc">
+            Pasien <strong>{{ patient.full_name }}</strong> saat ini sedang menjalani program pengobatan TB aktif
+            <template v-if="existingTreatment">
+              (ID Terapi: #{{ existingTreatment.id }} &bull; Mulai: {{ formatDate(existingTreatment.therapy_start_date) }} &bull; {{ formatPhase(existingTreatment.phase) }})
+            </template>.
+            Selesaikan atau nonaktifkan pengobatan yang sedang berjalan terlebih dahulu sebelum membuat pengobatan baru.
+          </p>
+          <div class="warning-actions">
+            <RouterLink
+              v-if="existingTreatment"
+              :to="`/dashboard/treatments/${existingTreatment.id}`"
+              class="btn btn-primary btn-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Buka Detail Pengobatan Aktif
+            </RouterLink>
+            <button type="button" class="btn btn-outline btn-sm" @click="goBack">
+              Kembali
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- FORM TREATMENT -->
       <form class="card" @submit.prevent="submitTreatment">
         <div class="card-header">
@@ -100,6 +138,24 @@
               v-model="form.diagnosis_date"
               type="date"
               class="form-control"
+              :disabled="hasActiveTreatment"
+              required
+            />
+          </div>
+
+          <!-- DOCTOR NAME -->
+          <div class="form-group">
+            <label for="doctor_name">
+              Dokter Penanggung Jawab
+              <span class="required">*</span>
+            </label>
+            <input
+              id="doctor_name"
+              v-model="form.doctor_name"
+              type="text"
+              class="form-control"
+              placeholder="Contoh: dr. Andi Pratama, Sp.P"
+              :disabled="hasActiveTreatment"
               required
             />
           </div>
@@ -115,28 +171,78 @@
               v-model="form.therapy_start_date"
               type="date"
               class="form-control"
+              @change="onStartDateChange"
+              :disabled="hasActiveTreatment"
               required
             />
           </div>
 
           <!-- THERAPY END -->
           <div class="form-group">
-            <label for="therapy_end_date">Tanggal Selesai Terapi (Estimasi)</label>
+            <label for="therapy_end_date">
+              Tanggal Selesai Terapi (Estimasi)
+              <span class="required">*</span>
+            </label>
             <input
               id="therapy_end_date"
               v-model="form.therapy_end_date"
               type="date"
               class="form-control"
+              :disabled="hasActiveTreatment"
+              required
             />
           </div>
 
-          <!-- STATUS -->
+          <!-- PHASE -->
           <div class="form-group">
+            <label for="phase">
+              Fase Pengobatan (Phase)
+              <span class="required">*</span>
+            </label>
+            <select
+              id="phase"
+              v-model="form.phase"
+              class="form-control"
+              :disabled="hasActiveTreatment"
+              required
+            >
+              <option value="intensive">Fase Intensif (2 Bulan)</option>
+              <option value="continuation">Fase Lanjutan (4 Bulan)</option>
+            </select>
+          </div>
+
+          <!-- REGIMEN -->
+          <div class="form-group">
+            <label for="regimen">
+              Paduan Regimen OAT
+              <span class="required">*</span>
+            </label>
+            <select
+              id="regimen"
+              v-model="form.regimen"
+              class="form-control"
+              :disabled="hasActiveTreatment"
+              required
+            >
+              <option value="category_1">Kategori 1 (2HRZE / 4H3R3)</option>
+              <option value="category_2">Kategori 2 (2HRZES / 1HRZE / 5H3R3E3)</option>
+              <option value="mdr">TB-RO (MDR)</option>
+            </select>
+          </div>
+
+          <!-- STATUS -->
+          <div class="form-group full-width">
             <label for="status">
               Status Pengobatan
               <span class="required">*</span>
             </label>
-            <select id="status" v-model="form.status" class="form-control" required>
+            <select
+              id="status"
+              v-model="form.status"
+              class="form-control"
+              :disabled="hasActiveTreatment"
+              required
+            >
               <option value="active">Aktif (Sedang Berjalan)</option>
               <option value="completed">Selesai / Sembuh</option>
               <option value="dropped">Putus Berobat</option>
@@ -145,32 +251,49 @@
 
           <!-- NOTE -->
           <div class="form-group full-width">
-            <label for="doctor_note">Catatan Klinis / Keterangan Tambahan</label>
+            <label for="doctor_note">Catatan Dokter / Keterangan Klinis</label>
             <textarea
               id="doctor_note"
               v-model="form.doctor_note"
               rows="4"
               class="form-control"
-              placeholder="Masukkan catatan klinis atau instruksi khusus terapi..."
+              placeholder="Masukkan catatan klinis, riwayat alergi, atau instruksi khusus terapi..."
+              :disabled="hasActiveTreatment"
             ></textarea>
           </div>
         </div>
 
         <!-- ACTION -->
         <div class="form-actions">
-          <button
-            type="button"
-            class="btn btn-outline btn-lg"
-            @click="goBack"
-            :disabled="submitting"
-          >
-            Batal
-          </button>
+          <div v-if="hasActiveTreatment" class="action-warning-msg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Tombol simpan dinonaktifkan karena pasien masih memiliki pengobatan aktif.</span>
+          </div>
 
-          <button type="submit" class="btn btn-primary btn-lg" :disabled="submitting">
-            <span v-if="submitting">Menyimpan...</span>
-            <span v-else>Simpan Pengobatan</span>
-          </button>
+          <div class="btn-group-actions">
+            <button
+              type="button"
+              class="btn btn-outline btn-lg"
+              @click="goBack"
+              :disabled="submitting"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              :disabled="submitting || hasActiveTreatment"
+              :title="hasActiveTreatment ? 'Pasien sudah memiliki pengobatan aktif' : ''"
+            >
+              <span v-if="submitting">Menyimpan...</span>
+              <span v-else>Simpan Pengobatan</span>
+            </button>
+          </div>
         </div>
       </form>
     </template>
@@ -187,10 +310,23 @@
 </template>
 
 <script setup>
+import { RouterLink } from "vue-router";
 import { useTreatmentCreateView } from "./TreatmentCreateView.js";
 
 import "./TreatmentCreateView.css";
 
-const { patient, loading, submitting, error, form, submitTreatment, goBack } =
-  useTreatmentCreateView();
+const {
+  patient,
+  existingTreatment,
+  hasActiveTreatment,
+  loading,
+  submitting,
+  error,
+  form,
+  onStartDateChange,
+  formatPhase,
+  formatDate,
+  submitTreatment,
+  goBack,
+} = useTreatmentCreateView();
 </script>

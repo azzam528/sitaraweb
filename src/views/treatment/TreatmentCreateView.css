@@ -100,6 +100,63 @@
   font-size: 14px;
 }
 
+/* ---------------------------------------------------- */
+/* ACTIVE TREATMENT WARNING BANNER */
+/* ---------------------------------------------------- */
+.active-treatment-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background-color: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.warning-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.warning-body {
+  flex-grow: 1;
+}
+
+.warning-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 6px 0;
+}
+
+.warning-desc {
+  font-size: 13.5px;
+  color: #78350f;
+  margin: 0 0 16px 0;
+  line-height: 1.55;
+}
+
+.warning-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  border-radius: 6px;
+}
+
+/* Form Grid */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -112,11 +169,33 @@
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.action-warning-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b45309;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fffbeb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #fef3c7;
+}
+
+.btn-group-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 @media (max-width: 1024px) {
@@ -135,12 +214,23 @@
     grid-column: auto;
   }
 
+  .active-treatment-banner {
+    flex-direction: column;
+    gap: 14px;
+  }
+
   .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-group-actions {
+    width: 100%;
+    margin-left: 0;
     flex-direction: column-reverse;
   }
 
-  .form-actions .btn {
+  .btn-group-actions .btn {
     width: 100%;
   }
 }
-
