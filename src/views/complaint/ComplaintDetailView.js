@@ -1,9 +1,13 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import complaintService from '../../services/complaint.service'
+import DetailHeader from '@/components/common/DetailHeader.vue'
 
 export default defineComponent({
   name: 'ComplaintDetailView',
+  components: {
+    DetailHeader
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

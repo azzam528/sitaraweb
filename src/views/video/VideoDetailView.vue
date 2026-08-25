@@ -51,40 +51,42 @@
     <!-- Main Content -->
     <div v-else class="detail-container">
       <!-- 2. Patient Identity Banner Card -->
-      <div class="card patient-header">
-        <div class="patient-info-left">
-          <div class="patient-avatar">
-            {{ getInitials(videoData.patient?.full_name || "TB") }}
-          </div>
-          <div class="patient-bio">
-            <div class="flex-row items-center gap-2">
-              <h2 class="patient-name">
-                {{ videoData.patient?.full_name || "Pasien #" + videoData.id }}
-              </h2>
-              <span
-                class="status-badge"
-                :class="getStatusBadgeClass(videoData.status)"
-              >
-                {{ formatStatus(videoData.status) }}
-              </span>
-            </div>
-            <p class="patient-sub">
-              NIK: {{ videoData.patient?.nik || "-" }} &bull; No. RM:
-              {{ videoData.patient?.medical_record_number || "-" }} &bull;
-              Rekaman: {{ formatDate(videoData.recorded_at) }}, {{ formatTime(videoData.recorded_at) }} WIB
-            </p>
-          </div>
-        </div>
+      <DetailHeader
+        :title="videoData.patient?.full_name || 'Pasien #' + videoData.id"
+        :initials="getInitials(videoData.patient?.full_name || 'TB')"
+      >
+        <template #status>
+          <span
+            class="status-badge"
+            :class="getStatusBadgeClass(videoData.status)"
+          >
+            {{ formatStatus(videoData.status) }}
+          </span>
+        </template>
 
-        <div class="patient-meta-right">
+        <template #metadata>
+          <span class="meta-item">
+            <strong>NIK:</strong> {{ videoData.patient?.nik || "-" }}
+          </span>
+          <span class="meta-dot">&bull;</span>
+          <span class="meta-item">
+            <strong>No. RM:</strong> {{ videoData.patient?.medical_record_number || "-" }}
+          </span>
+          <span class="meta-dot">&bull;</span>
+          <span class="meta-item">
+            <strong>Rekaman:</strong> {{ formatDate(videoData.recorded_at) }}, {{ formatTime(videoData.recorded_at) }} WIB
+          </span>
+        </template>
+
+        <template #extra>
           <div class="score-card-mini">
             <span class="score-label">SKOR KEYAKINAN AI</span>
             <span class="score-value font-bold" :class="getScoreBadgeClass(videoData.overall_score)">
               {{ videoData.overall_score }}%
             </span>
           </div>
-        </div>
-      </div>
+        </template>
+      </DetailHeader>
 
       <!-- 3. Two-Column Main Layout Grid -->
       <div class="row-grid">

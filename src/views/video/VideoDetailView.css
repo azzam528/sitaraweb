@@ -127,16 +127,20 @@
 }
 
 .patient-avatar {
-  width: 54px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  flex: 0 0 64px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
-  background: linear-gradient(135deg, #006591 0%, #6DF5E1 100%);
+  background: linear-gradient(135deg, #006591 0%, #6df5e1 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   flex-shrink: 0;
   box-shadow: 0 4px 10px rgba(0, 101, 145, 0.2);
 }
@@ -147,7 +151,7 @@
 }
 
 .patient-name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #0f172a;
   margin: 0;

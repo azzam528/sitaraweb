@@ -1,9 +1,13 @@
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import treatmentService from '../../services/treatment.service'
+import DetailHeader from '@/components/common/DetailHeader.vue'
 
 export default defineComponent({
   name: 'TreatmentDetailView',
+  components: {
+    DetailHeader
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

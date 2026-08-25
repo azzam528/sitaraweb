@@ -1,9 +1,13 @@
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import videoService from '../../services/video.service'
+import DetailHeader from '@/components/common/DetailHeader.vue'
 
 export default defineComponent({
   name: 'VideoDetailView',
+  components: {
+    DetailHeader
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

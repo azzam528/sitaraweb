@@ -51,30 +51,30 @@
       </div>
 
       <!-- 1. Patient Profile Header Card -->
-      <div class="card patient-header">
-        <div class="patient-info-left">
-          <div class="patient-avatar">
-            {{ getInitials(complaint.treatment?.patient?.full_name || "TB") }}
-          </div>
-          <div class="patient-bio">
-            <div class="flex-row items-center gap-2">
-              <h2 class="patient-name">
-                {{
-                  complaint.treatment?.patient?.full_name ||
-                  "Pasien #" + complaint.treatment_id
-                }}
-              </h2>
-              <span class="status-badge" :class="'status-' + complaint.status">
-                {{ formatStatus(complaint.status) }}
-              </span>
-            </div>
-            <p class="patient-sub">
-              NIK: {{ complaint.treatment?.patient?.nik || "-" }} &bull; No. RM:
-              {{ complaint.treatment?.patient?.medical_record_number || "-" }}
-            </p>
-          </div>
-        </div>
-      </div>
+      <DetailHeader
+        :title="complaint.treatment?.patient?.full_name || 'Pasien #' + complaint.treatment_id"
+        :initials="getInitials(complaint.treatment?.patient?.full_name || 'TB')"
+      >
+        <template #status>
+          <span class="status-badge" :class="'status-' + complaint.status">
+            {{ formatStatus(complaint.status) }}
+          </span>
+        </template>
+
+        <template #metadata>
+          <span class="meta-item">
+            <strong>NIK:</strong> {{ complaint.treatment?.patient?.nik || "-" }}
+          </span>
+          <span class="meta-dot">&bull;</span>
+          <span class="meta-item">
+            <strong>No. RM:</strong> {{ complaint.treatment?.patient?.medical_record_number || "-" }}
+          </span>
+          <span class="meta-dot">&bull;</span>
+          <span class="meta-item">
+            <strong>Kategori:</strong> {{ formatCategory(complaint.category) }}
+          </span>
+        </template>
+      </DetailHeader>
 
       <!-- 2. Grid Layout -->
       <div class="row-grid">

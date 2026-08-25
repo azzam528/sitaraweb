@@ -252,19 +252,19 @@ h3 {
   align-items: center;
 }
 .avatar-large {
-  width: 72px;
-  height: 72px;
-  min-width: 72px;
-  min-height: 72px;
-  flex: 0 0 72px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  flex: 0 0 64px;
   aspect-ratio: 1 / 1;
-  background: linear-gradient(135deg, #006591 0%, #0080B5 100%);
+  background: linear-gradient(135deg, #006591 0%, #6df5e1 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   box-shadow: 0 4px 10px rgba(0, 101, 145, 0.2);
 }

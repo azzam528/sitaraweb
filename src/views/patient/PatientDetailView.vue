@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { usePatientDetailView } from './PatientDetailView.js'
+import DetailHeader from '@/components/common/DetailHeader.vue'
 
 const {
   patient,
@@ -30,9 +31,19 @@ const {
 <template>
   <div class="patient-detail-page">
     <!-- Header -->
-    <div class="header-nav">
+    <div class="header-nav mb-3">
       <RouterLink to="/dashboard/patients" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -54,57 +65,50 @@ const {
       </div>
     </div>
 
-    <div v-else-if="patient" class="card profile-header">
-      <div class="profile-top">
-        <div class="profile-left">
-          <div class="avatar-large">
-            <span class="initials">
-              {{ getInitials(patient.full_name) }}
-            </span>
-          </div>
+    <DetailHeader
+      v-else-if="patient"
+      :title="patient.full_name"
+      :initials="getInitials(patient.full_name)"
+    >
+      <template #status>
+        <span
+          class="badge"
+          :class="patient.is_active !== false ? 'badge-success' : 'badge-danger'"
+        >
+          {{ patient.is_active !== false ? 'Aktif' : 'Tidak Aktif' }}
+        </span>
+      </template>
 
-          <div class="profile-info">
-            <div class="name-row">
-              <h2>{{ patient.full_name }}</h2>
-              <span
-                class="badge"
-                :class="patient.is_active !== false ? 'badge-success' : 'badge-danger'"
-              >
-                {{ patient.is_active !== false ? 'Aktif' : 'Tidak Aktif' }}
-              </span>
-            </div>
+      <template #metadata>
+        <span class="meta-item">
+          <strong>NIK:</strong> {{ patient.nik || '-' }}
+        </span>
+        <span class="meta-dot">&bull;</span>
+        <span class="meta-item">{{ calculateAge(patient.birth_date) }} Tahun</span>
+        <span class="meta-dot">&bull;</span>
+        <span class="meta-item">{{ formatGender(patient.gender) }}</span>
+        <span class="meta-dot">&bull;</span>
+        <span class="meta-item">{{ patient.address || '-' }}</span>
+      </template>
 
-            <div class="meta-row">
-              <span>NIK: {{ patient.nik || '-' }}</span>
-              <span class="dot">•</span>
-              <span>{{ calculateAge(patient.birth_date) }} Tahun</span>
-              <span class="dot">•</span>
-              <span>{{ formatGender(patient.gender) }}</span>
-              <span class="dot">•</span>
-              <span>{{ patient.address || '-' }}</span>
-            </div>
-          </div>
-        </div>
+      <template #actions>
+        <RouterLink
+          :to="`/dashboard/patients/${patient.id}/edit`"
+          class="btn btn-outline"
+        >
+          Edit Data Pasien
+        </RouterLink>
 
-        <div class="profile-actions">
-          <RouterLink
-            :to="`/dashboard/patients/${patient.id}/edit`"
-            class="btn btn-outline"
-          >
-            Edit Data Pasien
-          </RouterLink>
+        <button
+          class="btn btn-primary"
+          type="button"
+          @click="contactPatient"
+        >
+          Hubungi Pasien
+        </button>
+      </template>
 
-          <button
-            class="btn btn-primary"
-            type="button"
-            @click="contactPatient"
-          >
-            Hubungi Pasien
-          </button>
-        </div>
-      </div>
-
-      <div class="profile-bottom">
+      <template #summary>
         <div class="data-field">
           <div class="field-label">NOMOR REKAM MEDIS</div>
           <div class="field-value text-primary">
@@ -132,8 +136,8 @@ const {
             {{ formatRegimen(treatment?.regimen) }}
           </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </DetailHeader>
 
     <!-- 2. Three Info Cards Row -->
     <div v-if="patient" class="grid-3">

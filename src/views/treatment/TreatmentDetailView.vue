@@ -51,48 +51,32 @@
       </div>
 
       <!-- 1. Top Section: Patient Profile Banner -->
-      <div class="card profile-banner">
-        <div class="profile-main">
-          <div class="avatar-lg">
-            {{ getInitials(treatment.patient?.full_name || "TB") }}
-          </div>
-          <div class="profile-info">
-            <div class="profile-header-row">
-              <h2 class="patient-title">
-                {{
-                  treatment.patient?.full_name ||
-                  "Pasien #" + treatment.patient_id
-                }}
-              </h2>
-              <span class="status-badge" :class="'status-' + treatment.status">
-                {{ formatStatus(treatment.status) }}
-              </span>
-            </div>
+      <DetailHeader
+        :title="treatment.patient?.full_name || 'Pasien #' + treatment.patient_id"
+        :initials="getInitials(treatment.patient?.full_name || 'TB')"
+      >
+        <template #status>
+          <span class="status-badge" :class="'status-' + treatment.status">
+            {{ formatStatus(treatment.status) }}
+          </span>
+        </template>
 
-            <div class="profile-badges">
-              <span class="meta-item">
-                <strong>NIK:</strong> {{ treatment.patient?.nik || "-" }}
-              </span>
-              <span class="meta-item">
-                <strong>No. RM:</strong>
-                {{ treatment.patient?.medical_record_number || "-" }}
-              </span>
-              <span class="meta-item" v-if="treatment.patient?.phone">
-                <strong>Telp:</strong> {{ treatment.patient?.phone }}
-              </span>
-            </div>
-
-            <div class="treatment-tags mt-2">
-              <span class="tag-pill tag-phase">
-                {{ formatPhase(treatment.phase) }}
-              </span>
-              <span class="tag-pill tag-regimen">
-                {{ formatRegimen(treatment.regimen) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+        <template #metadata>
+          <span class="meta-item">
+            <strong>NIK:</strong> {{ treatment.patient?.nik || "-" }}
+          </span>
+          <span class="meta-dot">&bull;</span>
+          <span class="meta-item">
+            <strong>No. RM:</strong> {{ treatment.patient?.medical_record_number || "-" }}
+          </span>
+          <template v-if="treatment.patient?.phone">
+            <span class="meta-dot">&bull;</span>
+            <span class="meta-item">
+              <strong>Telp:</strong> {{ treatment.patient?.phone }}
+            </span>
+          </template>
+        </template>
+      </DetailHeader>
 
       <!-- 2. Info Metrics Row -->
       <div class="info-grid">
