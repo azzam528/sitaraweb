@@ -222,7 +222,7 @@ export default defineComponent({
 
     const formatStatus = (status) => {
       if (status === "pending") {
-        return "Menunggu";
+        return "Menunggu Persetujuan";
       }
 
       if (status === "approved") {
@@ -321,26 +321,35 @@ export default defineComponent({
         return;
       }
 
+      if (
+        verifyTargetStatus.value === "rejected" &&
+        !verifyNurseNote.value.trim()
+      ) {
+        showAlert("Alasan penolakan wajib diisi.", "warning");
+        return;
+      }
+
       isSubmitting.value = true;
 
       try {
         if (verifyTargetStatus.value === "approved") {
           await refillService.approve(
             selectedRefill.value.id,
-            verifyNurseNote.value,
+            verifyNurseNote.value.trim(),
           );
 
           showAlert("Permintaan obat berhasil disetujui!");
         } else {
           await refillService.reject(
             selectedRefill.value.id,
-            verifyNurseNote.value,
+            verifyNurseNote.value.trim(),
           );
 
           showAlert("Permintaan obat telah ditolak!");
         }
 
         showVerifyModal.value = false;
+        showDetailModal.value = false;
 
         selectedRefill.value = null;
 
@@ -350,7 +359,10 @@ export default defineComponent({
       } catch (error) {
         console.error("Failed to verify refill:", error);
 
-        showAlert("Gagal memproses permintaan obat", "danger");
+        showAlert(
+          error.response?.data?.detail || "Gagal memproses permintaan obat",
+          "danger",
+        );
       } finally {
         isSubmitting.value = false;
       }

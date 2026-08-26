@@ -474,6 +474,15 @@
   color: #006591;
 }
 
+.dropdown-item.text-success {
+  color: #16a34a;
+}
+
+.dropdown-item.text-success:hover {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
 .dropdown-item.text-danger {
   color: #dc2626;
 }
@@ -1025,6 +1034,17 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.nurse-note-box {
+  background: #f8fafc;
+  border-left: 3px solid #006591;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
 /* =========================================
