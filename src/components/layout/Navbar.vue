@@ -278,19 +278,21 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "@/stores/ui";
-import notificationService from "../../services/notification.service";
+import { useNotificationStore } from "@/stores/notification";
 
 const route = useRoute();
 const router = useRouter();
 const uiStore = useUiStore();
+const notificationStore = useNotificationStore();
 
 const dropdownOpen = ref(false);
 const profileMenuRef = ref(null);
 const notificationOpen = ref(false);
 const notificationMenuRef = ref(null);
 
-const notifications = ref([]);
-const isLoadingNotifications = ref(false);
+const notifications = computed(() => notificationStore.notifications);
+const isLoadingNotifications = computed(() => notificationStore.loading);
+const unreadCount = computed(() => notificationStore.unreadCount);
 
 const pageTitle = computed(() => {
   return route.meta?.breadcrumb || "Dashboard";
@@ -335,55 +337,35 @@ const userInitials = computed(() => {
     .toUpperCase();
 });
 
-// Load Notifications from backend
+// Load Notifications from store
 const loadNotifications = async () => {
-  try {
-    const token = localStorage.getItem("sitara_token");
-    if (!token) return;
-    const res = await notificationService.getAll();
-    notifications.value = res.data || [];
-  } catch (error) {
-    // If error, keep notifications empty
-    notifications.value = [];
-  }
+  await notificationStore.fetchNotifications();
 };
 
-const unreadCount = computed(() => {
-  return notifications.value.filter((n) => !n.is_read).length;
-});
-
 const handleMarkAllAsRead = async () => {
-  try {
-    await notificationService.markAllAsRead();
-    notifications.value.forEach((n) => {
-      n.is_read = true;
-    });
-  } catch (error) {
-    console.error("Failed to mark notifications as read:", error);
-  }
+  await notificationStore.markAllAsRead();
 };
 
 const handleNotificationClick = async (notif) => {
   if (!notif.is_read) {
-    try {
-      await notificationService.markAsRead(notif.id);
-      notif.is_read = true;
-    } catch (error) {
-      console.error("Failed to mark single notification as read:", error);
-    }
+    await notificationStore.markAsRead(notif.id);
   }
   notificationOpen.value = false;
 
   // Navigate based on type or reference_type
   if (notif.type === "complaint" || notif.reference_type === "complaint") {
-    router.push("/dashboard/complaints");
+    if (notif.reference_id) {
+      router.push(`/dashboard/complaints/${notif.reference_id}`);
+    } else {
+      router.push("/dashboard/complaints");
+    }
   } else if (notif.type === "refill" || notif.reference_type === "refill") {
     router.push("/dashboard/refill-requests");
   } else if (
     notif.type === "video" ||
     notif.reference_type === "video_verification"
   ) {
-    router.push("/dashboard/video-verification");
+    router.push("/dashboard/video-verifications");
   } else if (
     notif.type === "medicine" ||
     notif.reference_type === "medicine_schedule"
