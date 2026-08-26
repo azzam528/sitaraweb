@@ -174,6 +174,9 @@
               :disabled="hasActiveTreatment"
               required
             />
+            <small class="form-hint text-muted">
+              Estimasi dihitung otomatis berdasarkan fase dan tanggal mulai terapi. Tanggal dapat disesuaikan jika diperlukan.
+            </small>
           </div>
 
           <!-- PHASE -->
@@ -186,6 +189,7 @@
               id="phase"
               v-model="form.phase"
               class="form-control"
+              @change="onPhaseChange"
               :disabled="hasActiveTreatment"
               required
             >
