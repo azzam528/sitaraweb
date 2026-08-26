@@ -6,10 +6,10 @@
     </header>
 
     <!-- 1. Statistic Cards Row -->
-    <div class="stats-row">
+    <section class="stats-grid stats-grid-5">
       <!-- Card 1 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper teal">
+        <div class="stat-icon-wrapper teal-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
@@ -18,13 +18,13 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">VIDEO DIUNGGAH HARI INI</span>
-          <span class="stat-value">18</span>
+          <span class="stat-value">{{ uploadedTodayCount }}</span>
         </div>
       </div>
 
       <!-- Card 2 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper success">
+        <div class="stat-icon-wrapper green-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -32,13 +32,13 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">BERHASIL DIVERIFIKASI AI</span>
-          <span class="stat-value">15</span>
+          <span class="stat-value">{{ verifiedCount }}</span>
         </div>
       </div>
 
       <!-- Card 3 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper primary">
+        <div class="stat-icon-wrapper orange-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
             <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -47,13 +47,13 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">REVIEW MANUAL</span>
-          <span class="stat-value">2</span>
+          <span class="stat-value">{{ manualReviewCount }}</span>
         </div>
       </div>
 
       <!-- Card 4 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper danger">
+        <div class="stat-icon-wrapper red-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -62,13 +62,13 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">GAGAL VERIFIKASI</span>
-          <span class="stat-value">1</span>
+          <span class="stat-value">{{ failedCount }}</span>
         </div>
       </div>
 
       <!-- Card 5 -->
       <div class="stat-card">
-        <div class="stat-icon-wrapper teal">
+        <div class="stat-icon-wrapper teal-circle">
           <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"></line>
             <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -77,10 +77,10 @@
         </div>
         <div class="stat-info">
           <span class="stat-label">RATA-RATA KEPERCAYAAN</span>
-          <span class="stat-value">94.5%</span>
+          <span class="stat-value">{{ avgConfidence }}</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- 2. Filter Section -->
     <section class="filter-section card">
@@ -96,6 +96,7 @@
         <div class="form-group">
           <label>Pencarian</label>
           <input 
+            v-model="searchQuery"
             type="text" 
             placeholder="Cari Nama / NIK Pasien..." 
             class="form-control"
@@ -105,7 +106,7 @@
         <!-- 2. Status Verifikasi AI -->
         <div class="form-group">
           <label>Status Verifikasi AI</label>
-          <select class="form-control">
+          <select v-model="filterStatus" class="form-control">
             <option value="">Semua Status AI</option>
             <option value="Diverifikasi">Diverifikasi (Sukses)</option>
             <option value="Menunggu Tinjauan">Menunggu Tinjauan</option>
@@ -129,11 +130,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in tableData" :key="index">
+            <tr v-if="filteredData.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data verifikasi video yang sesuai.
+              </td>
+            </tr>
+            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index">
               <td>
                 <div class="patient-info">
                   <div class="avatar">{{ item.initials }}</div>
-                  <span class="patient-name">{{ item.name }}</span>
+                  <div class="patient-meta">
+                    <span class="patient-name font-semibold text-dark">{{ item.name }}</span>
+                    <span class="patient-nik text-xs text-muted">NIK: {{ item.nik }}</span>
+                  </div>
                 </div>
               </td>
               <td class="text-secondary">{{ item.time }}</td>
@@ -149,9 +158,9 @@
               </td>
               <td>
                 <span class="status-badge" :class="{
-                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi',
-                  'status-dropped': item.reviewStatus === 'Ditolak',
-                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan'
+                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
+                  'status-dropped': item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
+                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
                 }">
                   {{ item.reviewStatus }}
                 </span>
@@ -199,13 +208,34 @@
       </div>
       
       <!-- 4. Pagination -->
-      <div class="pagination-section">
-        <span class="pagination-info">Menampilkan 1-10 dari 20 entri</span>
-        <div class="pagination-controls">
-          <button class="btn-page" disabled>Prev</button>
-          <button class="btn-page active">1</button>
-          <button class="btn-page">2</button>
-          <button class="btn-page">Next</button>
+      <div v-if="filteredData.length > 0" class="pagination-section">
+        <span class="pagination-info">
+          Menampilkan {{ Math.min((currentPage - 1) * pageSize + 1, filteredData.length) }}-{{ Math.min(currentPage * pageSize, filteredData.length) }} dari {{ filteredData.length }} video
+        </span>
+        <div class="pagination-controls" v-if="totalPages > 1">
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === 1"
+            @click="prevPage"
+          >
+            Prev
+          </button>
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="btn-page"
+            :class="{ active: currentPage === page }"
+            @click="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+          <button 
+            class="btn-page" 
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

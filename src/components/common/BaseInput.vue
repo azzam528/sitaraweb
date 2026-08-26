@@ -130,7 +130,7 @@ const togglePassword = () => {
 
 .base-input:focus {
   border-color: var(--color-primary, #006591);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.12);
 }
 
 .has-error .base-input {

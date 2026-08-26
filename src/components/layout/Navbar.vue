@@ -318,7 +318,7 @@ const userName = computed(() => {
 
 const userRoleLabel = computed(() => {
   const role = currentUser.value?.role;
-  if (role === "doctor") return "Dokter Spesialis / PJ";
+  if (role === "doctor") return "Dokter Spesialis";
   if (role === "nurse") return "Perawat TB";
   if (role === "admin") return "Admin Puskesmas";
   if (role === "kader") return "Kader TB";
@@ -884,6 +884,17 @@ onUnmounted(() => {
   }
   .page-title {
     display: none;
+  }
+  .notification-dropdown {
+    width: 290px;
+    right: -50px;
+  }
+}
+
+@media (max-width: 380px) {
+  .notification-dropdown {
+    width: 260px;
+    right: -40px;
   }
 }
 </style>

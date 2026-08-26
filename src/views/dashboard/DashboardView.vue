@@ -10,7 +10,7 @@ const {
   goToMedicines,
   goToPatientDetail,
   summary,
-  phaseData,
+  statusData,
   risk,
   adherenceTrend,
   recentActivities,
@@ -86,7 +86,7 @@ const {
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            Distribusi Fase & Monitoring Pasien
+            Distribusi Status & Monitoring Pasien
           </div>
           <a href="#" class="link-view-all" @click.prevent="goToPatients">
             Lihat Semua
@@ -106,9 +106,8 @@ const {
             </div>
 
             <div class="risk-legend">
-              <div class="legend-item"><span class="dot dot-primary"></span>Fase Intensif: {{ phaseData.intensive }}</div>
-              <div class="legend-item"><span class="dot dot-teal"></span>Fase Lanjutan: {{ phaseData.continuation }}</div>
-              <div class="legend-item"><span class="dot dot-success"></span>Selesai: {{ phaseData.completed }}</div>
+              <div class="legend-item"><span class="dot dot-primary"></span>Aktif Terapi: {{ statusData.active }}</div>
+              <div class="legend-item"><span class="dot dot-success"></span>Selesai: {{ statusData.completed }}</div>
             </div>
           </div>
 

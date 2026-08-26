@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import patientService from "@/services/patient.service";
 
@@ -22,11 +22,50 @@ export function usePatientAddView() {
   const isSubmitting = ref(false);
   const showSuccessModal = ref(false);
   const errorMessage = ref("");
+  const copiedLink = ref(false);
+  const copiedMessage = ref(false);
+
+  const generateAutoRM = () => {
+    const year = new Date().getFullYear();
+    const randomCode = Math.floor(1000 + Math.random() * 9000);
+    formData.value.medicalRecordNumber = `RM-TB-${year}-${randomCode}`;
+  };
+
+  onMounted(() => {
+    if (!formData.value.medicalRecordNumber) {
+      generateAutoRM();
+    }
+  });
 
   const createdCredentials = ref({
+    patientId: null,
+    name: "",
+    medicalRecordNumber: "",
+    nik: "",
+    phone: "",
+    pmoName: "",
+    pmoPhone: "",
     username: "",
     activationUrl: "",
     whatsappUrl: "",
+    pmoWhatsappUrl: "",
+  });
+
+  const cleanPhoneForWa = (phone) => {
+    if (!phone) return "";
+    let cleaned = phone.replace(/[^0-9]/g, "");
+    if (cleaned.startsWith("0")) {
+      cleaned = "62" + cleaned.substring(1);
+    } else if (cleaned.startsWith("+62")) {
+      cleaned = cleaned.substring(1);
+    }
+    return cleaned;
+  };
+
+  const fullWhatsAppMessage = computed(() => {
+    const creds = createdCredentials.value;
+    const actUrl = creds.activationUrl || "https://sitara.kemenkes.go.id/activate";
+    return `Halo Bapak/Ibu *${creds.name || formData.value.name}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${creds.medicalRecordNumber || formData.value.medicalRecordNumber}*\n• Username: *${creds.username || '-'}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n👉 ${actUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${creds.pmoName || formData.value.pmoName}* - ${creds.pmoPhone || formData.value.pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
   });
 
   const validateForm = () => {
@@ -43,7 +82,7 @@ export function usePatientAddView() {
     }
 
     if (!/^\d{16}$/.test(formData.value.nik.trim())) {
-      errorMessage.value = "NIK harus terdiri dari 16 digit.";
+      errorMessage.value = "NIK harus terdiri dari 16 digit angka.";
       return false;
     }
 
@@ -58,12 +97,12 @@ export function usePatientAddView() {
     }
 
     if (!formData.value.phone.trim()) {
-      errorMessage.value = "Nomor telepon wajib diisi.";
+      errorMessage.value = "Nomor telepon/WhatsApp pasien wajib diisi.";
       return false;
     }
 
     if (!formData.value.address.trim()) {
-      errorMessage.value = "Alamat wajib diisi.";
+      errorMessage.value = "Alamat domisili wajib diisi.";
       return false;
     }
 
@@ -73,12 +112,12 @@ export function usePatientAddView() {
     }
 
     if (!formData.value.pmoName.trim()) {
-      errorMessage.value = "Nama PMO wajib diisi.";
+      errorMessage.value = "Nama PMO (Pengawas Menelan Obat) wajib diisi.";
       return false;
     }
 
     if (!formData.value.pmoPhone.trim()) {
-      errorMessage.value = "Nomor telepon PMO wajib diisi.";
+      errorMessage.value = "Nomor telepon/WhatsApp PMO wajib diisi.";
       return false;
     }
 
@@ -110,11 +149,37 @@ export function usePatientAddView() {
 
       const response = await patientService.createPatient(payload);
       const resData = response.data || {};
+      const patientObj = resData.patient || {};
+
+      const patientId = patientObj.id || resData.id || null;
+      const patientName = patientObj.full_name || formData.value.name.trim();
+      const patientMrn = patientObj.medical_record_number || formData.value.medicalRecordNumber.trim();
+      const patientNik = patientObj.nik || formData.value.nik.trim();
+      const patientPhone = patientObj.phone || formData.value.phone.trim();
+      const pmoName = patientObj.pmo_name || formData.value.pmoName.trim();
+      const pmoPhone = patientObj.pmo_phone || formData.value.pmoPhone.trim();
+
+      const username = resData.username || patientName.toLowerCase().replace(/\s+/g, ".") + (patientId ? `.${patientId}` : "");
+      const activationUrl = resData.activation_url || `${window.location.origin}/activate?token=${btoa(username + ":" + Date.now())}`;
+
+      // WhatsApp links for patient and PMO
+      const msgText = `Halo Bapak/Ibu *${patientName}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${patientMrn}*\n• Username: *${username}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n👉 ${activationUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${pmoName}* - ${pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
+      
+      const pWaUrl = resData.whatsapp_url || `https://api.whatsapp.com/send?phone=${cleanPhoneForWa(patientPhone)}&text=${encodeURIComponent(msgText)}`;
+      const pmoWaUrl = `https://api.whatsapp.com/send?phone=${cleanPhoneForWa(pmoPhone)}&text=${encodeURIComponent(msgText)}`;
 
       createdCredentials.value = {
-        username: resData.username || "",
-        activationUrl: resData.activation_url || "",
-        whatsappUrl: resData.whatsapp_url || "",
+        patientId,
+        name: patientName,
+        medicalRecordNumber: patientMrn,
+        nik: patientNik,
+        phone: patientPhone,
+        pmoName,
+        pmoPhone,
+        username,
+        activationUrl,
+        whatsappUrl: pWaUrl,
+        pmoWhatsappUrl: pmoWaUrl,
       };
 
       showSuccessModal.value = true;
@@ -124,10 +189,34 @@ export function usePatientAddView() {
       if (Array.isArray(detail)) {
         errorMessage.value = detail.map((item) => item.msg).join(", ");
       } else {
-        errorMessage.value = detail || "Gagal menambahkan pasien.";
+        errorMessage.value = detail || "Gagal menambahkan pasien ke sistem.";
       }
     } finally {
       isSubmitting.value = false;
+    }
+  };
+
+  const copyActivationLink = async () => {
+    try {
+      await navigator.clipboard.writeText(createdCredentials.value.activationUrl);
+      copiedLink.value = true;
+      setTimeout(() => {
+        copiedLink.value = false;
+      }, 3000);
+    } catch (e) {
+      console.error("Copy link error:", e);
+    }
+  };
+
+  const copyWhatsAppMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(fullWhatsAppMessage.value);
+      copiedMessage.value = true;
+      setTimeout(() => {
+        copiedMessage.value = false;
+      }, 3000);
+    } catch (e) {
+      console.error("Copy message error:", e);
     }
   };
 
@@ -141,6 +230,47 @@ export function usePatientAddView() {
     router.push("/dashboard/patients");
   };
 
+  const viewNewPatientDetail = () => {
+    showSuccessModal.value = false;
+    if (createdCredentials.value.patientId) {
+      router.push(`/dashboard/patients/${createdCredentials.value.patientId}`);
+    } else {
+      router.push("/dashboard/patients");
+    }
+  };
+
+  const addAnotherPatient = () => {
+    showSuccessModal.value = false;
+    formData.value = {
+      medicalRecordNumber: "",
+      name: "",
+      nik: "",
+      dob: "",
+      gender: "male",
+      phone: "",
+      address: "",
+      job: "",
+      pmoName: "",
+      pmoPhone: "",
+      clinicalNote: "",
+    };
+    generateAutoRM();
+    createdCredentials.value = {
+      patientId: null,
+      name: "",
+      medicalRecordNumber: "",
+      nik: "",
+      phone: "",
+      pmoName: "",
+      pmoPhone: "",
+      username: "",
+      activationUrl: "",
+      whatsappUrl: "",
+      pmoWhatsappUrl: "",
+    };
+    errorMessage.value = "";
+  };
+
   return {
     router,
     formData,
@@ -148,10 +278,18 @@ export function usePatientAddView() {
     showSuccessModal,
     errorMessage,
     createdCredentials,
+    copiedLink,
+    copiedMessage,
+    fullWhatsAppMessage,
+    generateAutoRM,
     validateForm,
     savePatient,
+    copyActivationLink,
+    copyWhatsAppMessage,
     cancelAdd,
     finishAndRedirect,
+    viewNewPatientDetail,
+    addAnotherPatient,
   };
 }
 

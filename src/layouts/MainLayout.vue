@@ -77,5 +77,9 @@ const uiStore = useUiStore()
   .main-content {
     margin-left: 0 !important;
   }
+
+  .content-wrapper {
+    padding: 0 16px 16px;
+  }
 }
 </style>

@@ -168,29 +168,41 @@
 
 /* --- 3. Unified Stat Cards --- */
 .stats-grid,
-.stats-row {
+.stats-grid-4 {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-@media (max-width: 1200px) {
-  .stats-grid,
+.stats-grid-5,
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1400px) {
+  .stats-grid-5,
   .stats-row {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .stats-grid,
+  .stats-grid-4,
+  .stats-grid-5,
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .stats-grid,
+  .stats-grid-4,
+  .stats-grid-5,
   .stats-row {
     grid-template-columns: 1fr;
   }
@@ -203,9 +215,11 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 14px;
+  padding: 16px 18px;
+  min-height: 82px;
+  box-sizing: border-box;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-card:hover {
@@ -214,8 +228,8 @@
 }
 
 .stat-icon-wrapper {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -223,47 +237,60 @@
   flex-shrink: 0;
 }
 
+.stat-icon-wrapper svg,
+.stat-icon {
+  width: 22px;
+  height: 22px;
+}
+
 .stat-icon-wrapper.teal,
 .stat-icon-wrapper.teal-circle,
-.stat-icon-wrapper.blue-circle {
-  background: #e0f2fe;
+.stat-icon-wrapper.blue,
+.stat-icon-wrapper.blue-circle,
+.stat-icon-wrapper.primary {
+  background-color: #e0f2fe;
   color: #006591;
 }
 
 .stat-icon-wrapper.green,
 .stat-icon-wrapper.green-circle,
 .stat-icon-wrapper.success {
-  background: #dcfce7;
+  background-color: #dcfce7;
   color: #16a34a;
 }
 
 .stat-icon-wrapper.orange,
 .stat-icon-wrapper.orange-circle,
 .stat-icon-wrapper.warning {
-  background: #fef3c7;
+  background-color: #fef3c7;
   color: #d97706;
 }
 
 .stat-icon-wrapper.red,
 .stat-icon-wrapper.red-circle,
 .stat-icon-wrapper.danger {
-  background: #fee2e2;
+  background-color: #fee2e2;
   color: #dc2626;
 }
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
-  white-space: nowrap;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .stat-value {
@@ -419,7 +446,7 @@
   color: #b91c1c;
 }
 
-/* --- 5. Unified Tables --- */
+/* --- 5. Unified Tables & Patient Column --- */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -472,50 +499,235 @@
   background: #f8fafc;
 }
 
-/* --- 6. Unified Badges --- */
-.badge,
-.status-badge {
+/* Patient Column Layout */
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.patient-nik,
+.patient-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* --- Avatar Hierarchy --- */
+.avatar,
+.patient-avatar,
+.avatar-placeholder {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #006591 0%, #6DF5E1 100%);
+  color: #ffffff;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 101, 145, 0.15);
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 11.5px;
+}
+
+.avatar-md,
+.avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  font-size: 13px;
+}
+
+.avatar-lg {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 1.25rem;
+}
+
+.avatar-xl {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  min-height: 80px;
+  font-size: 1.75rem;
+}
+
+/* --- 6. Unified Badges & Status Pills --- */
+.badge,
+.status-badge,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  text-transform: none;
+  white-space: nowrap;
 }
 
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+/* Success: Approved, Completed, Active, Low Risk, Resolved */
 .badge-success,
 .badge-green,
-.status-low {
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
+.status-approved,
+.status-completed,
+.status-active,
+.status-low,
+.status-resolved {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #bbf7d0 !important;
 }
 
+/* Warning: Pending, Intensive, Medium Risk, Mild */
 .badge-warning,
 .badge-orange,
+.status-pending,
+.status-intensive,
 .status-medium {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
 }
 
+/* Danger: Rejected, Dropped, High Risk, Severe */
 .badge-danger,
 .badge-red,
+.status-rejected,
+.status-dropped,
 .status-high {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
 }
 
+/* Primary / Info: Continuation, In Progress, Info */
 .badge-primary,
-.badge-blue {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+.badge-blue,
+.badge-teal,
+.status-continuation,
+.status-in_progress {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
 }
+
+/* --- Standardized Detail & Modal Key-Value Layout --- */
+.detail-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.detail-sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #006591;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.patient-summary-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.detail-keyvalue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .detail-keyvalue-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.kv-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.kv-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kv-value {
+  font-size: 13.5px;
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+}
+
 
 /* --- 7. Unified Form Controls --- */
 .form-control,
@@ -625,15 +837,350 @@ textarea:focus {
   cursor: not-allowed;
 }
 
-@media print {
-  .sidebar, .navbar {
-    display: none !important;
-  }
-  
-  main, .main-content {
-    margin-left: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
+/* --- 9. Unified Modals & Dialogs --- */
+.modal-backdrop,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1050);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-dialog,
+.modal-content,
+.verify-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-sm { max-width: 440px; }
+.modal-lg { max-width: 720px; }
+
+.modal-header,
+.verify-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-header h3,
+.verify-modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.modal-header p,
+.verify-modal-header p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.modal-close:hover {
+  color: #0f172a;
+}
+
+.modal-body,
+.verify-modal-body {
+  padding: 20px 22px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer,
+.verify-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid #f1f5f9;
+  background: #fafafa;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* --- 10. Unified Toast Alerts --- */
+.toast-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  animation: slideDown 0.25s ease-out;
+}
+
+.toast-success {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.toast-error,
+.toast-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.toast-warning {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.toast-info {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.btn-close-toast {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 4px;
+}
+
+.btn-close-toast:hover {
+  opacity: 1;
+}
+
+/* --- 11. Unified States (Loading, Empty, Error) --- */
+.loading-state,
+.empty-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #006591;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 12. Unified Form Layouts --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+/* --- 13. Unified Progress Bars --- */
+.progress-wrapper {
+  width: 100%;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 7px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* --- 14. Responsive Layout Utilities --- */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-layout-65-35 {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-layout,
+  .grid-layout-65-35 {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media print {
+  /* 1. Sembunyikan semua elemen navigasi, filter, search, tombol aksi, dan UI dashboard */
+  aside,
+  header,
+  nav,
+  footer,
+  .sidebar,
+  .sidebar-container,
+  .navbar,
+  .breadcrumb-container,
+  .breadcrumb,
+  .footer,
+  .no-print,
+  .btn,
+  .btn-primary,
+  .btn-outline,
+  .btn-reset-filter,
+  .btn-more-actions,
+  .action-dropdown-wrapper,
+  .dropdown-menu-floating,
+  .filter-section,
+  .filter-card,
+  .pagination-section,
+  .header-nav,
+  .action-buttons-group,
+  .hamburger-btn,
+  .notification-menu,
+  .modal-backdrop,
+  .modal-dialog {
+    display: none !important;
+  }
+
+  /* 2. Reset Layout ke Dokumen Cetak Murni */
+  body,
+  html,
+  #app,
+  .main-layout,
+  .main-content,
+  .content-wrapper,
+  .page-content,
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* 3. Pengaturan Page Break */
+  tr, .card, .signature-box, .report-summary, .summary-box {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+}
+
 

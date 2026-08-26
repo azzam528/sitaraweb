@@ -82,7 +82,7 @@ const handleClick = (event) => {
 }
 
 .base-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 0 3px rgba(0, 101, 145, 0.25);
 }
 
 .base-button:disabled {
@@ -119,12 +119,12 @@ const handleClick = (event) => {
 }
 
 .btn-secondary {
-  background-color: var(--color-primary-dark, #005378);
+  background-color: var(--color-primary-dark, #004D6E);
   color: white;
 }
 .btn-secondary:hover:not(:disabled) {
-  background-color: #1e3a8a;
-  box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.2);
+  background-color: #00374F;
+  box-shadow: 0 4px 6px -1px rgba(0, 77, 110, 0.2);
 }
 
 .btn-success {
@@ -160,7 +160,7 @@ const handleClick = (event) => {
   border-color: var(--color-primary, #006591);
 }
 .btn-outline:hover:not(:disabled) {
-  background-color: rgba(37, 99, 235, 0.05);
+  background-color: rgba(0, 101, 145, 0.08);
 }
 
 .btn-ghost {
@@ -168,7 +168,7 @@ const handleClick = (event) => {
   color: var(--color-primary, #006591);
 }
 .btn-ghost:hover:not(:disabled) {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: rgba(0, 101, 145, 0.1);
 }
 
 /* Modifiers */

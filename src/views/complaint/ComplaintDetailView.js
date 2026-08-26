@@ -1,9 +1,13 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import complaintService from '../../services/complaint.service'
+import DetailHeader from '@/components/common/DetailHeader.vue'
 
 export default defineComponent({
   name: 'ComplaintDetailView',
+  components: {
+    DetailHeader
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -37,10 +41,12 @@ export default defineComponent({
       try {
         const id = route.params.id
         const res = await complaintService.getById(id)
-        complaint.value = res.data
-        responseForm.value = {
-          status: res.data.status || 'in_progress',
-          response: res.data.response || ''
+        if (res && res.data) {
+          complaint.value = res.data
+          responseForm.value = {
+            status: res.data.status || 'in_progress',
+            response: res.data.response || ''
+          }
         }
       } catch (error) {
         console.error('Failed to load complaint detail:', error)
@@ -50,19 +56,49 @@ export default defineComponent({
       }
     }
 
+    const onResponseInput = () => {
+      if (responseForm.value.status === 'pending' && responseForm.value.response?.trim()) {
+        responseForm.value.status = 'resolved'
+      }
+    }
+
     const submitUpdateStatus = async () => {
       if (!complaint.value) return
+      const text = responseForm.value.response ? responseForm.value.response.trim() : ''
+      if (!text) {
+        showAlert('Silakan tuliskan tanggapan / instruksi klinis terlebih dahulu.', 'warning')
+        return
+      }
+
       isSubmitting.value = true
       try {
-        await complaintService.update(complaint.value.id, {
-          status: responseForm.value.status,
-          response: responseForm.value.response || null
-        })
-        showAlert('Tanggapan dan status penanganan keluhan berhasil diperbarui!')
+        const payload = {
+          status: 'resolved',
+          response: text
+        }
+
+        const res = await complaintService.update(complaint.value.id, payload)
+        
+        // Langsung perbarui local reactive state seketika
+        if (res && res.data) {
+          complaint.value = {
+            ...complaint.value,
+            ...res.data,
+            status: 'resolved',
+            response: text,
+            updated_at: new Date().toISOString()
+          }
+        } else {
+          complaint.value.status = 'resolved'
+          complaint.value.response = text
+          complaint.value.updated_at = new Date().toISOString()
+        }
+
+        showAlert('Tanggapan berhasil disimpan dan status keluhan otomatis SELESAI!')
         await loadComplaintDetail()
       } catch (error) {
         console.error('Failed to update complaint:', error)
-        showAlert('Gagal memperbarui status keluhan', 'danger')
+        showAlert('Gagal memperbarui tanggapan keluhan', 'danger')
       } finally {
         isSubmitting.value = false
       }
@@ -94,23 +130,9 @@ export default defineComponent({
 
     // Helpers
     const formatStatus = (status) => {
-      if (status === 'pending') return 'Menunggu Respon'
-      if (status === 'in_progress') return 'Sedang Diproses'
-      if (status === 'resolved') return 'Selesai'
-      return status || '-'
-    }
-
-    const formatPhase = (phase) => {
-      if (phase === 'intensive') return 'Fase Intensif'
-      if (phase === 'continuation') return 'Fase Lanjutan'
-      return phase || '-'
-    }
-
-    const formatRegimen = (regimen) => {
-      if (regimen === 'category_1') return 'Kategori 1'
-      if (regimen === 'category_2') return 'Kategori 2'
-      if (regimen === 'mdr') return 'TB-RO'
-      return regimen || '-'
+      if (status === 'pending') return 'Menunggu Tanggapan'
+      if (status === 'resolved' || status === 'in_progress') return 'Selesai'
+      return 'Menunggu Tanggapan'
     }
 
     const formatDate = (dateStr) => {
@@ -130,6 +152,28 @@ export default defineComponent({
       return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     }
 
+    const formatCategory = (cat) => {
+      const map = {
+        nausea: 'Mual / Muntah',
+        rash: 'Gatal / Ruam Kulit',
+        joint_pain: 'Nyeri Sendi',
+        vision: 'Gangguan Penglihatan',
+        urine_color: 'Warna Urin Merah',
+        hearing: 'Gangguan Pendengaran',
+        other: 'Keluhan Lainnya'
+      }
+      return map[cat] || cat || 'Efek Samping Obat'
+    }
+
+    const formatSeverity = (sev) => {
+      const map = {
+        mild: 'Ringan (Mild)',
+        moderate: 'Sedang (Moderate)',
+        severe: 'Berat (Severe)'
+      }
+      return map[sev] || sev || 'Ringan'
+    }
+
     const goBack = () => {
       router.push('/dashboard/complaints')
     }
@@ -142,12 +186,13 @@ export default defineComponent({
       alertType,
       showAlert,
       responseForm,
+      onResponseInput,
       submitUpdateStatus,
       confirmDelete,
       sendWhatsApp,
       formatStatus,
-      formatPhase,
-      formatRegimen,
+      formatCategory,
+      formatSeverity,
       formatDate,
       formatTime,
       getInitials,
@@ -155,3 +200,4 @@ export default defineComponent({
     }
   }
 })
+

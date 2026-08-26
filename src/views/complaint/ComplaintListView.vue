@@ -20,9 +20,9 @@
     </div>
 
     <!-- Stats Row -->
-    <section class="stats-grid">
+    <section class="stats-grid stats-grid-4">
       <div class="stat-card">
-        <div class="stat-icon-wrapper blue-circle">
+        <div class="stat-icon-wrapper teal-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
@@ -64,34 +64,8 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">MENUNGGU RESPON</span>
+          <span class="stat-label">MENUNGGU TANGGAPAN</span>
           <span class="stat-value">{{ pendingCount }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper teal-circle">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path
-              d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-            ></path>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">SEDANG DIPROSES</span>
-          <span class="stat-value">{{ inProgressCount }}</span>
         </div>
       </div>
 
@@ -113,13 +87,13 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">SELESAI / TERATASI</span>
+          <span class="stat-label">SELESAI / DITANGGAPI</span>
           <span class="stat-value">{{ resolvedCount }}</span>
         </div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon-wrapper blue-circle">
+        <div class="stat-icon-wrapper teal-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
@@ -181,9 +155,8 @@
           <label>Status Penanganan</label>
           <select v-model="filterStatus" class="form-control">
             <option value="">Semua Status</option>
-            <option value="pending">Menunggu Respon (Pending)</option>
-            <option value="in_progress">Sedang Diproses (In Progress)</option>
-            <option value="resolved">Selesai (Resolved)</option>
+            <option value="pending">Menunggu Tanggapan</option>
+            <option value="resolved">Selesai</option>
           </select>
         </div>
 
@@ -330,31 +303,6 @@
                     </button>
 
                     <button
-                      class="dropdown-item"
-                      @click="
-                        openResponseModal(comp);
-                        activeDropdown = null;
-                      "
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path
-                          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                        ></path>
-                      </svg>
-                      <span>Beri Tanggapan / Update</span>
-                    </button>
-
-                    <button
                       v-if="comp.treatment?.patient?.phone"
                       class="dropdown-item"
                       @click="
@@ -451,83 +399,6 @@
             Next
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- MODAL: Beri Tanggapan / Update Status -->
-    <div
-      v-if="showResponseModal"
-      class="modal-backdrop"
-      @click="showResponseModal = false"
-    >
-      <div class="modal-dialog" @click.stop>
-        <div class="modal-header">
-          <h3>Tanggapan Medis & Update Status</h3>
-          <button class="modal-close" @click="showResponseModal = false">
-            &times;
-          </button>
-        </div>
-
-        <form @submit.prevent="submitResponseForm">
-          <div class="modal-body">
-            <div class="complaint-summary mb-3">
-              <div class="text-xs font-bold text-muted">KELUHAN PASIEN:</div>
-              <div class="font-semibold text-dark">
-                {{
-                  selectedComplaint?.treatment?.patient?.full_name || "Pasien"
-                }}
-              </div>
-              <div class="text-sm text-muted mt-1 italic">
-                "{{ selectedComplaint?.description }}"
-              </div>
-            </div>
-
-            <div class="form-group mb-3">
-              <label
-                >Status Penanganan <span class="text-danger">*</span></label
-              >
-              <select
-                v-model="responseForm.status"
-                class="form-control"
-                required
-              >
-                <option value="pending">Menunggu Respon (Pending)</option>
-                <option value="in_progress">
-                  Sedang Diproses / Observasi (In Progress)
-                </option>
-                <option value="resolved">Selesai / Teratasi (Resolved)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Tanggapan Medis / Rekomendasi Klinis</label>
-              <textarea
-                v-model="responseForm.response"
-                rows="4"
-                placeholder="Tuliskan instruksi penanganan, resep simtomatis, atau anjuran kontrol ke faskes..."
-                class="form-control"
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-outline"
-              @click="showResponseModal = false"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              :disabled="isSubmitting"
-            >
-              <span v-if="isSubmitting" class="spinner-sm"></span>
-              <span v-else>Simpan Tanggapan</span>
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>

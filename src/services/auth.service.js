@@ -9,6 +9,14 @@ export default {
     return api.post('/auth/register', data);
   },
 
+  activate(data) {
+    return api.post('/auth/activate', data);
+  },
+
+  forgotPassword(data) {
+    return api.post('/auth/forgot-password', data);
+  },
+
   logout() {
     return api.post('/auth/logout');
   },

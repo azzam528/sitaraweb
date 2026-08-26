@@ -510,92 +510,99 @@
       class="modal-backdrop"
       @click="closeDetailModal"
     >
-      <div class="modal-dialog" @click.stop>
+      <div class="modal-dialog modal-lg" @click.stop>
         <div class="modal-header">
-          <h3>Rincian Permintaan Refill OAT</h3>
-          <button class="modal-close" @click="closeDetailModal">&times;</button>
+          <div>
+            <h3>Rincian Permintaan Refill Obat</h3>
+            <p>Detail permohonan logistik OAT dari pasien</p>
+          </div>
+          <button class="modal-close" @click="closeDetailModal" title="Tutup">&times;</button>
         </div>
 
         <div class="modal-body">
-          <div class="detail-section mb-3">
-            <h4 class="detail-sec-title">Informasi Pasien</h4>
-            <div class="detail-list">
-              <div class="detail-row">
-                <span class="detail-label">Nama Pasien:</span>
-                <span class="detail-val font-semibold">{{
-                  selectedRequest?.treatment?.patient?.full_name || "Pasien"
-                }}</span>
+          <!-- 1. INFORMASI PASIEN -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              INFORMASI PASIEN
+            </h4>
+            <div class="patient-summary-card">
+              <div class="avatar avatar-md">
+                {{ getInitials(selectedRequest?.treatment?.patient?.full_name || 'TB') }}
               </div>
-              <div class="detail-row">
-                <span class="detail-label">NIK / No. RM:</span>
-                <span class="detail-val"
-                  >{{ selectedRequest?.treatment?.patient?.nik || "-" }} /
-                  {{
-                    selectedRequest?.treatment?.patient
-                      ?.medical_record_number || "-"
-                  }}</span
-                >
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">PMO (Pendamping):</span>
-                <span class="detail-val"
-                  >{{
-                    selectedRequest?.treatment?.patient?.pmo_name || "-"
-                  }}
-                  ({{
-                    selectedRequest?.treatment?.patient?.pmo_phone || "-"
-                  }})</span
-                >
+              <div class="patient-summary-details">
+                <div class="patient-name font-bold text-dark">
+                  {{ selectedRequest?.treatment?.patient?.full_name || "Pasien #" + selectedRequest?.treatment_id }}
+                </div>
+                <div class="patient-meta text-xs text-muted">
+                  NIK: {{ selectedRequest?.treatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedRequest?.treatment?.patient?.medical_record_number || "-" }}
+                </div>
+                <div class="text-xs text-muted" v-if="selectedRequest?.treatment?.patient?.pmo_name">
+                  PMO: {{ selectedRequest?.treatment?.patient?.pmo_name }} ({{ selectedRequest?.treatment?.patient?.pmo_phone || "-" }})
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="detail-section mb-3">
-            <h4 class="detail-sec-title">Rincian Obat & Permintaan</h4>
-            <div class="detail-list">
-              <div class="detail-row">
-                <span class="detail-label">Nama Obat:</span>
-                <span class="detail-val font-semibold"
-                  >{{ selectedRequest?.medicine?.name }} ({{
-                    selectedRequest?.medicine?.category
-                  }})</span
-                >
+          <!-- 2. RINCIAN PERMINTAAN -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              RINCIAN PERMINTAAN OBAT
+            </h4>
+            <div class="detail-keyvalue-grid">
+              <div class="kv-item">
+                <span class="kv-label">Nama Obat</span>
+                <span class="kv-value font-semibold">
+                  {{ selectedRequest?.medicine?.name || "OAT" }}
+                  <span v-if="selectedRequest?.medicine?.category" class="text-muted text-xs">({{ selectedRequest?.medicine?.category }})</span>
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Jumlah Diminta:</span>
-                <span class="detail-val font-bold text-primary"
-                  >{{ selectedRequest?.quantity }}
-                  {{ selectedRequest?.medicine?.unit || "Tablet" }}</span
-                >
+              <div class="kv-item">
+                <span class="kv-label">Jumlah Diminta</span>
+                <span class="kv-value font-bold text-primary">
+                  {{ selectedRequest?.quantity }} {{ selectedRequest?.medicine?.unit || "Tablet" }}
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Alasan Permintaan:</span>
-                <span class="detail-val">{{ selectedRequest?.reason }}</span>
+              <div class="kv-item">
+                <span class="kv-label">Alasan Permintaan</span>
+                <span class="kv-value">{{ selectedRequest?.reason || "-" }}</span>
               </div>
-              <div class="detail-row" v-if="selectedRequest?.description">
-                <span class="detail-label">Catatan Tambahan:</span>
-                <span class="detail-val italic"
-                  >"{{ selectedRequest?.description }}"</span
-                >
+              <div class="kv-item">
+                <span class="kv-label">Waktu Pengajuan</span>
+                <span class="kv-value">
+                  {{ formatDate(selectedRequest?.created_at) }}, {{ formatTime(selectedRequest?.created_at) }} WIB
+                </span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Waktu Pengajuan:</span>
-                <span class="detail-val"
-                  >{{ formatDate(selectedRequest?.created_at) }},
-                  {{ formatTime(selectedRequest?.created_at) }} WIB</span
-                >
+              <div class="kv-item full-width" v-if="selectedRequest?.description">
+                <span class="kv-label">Catatan Pasien</span>
+                <span class="kv-value italic text-secondary">"{{ selectedRequest.description }}"</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Status:</span>
-                <span class="detail-val">
+            </div>
+          </div>
+
+          <!-- 3. STATUS PENANGANAN -->
+          <div class="detail-section">
+            <h4 class="detail-sec-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              STATUS PERMINTAAN
+            </h4>
+            <div class="detail-keyvalue-grid">
+              <div class="kv-item">
+                <span class="kv-label">Status Saat Ini</span>
+                <span class="kv-value">
                   <span
-                    class="status-pill"
+                    class="status-badge"
                     :class="getStatusClass(selectedRequest?.status)"
                   >
                     <span class="status-dot"></span>
                     {{ formatStatus(selectedRequest?.status) }}
                   </span>
                 </span>
+              </div>
+              <div class="kv-item" v-if="selectedRequest?.nurse_note">
+                <span class="kv-label">Catatan Petugas Medis</span>
+                <span class="kv-value">{{ selectedRequest.nurse_note }}</span>
               </div>
             </div>
           </div>
@@ -608,6 +615,14 @@
             @click="closeDetailModal"
           >
             Tutup
+          </button>
+          <button
+            v-if="selectedRequest?.treatment?.patient?.phone"
+            type="button"
+            class="btn btn-outline-success"
+            @click="sendNotify(selectedRequest)"
+          >
+            Hubungi Pasien (WA)
           </button>
           <button
             type="button"
