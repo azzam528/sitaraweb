@@ -198,6 +198,20 @@
   margin-left: auto;
 }
 
+.readonly-calculated {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  border-color: #cbd5e1 !important;
+  cursor: default !important;
+  user-select: none !important;
+}
+
+.readonly-calculated:focus {
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
 @media (max-width: 1024px) {
   .patient-grid {
     grid-template-columns: repeat(2, 1fr);

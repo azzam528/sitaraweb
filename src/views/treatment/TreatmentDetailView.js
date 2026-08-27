@@ -510,6 +510,85 @@ export default defineComponent({
       }
     }
 
+    // ==========================================
+    // PHASE SEMI-AUTOMATIC CALCULATION & TRANSITION
+    // ==========================================
+    const calculateIntensiveEndDate = (startDateStr) => {
+      if (!startDateStr) return ''
+      const [year, month, day] = startDateStr.split('-').map(Number)
+      if (!year || !month || !day) return ''
+      const durationMonths = 2
+      const targetDate = new Date(year, month - 1 + durationMonths, day)
+      const expectedMonth = (month - 1 + durationMonths) % 12
+      if (targetDate.getMonth() !== expectedMonth) {
+        const clampedDate = new Date(year, month - 1 + durationMonths + 1, 0)
+        const clampedYear = clampedDate.getFullYear()
+        const clampedMonth = String(clampedDate.getMonth() + 1).padStart(2, '0')
+        const clampedDay = String(clampedDate.getDate()).padStart(2, '0')
+        return `${clampedYear}-${clampedMonth}-${clampedDay}`
+      }
+      const targetYear = targetDate.getFullYear()
+      const targetMonth = String(targetDate.getMonth() + 1).padStart(2, '0')
+      const targetDay = String(targetDate.getDate()).padStart(2, '0')
+      return `${targetYear}-${targetMonth}-${targetDay}`
+    }
+
+    const intensiveEndDate = computed(() => {
+      if (!treatment.value?.therapy_start_date) return ''
+      return calculateIntensiveEndDate(treatment.value.therapy_start_date)
+    })
+
+    const isPhaseIntensiveCompleted = computed(() => {
+      if (!treatment.value) return false
+      if (treatment.value.status !== 'active') return false
+      if (treatment.value.phase !== 'intensive') return false
+      if (!intensiveEndDate.value) return false
+
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const [y, m, d] = intensiveEndDate.value.split('-').map(Number)
+      const endDate = new Date(y, m - 1, d)
+      endDate.setHours(0, 0, 0, 0)
+
+      return today >= endDate
+    })
+
+    const confirmTransitionToContinuation = async () => {
+      if (!treatment.value) return
+      if (
+        !confirm(
+          `Konfirmasi pembaruan pengobatan pasien ${treatment.value.patient?.full_name || ''} ke Fase Lanjutan (Continuation)? Total estimasi durasi terapi tetap 6 bulan.`
+        )
+      ) {
+        return
+      }
+
+      isSubmitting.value = true
+      try {
+        await treatmentService.update(treatment.value.id, {
+          diagnosis_date: treatment.value.diagnosis_date,
+          therapy_start_date: treatment.value.therapy_start_date,
+          therapy_end_date: treatment.value.therapy_end_date,
+          phase: 'continuation',
+          regimen: treatment.value.regimen,
+          doctor_name: treatment.value.doctor_name || 'Dokter PJ',
+          status: treatment.value.status,
+          doctor_note: treatment.value.doctor_note || null,
+        })
+
+        showAlert('Fase pengobatan berhasil diperbarui ke Fase Lanjutan!')
+        await loadTreatmentDetail()
+      } catch (error) {
+        console.error('Failed to transition phase:', error)
+        showAlert(
+          error.response?.data?.detail || 'Gagal memperbarui fase pengobatan',
+          'danger'
+        )
+      } finally {
+        isSubmitting.value = false
+      }
+    }
+
     onMounted(async () => {
       await loadTreatmentDetail()
       await loadMedicinesList()
@@ -544,6 +623,12 @@ export default defineComponent({
       openStatusModal,
       submitUpdateStatus,
       confirmDelete,
+
+      // Phase Semi-Automatic Transition
+      calculateIntensiveEndDate,
+      intensiveEndDate,
+      isPhaseIntensiveCompleted,
+      confirmTransitionToContinuation,
 
       // Medicine Schedules
       medicineSchedules,

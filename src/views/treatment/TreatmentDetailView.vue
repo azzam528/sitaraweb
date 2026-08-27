@@ -131,6 +131,36 @@
       <!-- TAB 1: INFORMASI TREATMENT -->
       <!-- ======================================================== -->
       <div v-if="activeTab === 'treatment'" class="tab-pane">
+        <!-- INDIKATOR SEMI-OTOMATIS AKHIR FASE INTENSIF -->
+        <div v-if="isPhaseIntensiveCompleted" class="phase-alert-banner">
+          <div class="phase-alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="phase-alert-content">
+            <h4 class="phase-alert-title">Fase Intensif Telah Mencapai Estimasi Akhir</h4>
+            <p class="phase-alert-desc">
+              Fase intensif diperkirakan telah selesai pada <strong>{{ formatDate(intensiveEndDate) }}</strong> (2 bulan sejak mulai terapi). Silakan tinjau perkembangan klinis pasien dan konfirmasi pembaruan ke Fase Lanjutan.
+            </p>
+            <div class="phase-alert-actions">
+              <button
+                type="button"
+                class="btn btn-warning btn-sm"
+                :disabled="isSubmitting"
+                @click="confirmTransitionToContinuation"
+              >
+                <svg v-if="!isSubmitting" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ isSubmitting ? 'Memproses...' : 'Konfirmasi Fase Lanjutan' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Info Metrics Row -->
         <div class="info-grid">
           <!-- PROGRES PENGOBATAN -->
@@ -214,7 +244,25 @@
               <div class="detail-list">
                 <div class="detail-row">
                   <span class="detail-label">Fase Terapi (Phase):</span>
-                  <span class="detail-val">{{ formatPhase(treatment.phase) }}</span>
+                  <span class="detail-val font-semibold">
+                    {{ formatPhase(treatment.phase) }}
+                    <button
+                      v-if="treatment.phase === 'intensive' && treatment.status === 'active'"
+                      type="button"
+                      class="btn btn-outline btn-xs ml-2"
+                      :disabled="isSubmitting"
+                      @click="confirmTransitionToContinuation"
+                    >
+                      Pindah ke Fase Lanjutan
+                    </button>
+                  </span>
+                </div>
+
+                <div class="detail-row" v-if="treatment.phase === 'intensive'">
+                  <span class="detail-label">Estimasi Akhir Fase Intensif:</span>
+                  <span class="detail-val font-medium text-amber-700">
+                    {{ formatDate(intensiveEndDate) }}
+                  </span>
                 </div>
 
                 <div class="detail-row">
@@ -249,8 +297,8 @@
                 </div>
 
                 <div class="detail-row">
-                  <span class="detail-label">Estimasi Selesai:</span>
-                  <span class="detail-val">{{
+                  <span class="detail-label">Estimasi Selesai Terapi:</span>
+                  <span class="detail-val font-semibold">{{
                     formatDate(treatment.therapy_end_date)
                   }}</span>
                 </div>
@@ -556,13 +604,6 @@
             </div>
             <h3>Belum Ada Jadwal Obat</h3>
             <p>Pasien belum memiliki jadwal obat terdaftar untuk terapi TB ini.</p>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="openAddMedicineModal"
-            >
-              + Tambah Jadwal Obat Sekarang
-            </button>
           </div>
         </div>
       </div>

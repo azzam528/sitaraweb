@@ -4,18 +4,13 @@ import { useRoute, useRouter } from "vue-router";
 import patientService from "@/services/patient.service";
 import treatmentService from "@/services/treatment.service";
 
-export const PHASE_DURATIONS = {
-  intensive: 2,
-  continuation: 4,
-};
-
-export const calculateTherapyEndDate = (startDateStr, phase = "intensive") => {
+export const calculateTherapyEndDate = (startDateStr) => {
   if (!startDateStr) return "";
 
   const [year, month, day] = startDateStr.split("-").map(Number);
   if (!year || !month || !day) return "";
 
-  const durationMonths = PHASE_DURATIONS[phase] || 2;
+  const durationMonths = 6;
 
   const targetDate = new Date(year, month - 1 + durationMonths, day);
 
@@ -53,7 +48,7 @@ export function useTreatmentCreateView() {
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   const initialPhase = "intensive";
-  const initialEndDateStr = calculateTherapyEndDate(todayStr, initialPhase);
+  const initialEndDateStr = calculateTherapyEndDate(todayStr);
 
   const form = ref({
     diagnosis_date: todayStr,
@@ -77,18 +72,12 @@ export function useTreatmentCreateView() {
     if (form.value.therapy_start_date) {
       form.value.therapy_end_date = calculateTherapyEndDate(
         form.value.therapy_start_date,
-        form.value.phase,
       );
     }
   };
 
   const onPhaseChange = () => {
-    if (form.value.therapy_start_date) {
-      form.value.therapy_end_date = calculateTherapyEndDate(
-        form.value.therapy_start_date,
-        form.value.phase,
-      );
-    }
+    // Perubahan phase tidak mengubah therapy_end_date (total durasi terapi 6 bulan)
   };
 
   const formatPhase = (phase) => {
