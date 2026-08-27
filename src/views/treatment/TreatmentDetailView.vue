@@ -69,12 +69,6 @@
           <span class="meta-item">
             <strong>No. RM:</strong> {{ treatment.patient?.medical_record_number || "-" }}
           </span>
-          <template v-if="treatment.patient?.phone">
-            <span class="meta-dot">&bull;</span>
-            <span class="meta-item">
-              <strong>Telp:</strong> {{ treatment.patient?.phone }}
-            </span>
-          </template>
         </template>
       </DetailHeader>
 

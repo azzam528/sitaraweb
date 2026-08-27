@@ -132,8 +132,6 @@ const {
                 <div class="risk-patient-name">{{ patient.name }}</div>
                 <div class="risk-patient-sub">
                   <span>NIK: {{ patient.nik }}</span>
-                  <span class="bullet-separator">&bull;</span>
-                  <span>Sisa: {{ patient.daysLeft || 0 }} Hari</span>
                 </div>
               </div>
             </div>

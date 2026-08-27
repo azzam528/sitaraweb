@@ -92,7 +92,7 @@ const togglePassword = () => {
   flex-direction: column;
   gap: 0.25rem;
   margin-bottom: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
 }
 
 .input-container {

@@ -71,7 +71,7 @@ const handleClick = (event) => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
   font-weight: 500;
   border-radius: var(--radius-md, 12px);
   border: 1px solid transparent;

@@ -220,8 +220,7 @@ const {
         <table class="custom-table">
           <thead>
             <tr>
-              <th>PASIEN & NIK</th>
-              <th>DATA PASIEN</th>
+              <th>PASIEN</th>
               <th>CATATAN KLINIS</th>
               <th>PMO</th>
               <th>STATUS</th>
@@ -231,17 +230,17 @@ const {
 
           <tbody>
             <tr v-if="patientStore.loading">
-              <td colspan="6" class="text-center py-6 text-muted">
+              <td colspan="5" class="text-center py-6 text-muted">
                 Memuat data pasien...
               </td>
             </tr>
             <tr v-else-if="patientStore.error">
-              <td colspan="6" class="text-center py-6 text-danger">
+              <td colspan="5" class="text-center py-6 text-danger">
                 {{ patientStore.error }}
               </td>
             </tr>
             <tr v-else-if="filteredPatients.length === 0">
-              <td colspan="6" class="text-center py-6 text-muted">
+              <td colspan="5" class="text-center py-6 text-muted">
                 Tidak ada data pasien yang sesuai.
               </td>
             </tr>
@@ -259,25 +258,7 @@ const {
                     <span class="patient-nik"
                       >NIK: {{ patient.nik || "-" }}</span
                     >
-                    <span class="patient-age"
-                      >{{ calculateAge(patient.birth_date) }} Tahun</span
-                    >
                   </div>
-                </div>
-              </td>
-
-              <!-- DATA PASIEN -->
-              <td>
-                <div class="tb-info">
-                  <span class="badge badge-green">
-                    {{ formatGender(patient.gender) }}
-                  </span>
-                  <span class="phase-text">
-                    RM: {{ patient.medical_record_number || "-" }}
-                  </span>
-                  <span class="month-text">
-                    {{ patient.phone || "-" }}
-                  </span>
                 </div>
               </td>
 

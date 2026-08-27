@@ -241,9 +241,6 @@
                     </div>
                     <div class="patient-meta text-xs text-muted">
                       NIK: {{ refill.treatment?.patient?.nik || "-" }}
-                      <span v-if="refill.treatment?.patient?.medical_record_number">
-                        &bull; No. RM: {{ refill.treatment.patient.medical_record_number }}
-                      </span>
                     </div>
                   </div>
                 </div>
