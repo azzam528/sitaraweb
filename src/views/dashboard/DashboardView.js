@@ -36,7 +36,7 @@ export function useDashboardView() {
     return (
       dashboardStore.summary || {
         active_patients: 0,
-        medication_adherence: 0,
+        medication_adherence: null,
         tb_ro_patients: 0,
         high_risk_patients: 0,
         today_complaints: 0,
@@ -55,22 +55,21 @@ export function useDashboardView() {
     );
   });
 
-  // Tren Kepatuhan (7 Hari)
+  // Tren Kepatuhan (7 Hari dari Database)
   const adherenceTrend = computed(() => {
-    if (dashboardStore.adherenceTrend && dashboardStore.adherenceTrend.length >= 3) {
+    if (dashboardStore.adherenceTrend && Array.isArray(dashboardStore.adherenceTrend)) {
       return dashboardStore.adherenceTrend;
     }
     if (customTrend.value.length > 0) {
       return customTrend.value;
     }
-    // Fallback 7-day trend based on current adherence
-    const base = summary.value.medication_adherence || 92;
-    const offsets = [-2, 1, 3, -1, 2, 4, 1];
-    const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
-    return days.map((day, idx) => ({
-      label: day,
-      value: Math.min(100, Math.max(70, base + offsets[idx])),
-    }));
+    return [];
+  });
+
+  const hasTrendData = computed(() => {
+    return adherenceTrend.value.some(
+      (item) => item && item.percentage !== null && item.percentage !== undefined
+    );
   });
 
   // Aktivitas Terbaru (Maksimal 3 - 5)
@@ -114,14 +113,17 @@ export function useDashboardView() {
   const isLoading = computed(() => dashboardStore.loading);
 
   const complianceAverage = computed(() => {
-    if (adherenceTrend.value.length > 0) {
-      const sum = adherenceTrend.value.reduce(
-        (acc, item) => acc + (typeof item.value === "number" ? item.value : 90),
-        0
-      );
-      return Math.round(sum / adherenceTrend.value.length);
+    if (summary.value.medication_adherence !== null && summary.value.medication_adherence !== undefined) {
+      return summary.value.medication_adherence;
     }
-    return summary.value.medication_adherence || 92;
+    const validTrends = adherenceTrend.value.filter(
+      (item) => item && item.percentage !== null && item.percentage !== undefined && !isNaN(item.percentage)
+    );
+    if (validTrends.length > 0) {
+      const sum = validTrends.reduce((acc, item) => acc + item.percentage, 0);
+      return Math.round((sum / validTrends.length) * 10) / 10;
+    }
+    return null;
   });
 
   // Stats
@@ -135,8 +137,8 @@ export function useDashboardView() {
     },
     {
       label: "Kepatuhan Obat",
-      value: `${complianceAverage.value}%`,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 11"></polyline></svg>`,
+      value: complianceAverage.value !== null ? `${complianceAverage.value}%` : "Belum ada data",
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 11"></polyline></svg>`,
       color: "#22C55E",
       bgColor: "#dcfce7",
     },
@@ -334,6 +336,7 @@ export function useDashboardView() {
     isLoading,
     currentUserName,
     complianceAverage,
+    hasTrendData,
 
     getTrendValue,
     getTrendLabel,

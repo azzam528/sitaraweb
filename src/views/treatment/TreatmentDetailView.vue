@@ -810,9 +810,9 @@
                 class="form-control"
                 required
               >
-                <option value="" disabled>Pilih Obat TB...</option>
+                <option value="" disabled>Pilih Obat...</option>
                 <option
-                  v-for="med in medicinesList"
+                  v-for="med in availableMedicinesForDropdown"
                   :key="med.id"
                   :value="med.id"
                 >

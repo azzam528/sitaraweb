@@ -143,17 +143,16 @@ const {
             <!-- Telepon + Pekerjaan -->
             <div class="form-row">
               <div class="form-group half">
-                <label>
-                  Nomor Telepon
-                  <span class="required">*</span>
-                </label>
+                <label>Nomor Telepon / WhatsApp</label>
                 <input
                   type="tel"
                   v-model="patientData.phone"
                   class="form-control"
-                  placeholder="08xxxxxxxxxx"
-                  required
+                  disabled
                 />
+                <small class="form-help">
+                  Nomor WhatsApp terikat dengan username akun pasien.
+                </small>
               </div>
 
               <div class="form-group half">

@@ -101,6 +101,41 @@ export default defineComponent({
       }
     }
 
+    // Prototype-friendly medicine list for dropdown (prioritizes Paracetamol & Promag)
+    const availableMedicinesForDropdown = computed(() => {
+      if (!medicinesList.value || medicinesList.value.length === 0) return []
+
+      const priorityKeywords = ['paracetamol', 'promag', '4fdc', '2fdc']
+
+      const priorityMeds = []
+      const otherMeds = []
+
+      for (const med of medicinesList.value) {
+        const lower = (med.name || '').toLowerCase()
+        const isPriority = priorityKeywords.some(p => lower.includes(p))
+        if (isPriority) {
+          priorityMeds.push(med)
+        } else {
+          otherMeds.push(med)
+        }
+      }
+
+      // Sort so Paracetamol and Promag always appear at the top
+      priorityMeds.sort((a, b) => {
+        const aName = (a.name || '').toLowerCase()
+        const bName = (b.name || '').toLowerCase()
+        if (aName.includes('paracetamol')) return -1
+        if (bName.includes('paracetamol')) return 1
+        if (aName.includes('promag')) return -1
+        if (bName.includes('promag')) return 1
+        return 0
+      })
+
+      // Combine priority and others, capped to 4 items for a clean prototype UI
+      const result = [...priorityMeds, ...otherMeds]
+      return result.slice(0, 4)
+    })
+
     const loadMedicineSchedules = async () => {
       if (!treatment.value?.id) return
       loadingMedicines.value = true
@@ -140,7 +175,7 @@ export default defineComponent({
       isEditingMedicine.value = false
       editingMedicineId.value = null
       medicineForm.value = {
-        medicine_id: medicinesList.value[0]?.id || '',
+        medicine_id: availableMedicinesForDropdown.value[0]?.id || medicinesList.value[0]?.id || '',
         dosage: '1 tablet',
         drink_time: '08:00',
         quantity_initial: 30,
@@ -633,6 +668,7 @@ export default defineComponent({
       // Medicine Schedules
       medicineSchedules,
       medicinesList,
+      availableMedicinesForDropdown,
       loadingMedicines,
       submittingMedicine,
       showMedicineModal,

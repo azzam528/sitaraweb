@@ -19,6 +19,7 @@ const {
   isLoading,
   currentUserName,
   complianceAverage,
+  hasTrendData,
   getTrendValue,
   getTrendLabel
 } = useDashboardView()
@@ -164,15 +165,18 @@ const {
             <p class="chart-subtitle text-xs text-secondary mt-1">Persentase kepatuhan harian (7 Hari Terakhir)</p>
           </div>
           <div class="text-right">
-            <div class="text-2xl font-bold" style="color: #1E293B;">{{ complianceAverage }}% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></div>
-            <div class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
+            <div class="text-2xl font-bold" style="color: #1E293B;">
+              <template v-if="complianceAverage !== null">{{ complianceAverage }}% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></template>
+              <template v-else><span class="text-base font-medium" style="color: #64748B;">Belum ada data</span></template>
+            </div>
+            <div v-if="complianceAverage !== null" class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
               <span>Target &ge; 90%</span>
             </div>
           </div>
         </div>
 
-        <div v-if="adherenceTrend.length === 0" class="empty-state">
+        <div v-if="!hasTrendData" class="empty-state">
           Belum ada data tren kepatuhan.
         </div>
 
