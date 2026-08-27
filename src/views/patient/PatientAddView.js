@@ -25,6 +25,13 @@ export function usePatientAddView() {
   const copiedLink = ref(false);
   const copiedMessage = ref(false);
 
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const maxBirthDateStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+
   const generateAutoRM = () => {
     const year = new Date().getFullYear();
     const randomCode = Math.floor(1000 + Math.random() * 9000);
@@ -65,7 +72,7 @@ export function usePatientAddView() {
   const fullWhatsAppMessage = computed(() => {
     const creds = createdCredentials.value;
     const actUrl = creds.activationUrl || "https://sitara.kemenkes.go.id/activate";
-    return `Halo Bapak/Ibu *${creds.name || formData.value.name}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${creds.medicalRecordNumber || formData.value.medicalRecordNumber}*\n• Username: *${creds.username || '-'}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n👉 ${actUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${creds.pmoName || formData.value.pmoName}* - ${creds.pmoPhone || formData.value.pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
+    return `Halo Bapak/Ibu *${creds.name || formData.value.name}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${creds.medicalRecordNumber || formData.value.medicalRecordNumber}*\n• Username: *${creds.username || '-'}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n\n${actUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${creds.pmoName || formData.value.pmoName}* - ${creds.pmoPhone || formData.value.pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
   });
 
   const validateForm = () => {
@@ -88,6 +95,11 @@ export function usePatientAddView() {
 
     if (!formData.value.dob) {
       errorMessage.value = "Tanggal lahir wajib diisi.";
+      return false;
+    }
+
+    if (formData.value.dob >= todayStr) {
+      errorMessage.value = "Tanggal lahir tidak boleh di masa depan.";
       return false;
     }
 
@@ -157,13 +169,21 @@ export function usePatientAddView() {
       const patientNik = patientObj.nik || formData.value.nik.trim();
       const patientPhone = patientObj.phone || formData.value.phone.trim();
       const pmoName = patientObj.pmo_name || formData.value.pmoName.trim();
-      const pmoPhone = patientObj.pmo_phone || formData.value.pmoPhone.trim();
-
       const username = resData.username || patientName.toLowerCase().replace(/\s+/g, ".") + (patientId ? `.${patientId}` : "");
       const activationUrl = resData.activation_url || `${window.location.origin}/activate?token=${btoa(username + ":" + Date.now())}`;
 
+      // Local development host inspection
+      try {
+        const parsedUrl = new URL(activationUrl);
+        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1' || parsedUrl.hostname.startsWith('192.168.')) {
+          console.warn(`[SITARA DEV WARNING] Activation URL menggunakan host lokal (${parsedUrl.hostname}). Untuk perangkat pasien (WhatsApp di HP), pastikan ACTIVATION_BASE_URL mengarah ke domain publik HTTPS agar link dapat dibuka di perangkat luar.`);
+        }
+      } catch (err) {
+        console.warn('[SITARA WARNING] Format Activation URL tidak valid:', err);
+      }
+
       // WhatsApp links for patient and PMO
-      const msgText = `Halo Bapak/Ibu *${patientName}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${patientMrn}*\n• Username: *${username}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n👉 ${activationUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${pmoName}* - ${pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
+      const msgText = `Halo Bapak/Ibu *${patientName}*,\n\nAkun aplikasi *SITARA* Anda telah berhasil didaftarkan oleh Petugas Puskesmas untuk pemantauan pengobatan TB.\n\n📋 *Informasi Akun Pasien:*\n• No. Rekam Medis: *${patientMrn}*\n• Username: *${username}*\n\nSilakan klik tautan di bawah ini untuk mengaktifkan akun dan membuat kata sandi Anda:\n\n${activationUrl}\n\nJika mengalami kendala, hubungi PMO Anda (*${pmoName}* - ${pmoPhone}) atau petugas kesehatan kami.\n\nSalam Sehat,\n*Tim SITARA*`;
       
       const pWaUrl = resData.whatsapp_url || `https://api.whatsapp.com/send?phone=${cleanPhoneForWa(patientPhone)}&text=${encodeURIComponent(msgText)}`;
       const pmoWaUrl = `https://api.whatsapp.com/send?phone=${cleanPhoneForWa(pmoPhone)}&text=${encodeURIComponent(msgText)}`;
@@ -290,6 +310,8 @@ export function usePatientAddView() {
     finishAndRedirect,
     viewNewPatientDetail,
     addAnotherPatient,
+    todayStr,
+    maxBirthDateStr,
   };
 }
 

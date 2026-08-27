@@ -387,16 +387,24 @@ export default defineComponent({
       if (!videoData.value) return
       isSubmitting.value = true
       try {
-        try {
-          await videoService.approve(videoData.value.id, { notes: notes.value })
-        } catch (e) {
-          // Local fallback update
+        const response = await videoService.approve(videoData.value.id, {
+          review_note: notes.value?.trim() || null,
+        })
+        if (response?.data) {
+          videoData.value = {
+            ...videoData.value,
+            ...response.data,
+          }
+        } else {
+          videoData.value.status = 'verified'
         }
-        videoData.value.status = 'verified'
         showAlert('Verifikasi video berhasil DISETUJUI!')
       } catch (error) {
         console.error('Failed to approve video:', error)
-        showAlert('Gagal menyetujui verifikasi video', 'danger')
+        showAlert(
+          error.response?.data?.detail || 'Gagal menyetujui verifikasi video',
+          'danger',
+        )
       } finally {
         isSubmitting.value = false
       }
@@ -408,16 +416,24 @@ export default defineComponent({
 
       isSubmitting.value = true
       try {
-        try {
-          await videoService.reject(videoData.value.id, { notes: notes.value })
-        } catch (e) {
-          // Local fallback update
+        const response = await videoService.reject(videoData.value.id, {
+          review_note: notes.value?.trim() || null,
+        })
+        if (response?.data) {
+          videoData.value = {
+            ...videoData.value,
+            ...response.data,
+          }
+        } else {
+          videoData.value.status = 'rejected'
         }
-        videoData.value.status = 'rejected'
         showAlert('Verifikasi video telah DITOLAK.', 'warning')
       } catch (error) {
         console.error('Failed to reject video:', error)
-        showAlert('Gagal menolak verifikasi video', 'danger')
+        showAlert(
+          error.response?.data?.detail || 'Gagal menolak verifikasi video',
+          'danger',
+        )
       } finally {
         isSubmitting.value = false
       }
