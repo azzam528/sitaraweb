@@ -11,6 +11,7 @@ const {
   goToPatientDetail,
   summary,
   statusData,
+  donutGradient,
   risk,
   adherenceTrend,
   recentActivities,
@@ -21,7 +22,9 @@ const {
   complianceAverage,
   hasTrendData,
   getTrendValue,
-  getTrendLabel
+  getTrendLabel,
+  getInitials,
+  formatActivityDate,
 } = useDashboardView()
 </script>
 
@@ -71,7 +74,9 @@ const {
         ></div>
         <div class="stat-info">
           <div class="stat-label">{{ stat.label }}</div>
-          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-value" :class="{ 'stat-value-text': isNaN(stat.value) && stat.value.length > 5 }">
+            {{ stat.value }}
+          </div>
         </div>
       </div>
     </div>
@@ -98,7 +103,7 @@ const {
           <!-- Donut Chart -->
           <div class="risk-chart-section">
             <div class="donut-chart-container">
-              <div class="donut-chart">
+              <div class="donut-chart" :style="{ background: donutGradient }">
                 <div class="donut-inner-text">
                   <span class="donut-percent">{{ summary.active_patients || 0 }}</span>
                   <span class="donut-label">TOTAL PASIEN</span>
@@ -120,37 +125,68 @@ const {
               class="risk-item cursor-pointer"
               @click="goToPatientDetail(patient.id)"
             >
-              <div class="risk-avatar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+              <div class="risk-patient-avatar">
+                {{ getInitials(patient.name) }}
               </div>
-
-              <div class="risk-info">
-                <div class="risk-name">{{ patient.name }}</div>
-                <div class="risk-reason">{{ patient.reason }}</div>
+              <div class="risk-patient-info">
+                <div class="risk-patient-name">{{ patient.name }}</div>
+                <div class="risk-patient-sub">
+                  <span>NIK: {{ patient.nik }}</span>
+                  <span class="bullet-separator">&bull;</span>
+                  <span>Sisa: {{ patient.daysLeft || 0 }} Hari</span>
+                </div>
               </div>
-
-              <div class="risk-badge" :class="'badge-' + (patient.badgeColor || patient.levelColor || 'primary')">
-                {{ patient.badge || patient.level || 'Aktif' }}
-              </div>
-
-              <button
-                v-if="patient.phone"
-                class="btn-phone"
-                @click.stop="window.location.href = `tel:${patient.phone}`"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-              </button>
             </div>
 
-            <div v-if="riskPatients.length === 0" class="empty-state">
-              Belum ada daftar monitoring pasien.
+            <div v-if="riskPatients.length === 0" class="empty-monitoring">
+              <div v-if="summary.active_patients === 0" class="empty-monitoring-title">
+                Belum ada pasien aktif
+              </div>
+              <template v-else>
+                <div class="empty-monitoring-title">Belum ada data monitoring pasien</div>
+                <div class="empty-monitoring-sub">Data monitoring akan muncul setelah pasien memiliki aktivitas pengobatan.</div>
+              </template>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card action-card">
+        <div class="card-title mb-3">Aksi Cepat</div>
+        <div class="action-buttons-grid">
+          <button class="btn btn-action-card" @click="goToNewPatient">
+            <div class="action-icon-circle bg-blue-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#006591" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Daftarkan Pasien Baru</div>
+              <div class="action-desc">Registrasi & skrining awal pasien TB</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button class="btn btn-action-card" @click="goToMedicines">
+            <div class="action-icon-circle bg-green-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Logistik & Distribusi OAT</div>
+              <div class="action-desc">Kelola stok dan permintaan obat</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button class="btn btn-action-card" @click="goToReports">
+            <div class="action-icon-circle bg-amber-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Rekap Laporan SITARA</div>
+              <div class="action-desc">Unduh kohort & indikator program</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -167,7 +203,7 @@ const {
           <div class="text-right">
             <div class="text-2xl font-bold" style="color: #1E293B;">
               <template v-if="complianceAverage !== null">{{ complianceAverage }}% <span class="text-xs font-normal" style="color: #64748B;">Rata-rata</span></template>
-              <template v-else><span class="text-base font-medium" style="color: #64748B;">Belum ada data</span></template>
+              <template v-else><span class="text-base font-medium" style="color: #64748B;">Belum ada data konsumsi</span></template>
             </div>
             <div v-if="complianceAverage !== null" class="text-xs font-semibold flex items-center justify-end gap-1 mt-0.5" style="color: #22C55E;">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -237,8 +273,8 @@ const {
           <div v-for="(act, index) in recentActivities" :key="act.id || index" class="timeline-item">
             <div class="timeline-dot" :class="'bg-' + (act.type || 'primary')"></div>
             <div class="timeline-content">
-              <p class="timeline-text">{{ act.text || act.message || act.title }}</p>
-              <span class="timeline-time">{{ act.time || act.created_at }}</span>
+              <p class="timeline-text">{{ act.title || act.text || act.message }}</p>
+              <span class="timeline-time">{{ formatActivityDate(act.created_at || act.time) }}</span>
             </div>
           </div>
         </div>

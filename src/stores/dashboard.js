@@ -27,7 +27,10 @@ export const useDashboardStore = defineStore('dashboard', {
         this.data = resData
         this.summary = resData.summary || {
           active_patients: 0,
+          active_treatments: 0,
+          completed_treatments: 0,
           medication_adherence: null,
+          today_verifications: 0,
           high_risk_patients: 0,
           today_complaints: 0,
           critical_stock_items: 0
