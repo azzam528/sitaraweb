@@ -343,7 +343,10 @@
                     treatment.patient.gender === "male" ||
                     treatment.patient.gender === "L"
                       ? "Laki-laki"
-                      : "Perempuan"
+                      : treatment.patient.gender === "female" ||
+                        treatment.patient.gender === "P"
+                      ? "Perempuan"
+                      : treatment.patient.gender || "-"
                   }}</span>
                 </div>
                 <div class="detail-row">
@@ -718,13 +721,6 @@
             </div>
             <h3>Belum Ada Jadwal Kontrol</h3>
             <p>Pasien belum memiliki jadwal kontrol berkala terdaftar.</p>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="openAddControlModal"
-            >
-              + Tambah Jadwal Kontrol Sekarang
-            </button>
           </div>
         </div>
       </div>
