@@ -383,22 +383,37 @@ const getNotifIconClass = (type) => {
 
 const formatTimeAgo = (dateStr) => {
   if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffSec = Math.floor((now - date) / 1000);
 
-  // Tampilkan format tanggal dan waktu: "24 Agu 2024 14:30"
+  // Ensure UTC string is recognized by browser
+  let normalizedStr = dateStr;
+  if (
+    typeof dateStr === "string" &&
+    !dateStr.endsWith("Z") &&
+    !dateStr.includes("+") &&
+    !dateStr.includes("-", 10)
+  ) {
+    normalizedStr = dateStr + "Z";
+  }
+
+  const date = new Date(normalizedStr);
+  if (Number.isNaN(date.getTime())) return dateStr;
+
+  // Tampilkan format tanggal dan waktu dalam WIB: "31 Agu 2026 08:05 WIB"
   const dateStr_formatted = date.toLocaleDateString("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   });
-  const timeStr_formatted = date.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const timeStr_formatted = date
+    .toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Jakarta",
+    })
+    .replace(".", ":");
 
-  return `${dateStr_formatted} ${timeStr_formatted}`;
+  return `${dateStr_formatted} ${timeStr_formatted} WIB`;
 };
 
 const toggleSidebar = () => {
