@@ -137,6 +137,10 @@ export function usePatientAddView() {
   };
 
   const savePatient = async () => {
+    if (isSubmitting.value) {
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -169,6 +173,7 @@ export function usePatientAddView() {
       const patientNik = patientObj.nik || formData.value.nik.trim();
       const patientPhone = patientObj.phone || formData.value.phone.trim();
       const pmoName = patientObj.pmo_name || formData.value.pmoName.trim();
+      const pmoPhone = patientObj.pmo_phone || formData.value.pmoPhone.trim();
       const username = resData.username || patientName.toLowerCase().replace(/\s+/g, ".") + (patientId ? `.${patientId}` : "");
       const activationUrl = resData.activation_url || `${window.location.origin}/activate?token=${btoa(username + ":" + Date.now())}`;
 
@@ -209,7 +214,7 @@ export function usePatientAddView() {
       if (Array.isArray(detail)) {
         errorMessage.value = detail.map((item) => item.msg).join(", ");
       } else {
-        errorMessage.value = detail || "Gagal menambahkan pasien ke sistem.";
+        errorMessage.value = detail || "Gagal menambahkan pasien ke sistem. Silakan coba lagi.";
       }
     } finally {
       isSubmitting.value = false;
