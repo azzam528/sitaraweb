@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import adminService from '@/services/admin.service'
@@ -9,27 +9,37 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isLoading = ref(true)
-const summary = ref({
-  total_facilities: 0,
-  total_nakes: 0,
-  active_facilities: 0
-})
+const errorMsg = ref(null)
+const facilities = ref([])
+const nakesList = ref([])
 
 onMounted(async () => {
   try {
-    const res = await adminService.getDashboardSummary()
-    summary.value = res.data
-  } catch (error) {
-    console.error('Failed to load admin dashboard summary:', error)
+    const [facRes, nakesRes] = await Promise.all([
+      adminService.getFacilities(),
+      adminService.getNakesList()
+    ])
+    facilities.value = facRes.data || []
+    nakesList.value = nakesRes.data || []
+  } catch (err) {
+    console.error('Failed to load admin dashboard:', err)
+    errorMsg.value = 'Gagal memuat data dashboard.'
   } finally {
     isLoading.value = false
   }
 })
 
-const currentUserName = authStore.userFullName
+const currentUserName = computed(() => authStore.userFullName || 'Admin')
 
-const goToFacilities = () => router.push('/dashboard/facilities')
-const goToNakes = () => router.push('/dashboard/nakes')
+const totalFacilities = computed(() => facilities.value.length)
+const totalNakes = computed(() => nakesList.value.length)
+const activeFacilities = computed(() =>
+  facilities.value.filter(f => f.is_active).length
+)
+
+const goToFacilities = () => router.push('/dashboard/admin/facilities')
+const goToNakes = () => router.push('/dashboard/admin/nakes')
+const goToCreateNakes = () => router.push('/dashboard/admin/nakes/create')
 </script>
 
 <template>
@@ -64,6 +74,11 @@ const goToNakes = () => router.push('/dashboard/nakes')
       </div>
     </div>
 
+    <!-- Error -->
+    <div v-if="errorMsg" class="card" style="padding: 24px; margin-bottom: 20px; color: #EF4444; text-align: center;">
+      {{ errorMsg }}
+    </div>
+
     <!-- Statistics -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -72,17 +87,17 @@ const goToNakes = () => router.push('/dashboard/nakes')
         </div>
         <div class="stat-info">
           <div class="stat-label">TOTAL FASILITAS</div>
-          <div class="stat-value">{{ summary.total_facilities }}</div>
+          <div class="stat-value">{{ totalFacilities }}</div>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon-wrapper" style="background-color: #ECFDF5; color: #10B981;">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </div>
         <div class="stat-info">
           <div class="stat-label">TOTAL NAKES</div>
-          <div class="stat-value">{{ summary.total_nakes }}</div>
+          <div class="stat-value">{{ totalNakes }}</div>
         </div>
       </div>
 
@@ -92,18 +107,48 @@ const goToNakes = () => router.push('/dashboard/nakes')
         </div>
         <div class="stat-info">
           <div class="stat-label">FASILITAS AKTIF</div>
-          <div class="stat-value">{{ summary.active_facilities }}</div>
+          <div class="stat-value">{{ activeFacilities }}</div>
         </div>
       </div>
     </div>
-    
-    <div class="bottom-row">
-      <div class="card timeline-card">
-        <div class="card-title mb-4">Aktivitas / Ringkasan Sistem</div>
-        <div class="timeline">
-          <div class="text-sm text-secondary py-4 text-center">
-            Belum ada aktivitas terbaru hari ini.
-          </div>
+
+    <!-- Quick Actions -->
+    <div class="middle-row">
+      <div class="card action-card" style="flex: 1;">
+        <div class="card-title mb-3">Aksi Cepat</div>
+        <div class="action-buttons-grid">
+          <button class="btn btn-action-card" @click="goToCreateNakes">
+            <div class="action-icon-circle bg-blue-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#006591" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Tambah Nakes Baru</div>
+              <div class="action-desc">Daftarkan akun tenaga kesehatan</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button class="btn btn-action-card" @click="goToFacilities">
+            <div class="action-icon-circle bg-green-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Lihat Fasilitas Kesehatan</div>
+              <div class="action-desc">Daftar faskes terdaftar di SITARA</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button class="btn btn-action-card" @click="goToNakes">
+            <div class="action-icon-circle bg-amber-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="action-text">
+              <div class="action-title">Kelola Tenaga Kesehatan</div>
+              <div class="action-desc">Lihat daftar nakes terdaftar</div>
+            </div>
+            <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       </div>
     </div>

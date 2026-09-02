@@ -9,10 +9,10 @@ const error = ref(null)
 onMounted(async () => {
   try {
     const res = await adminService.getNakesList()
-    nakesList.value = res.data.data || []
+    nakesList.value = res.data || []
   } catch (err) {
     console.error('Failed to load nakes list:', err)
-    error.value = 'Gagal memuat data Nakes.'
+    error.value = 'Gagal memuat data Nakes. Silakan coba lagi.'
   } finally {
     loading.value = false
   }
@@ -34,7 +34,7 @@ const getInitials = (name) => {
         </p>
       </div>
 
-      <router-link to="/dashboard/nakes/create" class="btn-add">
+      <router-link to="/dashboard/admin/nakes/create" class="btn-add">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -54,7 +54,7 @@ const getInitials = (name) => {
       </router-link>
     </header>
 
-    <section class="table-section card mt-4">
+    <section class="table-section card">
       <div class="table-responsive">
         <table class="custom-table">
           <thead>
@@ -62,8 +62,8 @@ const getInitials = (name) => {
               <th>NAKES</th>
               <th>EMAIL</th>
               <th>FASILITAS KESEHATAN</th>
+              <th>ROLE</th>
               <th>STATUS</th>
-              <th class="text-center">AKSI</th>
             </tr>
           </thead>
           <tbody>
@@ -85,7 +85,7 @@ const getInitials = (name) => {
             <tr v-else v-for="nakes in nakesList" :key="nakes.id">
               <td>
                 <div class="patient-profile">
-                  <div class="avatar bg-green-100 text-green-800">
+                  <div class="avatar">
                     {{ getInitials(nakes.username) }}
                   </div>
                   <div class="patient-details">
@@ -97,13 +97,20 @@ const getInitials = (name) => {
                 <span class="text-muted">{{ nakes.email || '-' }}</span>
               </td>
               <td>
-                <span class="text-muted">{{ nakes.facility_name || 'Tidak Diketahui' }}</span>
+                <span class="text-muted">{{ nakes.facility_name || '-' }}</span>
               </td>
               <td>
-                <span class="status-badge status-low">Aktif</span>
+                <span class="status-badge status-low" style="background-color: #E0F2FE; color: #0EA5E9;">
+                  {{ nakes.role || 'Nakes' }}
+                </span>
               </td>
-              <td class="text-center">
-                <button class="btn btn-outline btn-sm">Lihat Detail</button>
+              <td>
+                <span
+                  class="status-badge"
+                  :class="nakes.is_active ? 'status-low' : 'status-high'"
+                >
+                  {{ nakes.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
               </td>
             </tr>
           </tbody>

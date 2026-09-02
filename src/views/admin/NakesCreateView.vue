@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import adminService from '@/services/admin.service'
 
@@ -18,43 +18,79 @@ const isSubmitting = ref(false)
 const errorMessage = ref('')
 const showSuccessModal = ref(false)
 
+// Only show active facilities in dropdown
+const activeFacilities = computed(() =>
+  facilities.value.filter(f => f.is_active)
+)
+
 onMounted(async () => {
   try {
     const res = await adminService.getFacilities()
-    facilities.value = res.data.data || []
-  } catch (error) {
-    console.error('Gagal mengambil daftar fasilitas:', error)
+    facilities.value = res.data || []
+  } catch (err) {
+    console.error('Gagal mengambil daftar fasilitas:', err)
+    errorMessage.value = 'Gagal memuat daftar Fasilitas Kesehatan.'
   } finally {
     isLoadingFacilities.value = false
   }
 })
 
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 const saveNakes = async () => {
+  errorMessage.value = ''
+
   if (!formData.value.username || !formData.value.email || !formData.value.password || !formData.value.facility_id) {
     errorMessage.value = 'Semua field wajib diisi.'
     return
   }
 
+  if (!isValidEmail(formData.value.email)) {
+    errorMessage.value = 'Format email tidak valid.'
+    return
+  }
+
   try {
-    errorMessage.value = ''
     isSubmitting.value = true
-    await adminService.createNakes(formData.value)
+
+    // Build payload — ensure facility_id is a number
+    const payload = {
+      username: formData.value.username,
+      email: formData.value.email,
+      password: formData.value.password,
+      facility_id: Number(formData.value.facility_id)
+    }
+
+    await adminService.createNakes(payload)
     showSuccessModal.value = true
-  } catch (error) {
-    console.error('Gagal membuat nakes:', error)
-    errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat menambahkan Nakes.'
+  } catch (err) {
+    console.error('Gagal membuat nakes:', err)
+
+    // Extract backend error message
+    const backendMsg = err.response?.data?.detail || err.response?.data?.message
+    if (backendMsg) {
+      errorMessage.value = typeof backendMsg === 'string' ? backendMsg : JSON.stringify(backendMsg)
+    } else if (err.response?.status === 403) {
+      errorMessage.value = 'Akses ditolak. Anda tidak memiliki izin untuk membuat akun Nakes.'
+    } else if (err.response?.status === 422) {
+      errorMessage.value = 'Data tidak valid. Periksa kembali input Anda.'
+    } else {
+      errorMessage.value = 'Terjadi kesalahan saat menambahkan Nakes.'
+    }
   } finally {
     isSubmitting.value = false
   }
 }
 
 const cancelAdd = () => {
-  router.push('/dashboard/nakes')
+  router.push('/dashboard/admin/nakes')
 }
 
 const finishAndRedirect = () => {
   showSuccessModal.value = false
-  router.push('/dashboard/nakes')
+  router.push('/dashboard/admin/nakes')
 }
 </script>
 
@@ -76,7 +112,7 @@ const finishAndRedirect = () => {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Batal & Kembali ke Daftar Nakes
+        Batal &amp; Kembali ke Daftar Nakes
       </button>
     </div>
 
@@ -124,7 +160,7 @@ const finishAndRedirect = () => {
                 v-model="formData.username"
                 type="text"
                 class="form-control"
-                placeholder="Contoh: dr_budi"
+                placeholder="Contoh: nakes_cimenyan"
                 required
               />
             </div>
@@ -138,7 +174,7 @@ const finishAndRedirect = () => {
                 v-model="formData.email"
                 type="email"
                 class="form-control"
-                placeholder="Contoh: budi@puskesmas.com"
+                placeholder="Contoh: nakes@puskesmas.com"
                 required
               />
             </div>
@@ -165,7 +201,10 @@ const finishAndRedirect = () => {
               <select v-model="formData.facility_id" class="form-select" required :disabled="isLoadingFacilities">
                 <option value="" disabled>Pilih Fasilitas Kesehatan</option>
                 <option v-if="isLoadingFacilities" value="" disabled>Memuat data...</option>
-                <option v-for="facility in facilities" :key="facility.id" :value="facility.id">
+                <template v-if="!isLoadingFacilities && activeFacilities.length === 0">
+                  <option value="" disabled>Tidak ada fasilitas aktif tersedia</option>
+                </template>
+                <option v-for="facility in activeFacilities" :key="facility.id" :value="facility.id">
                   {{ facility.name }}
                 </option>
               </select>
@@ -212,7 +251,7 @@ const finishAndRedirect = () => {
           </div>
           <h2 class="modal-title">Nakes Berhasil Didaftarkan!</h2>
           <p class="modal-subtitle">
-            Akun tenaga kesehatan baru telah berhasil ditambahkan ke dalam sistem.
+            Akun tenaga kesehatan baru telah berhasil ditambahkan ke dalam sistem. Nakes dapat login menggunakan kredensial yang telah didaftarkan.
           </p>
           <div class="modal-footer-nav" style="margin-top: 2rem;">
             <button
