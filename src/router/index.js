@@ -60,6 +60,32 @@ const routes = [
         component: () => import("@/views/dashboard/DashboardView.vue"),
         meta: { title: "Dashboard - SITARA", breadcrumb: "Dashboard" },
       },
+      // Admin Routes
+      {
+        path: "admin",
+        name: "DashboardAdmin",
+        component: () => import("@/views/admin/DashboardAdminView.vue"),
+        meta: { title: "Dashboard Admin - SITARA", breadcrumb: "Dashboard", role: "admin" },
+      },
+      {
+        path: "facilities",
+        name: "FacilityList",
+        component: () => import("@/views/admin/FacilityListView.vue"),
+        meta: { title: "Manajemen Fasilitas - SITARA", breadcrumb: "Fasilitas Kesehatan", role: "admin" },
+      },
+      {
+        path: "nakes",
+        name: "NakesList",
+        component: () => import("@/views/admin/NakesListView.vue"),
+        meta: { title: "Manajemen Nakes - SITARA", breadcrumb: "Manajemen Nakes", role: "admin" },
+      },
+      {
+        path: "nakes/create",
+        name: "NakesCreate",
+        component: () => import("@/views/admin/NakesCreateView.vue"),
+        meta: { title: "Tambah Nakes - SITARA", breadcrumb: "Tambah Nakes", parent: "NakesList", role: "admin" },
+      },
+      // Nakes Routes
       {
         path: "patients",
         name: "PatientList",
@@ -225,6 +251,12 @@ router.beforeEach((to, from, next) => {
 
   const isPatient =
     user && (user.role === "patient" || user.role === "PATIENT");
+  const isAdmin = user && user.role === "admin";
+
+  // Check role requirement
+  const requireAdmin = to.meta.role === "admin";
+  const isNakesRoute = to.path.startsWith("/dashboard/") && !requireAdmin && to.path !== "/dashboard/profile";
+  const isBaseDashboard = to.path === "/dashboard" || to.path === "/dashboard/";
 
   if (to.meta.requiresAuth) {
     if (!token) {
@@ -233,6 +265,12 @@ router.beforeEach((to, from, next) => {
       localStorage.removeItem("sitara_token");
       localStorage.removeItem("sitara_user");
       next("/login?error=patient_not_allowed");
+    } else if (isAdmin && isBaseDashboard) {
+      next("/dashboard/admin");
+    } else if (isAdmin && isNakesRoute) {
+      next("/dashboard/admin");
+    } else if (!isAdmin && requireAdmin) {
+      next("/dashboard");
     } else {
       next();
     }
@@ -241,6 +279,8 @@ router.beforeEach((to, from, next) => {
       localStorage.removeItem("sitara_token");
       localStorage.removeItem("sitara_user");
       next();
+    } else if (isAdmin) {
+      next("/dashboard/admin");
     } else {
       next("/dashboard");
     }

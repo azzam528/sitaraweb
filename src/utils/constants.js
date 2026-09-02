@@ -92,6 +92,7 @@ export const TREATMENT_PHASE_LABELS = {
 
 // User Roles
 export const USER_ROLES = {
+  ADMIN: "admin",
   HEAD: "kepala_puskesmas",
   DOCTOR: "dokter",
   NURSE: "perawat",
@@ -99,6 +100,7 @@ export const USER_ROLES = {
 };
 
 export const USER_ROLE_LABELS = {
+  admin: "Admin",
   kepala_puskesmas: "Kepala Puskesmas",
   dokter: "Dokter",
   perawat: "Perawat",
@@ -112,7 +114,29 @@ export const PAGINATION_DEFAULTS = {
   perPageOptions: [10, 25, 50, 100],
 };
 
-// Sidebar Menu
+// Sidebar Menu Admin
+export const ADMIN_SIDEBAR_MENU = [
+  {
+    id: "admin-dashboard",
+    path: "/dashboard/admin",
+    label: "Dashboard",
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>',
+  },
+  {
+    id: "admin-facilities",
+    path: "/dashboard/facilities",
+    label: "Fasilitas Kesehatan",
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
+  },
+  {
+    id: "admin-nakes",
+    path: "/dashboard/nakes",
+    label: "Manajemen Nakes",
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+  },
+];
+
+// Sidebar Menu Nakes
 export const SIDEBAR_MENU = [
   {
     id: "dashboard",
@@ -157,3 +181,4 @@ export const SIDEBAR_MENU = [
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>',
   },
 ];
+

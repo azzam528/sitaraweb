@@ -25,7 +25,7 @@
 
       <nav class="sidebar-menu">
         <ul class="menu-list">
-          <li v-for="item in SIDEBAR_MENU" :key="item.id" class="menu-item-wrapper">
+          <li v-for="item in currentMenu" :key="item.id" class="menu-item-wrapper">
             <!-- Menu tanpa children -->
             <RouterLink 
               v-if="!item.children"
@@ -99,20 +99,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
-import { SIDEBAR_MENU } from '@/utils/constants'
+import { useAuthStore } from '@/stores/auth'
+import { SIDEBAR_MENU, ADMIN_SIDEBAR_MENU } from '@/utils/constants'
 import logoImg from '@/assets/images/logo.png'
 
 const route = useRoute()
 const router = useRouter()
 const uiStore = useUiStore()
+const authStore = useAuthStore()
 const openSubmenu = ref(null)
 
+const currentMenu = computed(() => {
+  return authStore.userRole === 'admin' ? ADMIN_SIDEBAR_MENU : SIDEBAR_MENU;
+})
+
 const isActive = (item) => {
-  if (item.path === '/dashboard') {
-    return route.path === '/dashboard'
+  if (item.path === '/dashboard' || item.path === '/dashboard/admin') {
+    return route.path === item.path
   }
   // Check children paths too
   if (item.children) {
