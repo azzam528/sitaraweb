@@ -7,6 +7,11 @@ export default {
   getById(id) {
     return api.get(`/video-verifications/${id}`);
   },
+  streamVideo(id) {
+    return api.get(`/video-verifications/${id}/stream`, {
+      responseType: 'blob',
+    });
+  },
   approve(id, data) {
     return api.put(`/video-verifications/${id}`, {
       status: 'verified',

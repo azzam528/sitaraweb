@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import videoService from '../../services/video.service'
 import DetailHeader from '@/components/common/DetailHeader.vue'
@@ -18,6 +18,11 @@ export default defineComponent({
     const isSubmitting = ref(false)
     const notes = ref('')
 
+    // Video Stream State
+    const videoBlobUrl = ref('')
+    const isVideoLoading = ref(true)
+    const videoError = ref('')
+
     // Toast Alert
     const alertMessage = ref('')
     const alertType = ref('success')
@@ -30,11 +35,29 @@ export default defineComponent({
       }, 4000)
     }
 
+    const loadVideoStream = async (id) => {
+      isVideoLoading.value = true
+      videoError.value = ''
+      if (videoBlobUrl.value) {
+        URL.revokeObjectURL(videoBlobUrl.value)
+        videoBlobUrl.value = ''
+      }
+      try {
+        const streamRes = await videoService.streamVideo(id)
+        const blob = new Blob([streamRes.data], { type: 'video/mp4' })
+        videoBlobUrl.value = URL.createObjectURL(blob)
+      } catch (err) {
+        console.error('Failed to stream video:', err)
+        videoError.value = 'Video evidence tidak dapat dimuat dari server.'
+      } finally {
+        isVideoLoading.value = false
+      }
+    }
+
     const loadVideoDetail = async () => {
       isLoading.value = true
       try {
         const id = String(route.params.id || '1')
-        const numId = parseInt(id) || 1
 
         try {
           const res = await videoService.getById(id)
@@ -114,6 +137,9 @@ export default defineComponent({
               review_note: item.review_note || '',
             }
             notes.value = videoData.value.notes || ''
+
+            // Load protected video stream
+            await loadVideoStream(item.id)
             return
           }
         } catch (apiErr) {
@@ -131,6 +157,27 @@ export default defineComponent({
     onMounted(() => {
       loadVideoDetail()
     })
+
+    onBeforeUnmount(() => {
+      if (videoBlobUrl.value) {
+        URL.revokeObjectURL(videoBlobUrl.value)
+        videoBlobUrl.value = ''
+      }
+    })
+
+    const downloadVideoBlob = () => {
+      if (!videoBlobUrl.value) {
+        showAlert('Video belum siap untuk diunduh.', 'warning')
+        return
+      }
+      const a = document.createElement('a')
+      a.href = videoBlobUrl.value
+      a.download = `video_evidence_${videoData.value?.id || 'vot'}.mp4`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      showAlert('Video evidence berhasil diunduh.', 'success')
+    }
 
     // Action Handlers
     const handleApprove = async () => {
@@ -193,10 +240,25 @@ export default defineComponent({
       if (!videoData.value) return
       isSubmitting.value = true
       try {
-        videoData.value.status = 'pending'
-        showAlert('Status video diperbarui: Menunggu Tinjauan Ulang Nakes.', 'info')
+        const response = await videoService.update(videoData.value.id, {
+          status: 'pending',
+          review_note: notes.value?.trim() || null,
+        })
+        if (response?.data) {
+          videoData.value = {
+            ...videoData.value,
+            ...response.data,
+            notes: response.data.review_note || notes.value,
+            review_note: response.data.review_note || notes.value,
+          }
+        }
+        showAlert('Catatan tinjauan berhasil disimpan. Status verifikasi tetap menunggu keputusan Nakes.', 'info')
       } catch (error) {
-        showAlert('Gagal memperbarui status review', 'danger')
+        console.error('Failed to save review note:', error)
+        showAlert(
+          error.response?.data?.detail || 'Gagal menyimpan catatan tinjauan. Silakan coba lagi.',
+          'danger',
+        )
       } finally {
         isSubmitting.value = false
       }
@@ -275,6 +337,11 @@ export default defineComponent({
       isLoading,
       isSubmitting,
       notes,
+      videoBlobUrl,
+      isVideoLoading,
+      videoError,
+      loadVideoStream,
+      downloadVideoBlob,
       alertMessage,
       alertType,
       showAlert,
