@@ -19,6 +19,7 @@ const {
   finishAndRedirect,
   viewNewPatientDetail,
   addAnotherPatient,
+  maxBirthDateStr,
 } = usePatientAddView();
 </script>
 
@@ -170,6 +171,7 @@ const {
                 <input
                   v-model="formData.dob"
                   type="date"
+                  :max="maxBirthDateStr"
                   class="form-control"
                   required
                 />
@@ -456,7 +458,7 @@ const {
                 <div>• Username: <strong>{{ createdCredentials.username }}</strong></div>
               </div>
               <p class="wa-bubble-link">
-                👉 <span class="wa-link-text">{{ createdCredentials.activationUrl }}</span>
+                <span class="wa-link-text">{{ createdCredentials.activationUrl }}</span>
               </p>
               <span class="wa-bubble-time">Baru Saja • Otomatis</span>
             </div>

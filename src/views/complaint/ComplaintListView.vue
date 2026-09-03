@@ -221,13 +221,6 @@
                     <div class="patient-meta text-xs text-muted">
                       NIK: {{ comp.treatment?.patient?.nik || "-" }}
                     </div>
-
-                    <div class="patient-meta text-xs text-muted">
-                      No. RM:
-                      {{
-                        comp.treatment?.patient?.medical_record_number || "-"
-                      }}
-                    </div>
                   </div>
                 </div>
               </td>

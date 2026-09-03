@@ -1,4 +1,4 @@
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import complaintService from '../../services/complaint.service'
 import DetailHeader from '@/components/common/DetailHeader.vue'
@@ -35,6 +35,15 @@ export default defineComponent({
     onMounted(() => {
       loadComplaintDetail()
     })
+
+    watch(
+      () => route.params.id,
+      (newId) => {
+        if (newId) {
+          loadComplaintDetail()
+        }
+      }
+    )
 
     const loadComplaintDetail = async () => {
       isLoading.value = true

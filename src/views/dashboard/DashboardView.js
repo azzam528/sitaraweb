@@ -5,8 +5,6 @@ import { useDashboardStore } from "@/stores/dashboard";
 import { useAuthStore } from "@/stores/auth";
 import patientService from "@/services/patient.service";
 import treatmentService from "@/services/treatment.service";
-import refillService from "@/services/refill.service";
-import complaintService from "@/services/complaint.service";
 
 import mobiledoctorIMG from "@/assets/images/mobile-doctor.png";
 
@@ -16,8 +14,6 @@ export function useDashboardView() {
   const authStore = useAuthStore();
 
   const monitoredPatients = ref([]);
-  const customActivities = ref([]);
-  const customTrend = ref([]);
 
   // Navigation
   const goToPatients = () => router.push("/dashboard/patients");
@@ -36,11 +32,14 @@ export function useDashboardView() {
     return (
       dashboardStore.summary || {
         active_patients: 0,
-        medication_adherence: 0,
-        tb_ro_patients: 0,
-        high_risk_patients: 0,
+        active_treatments: 0,
+        completed_treatments: 0,
+        medication_adherence: null,
+        today_verifications: 0,
         today_complaints: 0,
         critical_stock_items: 0,
+        high_risk_patients: 0,
+        tb_ro_patients: 0,
       }
     );
   });
@@ -55,55 +54,44 @@ export function useDashboardView() {
     );
   });
 
-  // Tren Kepatuhan (7 Hari)
-  const adherenceTrend = computed(() => {
-    if (
-      dashboardStore.adherenceTrend &&
-      dashboardStore.adherenceTrend.length >= 3
-    ) {
-      return dashboardStore.adherenceTrend;
+  // Treatment Status Distribution from Database
+  const statusData = computed(() => ({
+    active: summary.value.active_treatments ?? 0,
+    completed: summary.value.completed_treatments ?? 0,
+  }));
+
+  // Dynamic Donut Gradient
+  const donutGradient = computed(() => {
+    const active = statusData.value.active;
+    const completed = statusData.value.completed;
+    const total = active + completed;
+    if (total === 0) {
+      return "conic-gradient(#e2e8f0 0% 100%)";
     }
-    if (customTrend.value.length > 0) {
-      return customTrend.value;
+    if (completed === 0) {
+      return "conic-gradient(#006591 0% 100%)";
     }
-    // Fallback 7-day trend based on current adherence
-    const base = summary.value.medication_adherence || 92;
-    const offsets = [-2, 1, 3, -1, 2, 4, 1];
-    const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
-    return days.map((day, idx) => ({
-      label: day,
-      value: Math.min(100, Math.max(70, base + offsets[idx])),
-    }));
+    if (active === 0) {
+      return "conic-gradient(#16a34a 0% 100%)";
+    }
+    const activePct = Math.round((active / total) * 100);
+    return `conic-gradient(#006591 0% ${activePct}%, #16a34a ${activePct}% 100%)`;
   });
 
-  // Aktivitas Terbaru (Maksimal 3 - 5)
+  // Tren Kepatuhan (7 Hari dari Database - Single Source of Truth)
+  const adherenceTrend = computed(() => {
+    return dashboardStore.adherenceTrend || [];
+  });
+
+  const hasTrendData = computed(() => {
+    return adherenceTrend.value.some(
+      (item) => item && item.percentage !== null && item.percentage !== undefined
+    );
+  });
+
+  // Aktivitas Terbaru (Maksimal 5, Real-time dari Database)
   const recentActivities = computed(() => {
-    if (customActivities.value.length > 0) {
-      return customActivities.value.slice(0, 5);
-    }
-    if (
-      dashboardStore.recentActivities &&
-      dashboardStore.recentActivities.length > 0
-    ) {
-      return dashboardStore.recentActivities.slice(0, 5);
-    }
-    return [
-      {
-        type: "primary",
-        text: "Sistem SITARA beroperasi normal.",
-        time: "Hari ini",
-      },
-      {
-        type: "success",
-        text: "Sinkronisasi data kepatuhan pengobatan selesai.",
-        time: "Hari ini",
-      },
-      {
-        type: "warning",
-        text: "Pemantauan berkala pasien aktif berlangsung.",
-        time: "Hari ini",
-      },
-    ];
+    return (dashboardStore.recentActivities || []).slice(0, 5);
   });
 
   const criticalStock = computed(() => {
@@ -120,17 +108,20 @@ export function useDashboardView() {
   const isLoading = computed(() => dashboardStore.loading);
 
   const complianceAverage = computed(() => {
-    if (adherenceTrend.value.length > 0) {
-      const sum = adherenceTrend.value.reduce(
-        (acc, item) => acc + (typeof item.value === "number" ? item.value : 90),
-        0,
-      );
-      return Math.round(sum / adherenceTrend.value.length);
+    if (summary.value.medication_adherence !== null && summary.value.medication_adherence !== undefined) {
+      return summary.value.medication_adherence;
     }
-    return summary.value.medication_adherence || 92;
+    const validTrends = adherenceTrend.value.filter(
+      (item) => item && item.percentage !== null && item.percentage !== undefined && !isNaN(item.percentage)
+    );
+    if (validTrends.length > 0) {
+      const sum = validTrends.reduce((acc, item) => acc + item.percentage, 0);
+      return Math.round((sum / validTrends.length) * 10) / 10;
+    }
+    return null;
   });
 
-  // Stats
+  // Stats KPI Cards
   const patientStats = computed(() => [
     {
       label: "Pasien Aktif",
@@ -141,19 +132,17 @@ export function useDashboardView() {
     },
     {
       label: "Kepatuhan Obat",
-      value: `${complianceAverage.value}%`,
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 11"></polyline></svg>`,
+      value: complianceAverage.value !== null ? `${complianceAverage.value}%` : "Belum ada data konsumsi",
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><polyline points="9 14 11 16 15 11"></polyline></svg>`,
       color: "#22C55E",
       bgColor: "#dcfce7",
     },
     {
-      label: "Risiko / TB RO",
-      value: String(
-        summary.value.tb_ro_patients ?? summary.value.high_risk_patients ?? 0,
-      ),
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
-      color: "#EF4444",
-      bgColor: "#fee2e2",
+      label: "Verifikasi Hari Ini",
+      value: String(summary.value.today_verifications ?? 0),
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/><path d="m7 12 2 2 4-4"/></svg>`,
+      color: "#8B5CF6",
+      bgColor: "#ede9fe",
     },
     {
       label: "Keluhan Hari Ini",
@@ -188,22 +177,42 @@ export function useDashboardView() {
     return labels[index] || "";
   };
 
-  const statusData = ref({
-    active: 0,
-    completed: 0,
-  });
+  const getInitials = (name) => {
+    if (!name) return "P";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
-  const formatTimeAgo = (dateString) => {
-    if (!dateString) return "Baru saja";
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return "Hari ini";
-    const now = new Date();
-    const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-    if (diffHours <= 0) return "Hari ini";
-    if (diffHours < 24) return `${diffHours} jam yang lalu`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return "Kemarin";
-    return `${diffDays} hari yang lalu`;
+  // Format activity timestamp (e.g. "26 Agu 2026 • 17:04 WIB")
+  const formatActivityDate = (dateStr) => {
+    if (!dateStr) return "Baru saja";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+
+    const day = d.getDate();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+
+    return `${day} ${month} ${year} • ${hours}:${minutes} WIB`;
   };
 
   // Lifecycle
@@ -214,112 +223,40 @@ export function useDashboardView() {
       console.warn("Dashboard store fetch error:", e);
     }
 
-    // Fetch real data to construct rich activities & monitoring
+    // Fetch real patient & treatment data for monitoring list
     try {
-      const [patRes, treatRes, refillRes, compRes] = await Promise.allSettled([
+      const [patRes, treatRes] = await Promise.allSettled([
         patientService.getAll(),
         treatmentService.getAll(),
-        refillService.getAll(),
-        complaintService.getAll(),
       ]);
 
-      const activities = [];
+      const patients =
+        patRes.status === "fulfilled" && Array.isArray(patRes.value.data)
+          ? patRes.value.data
+          : [];
+      const treatments =
+        treatRes.status === "fulfilled" && Array.isArray(treatRes.value.data)
+          ? treatRes.value.data
+          : [];
 
-      // 1. Patients
-      if (patRes.status === "fulfilled" && Array.isArray(patRes.value.data)) {
-        const patients = patRes.value.data;
-        monitoredPatients.value = patients.slice(0, 4).map((p) => ({
+      monitoredPatients.value = patients.slice(0, 4).map((p) => {
+        const t = treatments.find((item) => Number(item.patient_id) === Number(p.id));
+        let daysLeft = 0;
+        if (t && t.therapy_end_date) {
+          const end = new Date(t.therapy_end_date);
+          const now = new Date();
+          daysLeft = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+        }
+        return {
           id: p.id,
-          name: p.full_name || p.name,
-          reason: p.clinical_note
-            ? p.clinical_note.slice(0, 45) + "..."
-            : "Pemantauan Pengobatan Rutin",
-          level: "Aktif Terapi",
-          badge: "Aktif",
-          levelColor: "primary",
-          badgeColor: "primary",
+          name: p.full_name || p.name || "Pasien",
+          nik: p.nik || "-",
+          daysLeft: daysLeft,
           phone: p.phone,
-        }));
-
-        statusData.value.active = patients.length;
-
-        patients.slice(0, 3).forEach((p) => {
-          activities.push({
-            id: `pat-${p.id}`,
-            type: "primary",
-            text: `Pasien baru terdaftar: ${p.full_name || p.name}`,
-            time: formatTimeAgo(p.created_at),
-            rawDate: p.created_at ? new Date(p.created_at) : new Date(0),
-          });
-        });
-      }
-
-      // 2. Treatments
-      if (
-        treatRes.status === "fulfilled" &&
-        Array.isArray(treatRes.value.data)
-      ) {
-        const treatments = treatRes.value.data;
-        treatments.slice(0, 3).forEach((t) => {
-          activities.push({
-            id: `treat-${t.id}`,
-            type: "success",
-            text: `Program terapi berjalan: ${t.patient?.full_name || "Pasien #" + t.patient_id}`,
-            time: formatTimeAgo(t.therapy_start_date || t.created_at),
-            rawDate: t.therapy_start_date
-              ? new Date(t.therapy_start_date)
-              : new Date(0),
-          });
-        });
-      }
-
-      // 3. Refills
-      if (
-        refillRes.status === "fulfilled" &&
-        Array.isArray(refillRes.value.data)
-      ) {
-        const refills = refillRes.value.data;
-        refills.slice(0, 2).forEach((r) => {
-          activities.push({
-            id: `refill-${r.id}`,
-            type: "warning",
-            text: `Pengajuan refill obat dari ${r.treatment?.patient?.full_name || "Pasien"}`,
-            time: formatTimeAgo(r.request_date || r.created_at),
-            rawDate: r.request_date ? new Date(r.request_date) : new Date(0),
-          });
-        });
-      }
-
-      // 4. Complaints
-      if (compRes.status === "fulfilled" && Array.isArray(compRes.value.data)) {
-        const complaints = compRes.value.data;
-        complaints.slice(0, 2).forEach((c) => {
-          activities.push({
-            id: `comp-${c.id}`,
-            type: "danger",
-            text: `Laporan keluhan ${c.category || "klinis"} tercatat`,
-            time: formatTimeAgo(c.created_at),
-            rawDate: c.created_at ? new Date(c.created_at) : new Date(0),
-          });
-        });
-      }
-
-      if (activities.length > 0) {
-        // Sort newest first and limit to max 5
-        activities.sort((a, b) => b.rawDate - a.rawDate);
-        customActivities.value = activities.slice(0, 5);
-      }
-
-      // Dynamic 7-day adherence trend computed with realistic data variance
-      const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
-      const base = summary.value.medication_adherence || 92;
-      const offsets = [-2, 1, 3, -1, 2, 4, 1];
-      customTrend.value = days.map((day, idx) => ({
-        label: day,
-        value: Math.min(100, Math.max(70, base + offsets[idx])),
-      }));
+        };
+      });
     } catch (e) {
-      console.warn("Dashboard data aggregation error:", e);
+      console.warn("Dashboard monitoring fetch error:", e);
     }
   });
 
@@ -338,6 +275,7 @@ export function useDashboardView() {
     summary,
     risk,
     statusData,
+    donutGradient,
     monitoredPatients,
     adherenceTrend,
     recentActivities,
@@ -348,9 +286,12 @@ export function useDashboardView() {
     isLoading,
     currentUserName,
     complianceAverage,
+    hasTrendData,
 
     getTrendValue,
     getTrendLabel,
+    getInitials,
+    formatActivityDate,
   };
 }
 

@@ -200,46 +200,20 @@ export default defineComponent({
       }
     ])
 
-    const fallbackPatientList = [
-      { full_name: 'Ahmad Fauzi', nik: '3273012304950001' },
-      { full_name: 'Dewi Sartika', nik: '3273014506920002' },
-      { full_name: 'Bambang Pamungkas', nik: '3201015502940001' },
-      { full_name: 'Siti Mariam', nik: '3201015502940002' },
-      { full_name: 'Rahmat Kurnia', nik: '3201015502940003' },
-      { full_name: 'Andi Darmawan', nik: '3201015502940004' },
-      { full_name: 'Nita Kusuma', nik: '3201015502940005' },
-      { full_name: 'Hendra Gunawan', nik: '3273011208880003' },
-      { full_name: 'Ratna Sari', nik: '3273016709940004' },
-      { full_name: 'Budi Santoso', nik: '3273012211900005' },
-      { full_name: 'Eka Prasetya', nik: '3273011503930006' },
-      { full_name: 'Maya Indah', nik: '3273015407960007' }
-    ]
-
     // Load data from Database via API
     const loadVideos = async () => {
       isLoading.value = true
       try {
-        const [videoRes, patientRes] = await Promise.allSettled([
-          videoService.getAll(),
-          import('../../services/patient.service').then(m => m.default.getAll())
-        ])
+        const videoRes = await videoService.getAll()
 
-        const patients = (patientRes.status === 'fulfilled' && patientRes.value?.data && Array.isArray(patientRes.value.data)) ? patientRes.value.data : []
-        const patientMap = new Map()
-        patients.forEach(p => patientMap.set(p.id, p))
+        if (videoRes?.data && Array.isArray(videoRes.data)) {
+          tableData.value = videoRes.data.map((item) => {
+            const patientName = item.patient?.full_name || 'Pasien TB'
+            const nik = item.patient?.nik || '-'
+            const rawScore = item.ai_confidence != null
+              ? (item.ai_confidence > 1 ? Math.round(item.ai_confidence) : Math.round(item.ai_confidence * 100))
+              : (item.status === 'verified' ? 95 : item.status === 'rejected' ? 35 : 65)
 
-        if (videoRes.status === 'fulfilled' && videoRes.value?.data && Array.isArray(videoRes.value.data) && videoRes.value.data.length > 0) {
-          tableData.value = videoRes.value.data.map((item, idx) => {
-            const pObj = item.patient || 
-                         patientMap.get(item.patient_id) || 
-                         patientMap.get(item.medicine_schedule_id) || 
-                         (patients.length ? patients[idx % patients.length] : null) || 
-                         fallbackPatientList[idx % fallbackPatientList.length]
-
-            const patientName = pObj?.full_name || pObj?.name || fallbackPatientList[idx % fallbackPatientList.length].full_name
-            const nik = pObj?.nik || fallbackPatientList[idx % fallbackPatientList.length].nik
-            const rawScore = item.ai_confidence ? (item.ai_confidence > 1 ? Math.round(item.ai_confidence) : Math.round(item.ai_confidence * 100)) : (item.overall_score || 0)
-            
             let aiStatus = 'Diverifikasi'
             let reviewStatus = 'Otomatis-Konfirmasi'
             if (item.status === 'pending' || item.status === 'review' || rawScore < 80) {

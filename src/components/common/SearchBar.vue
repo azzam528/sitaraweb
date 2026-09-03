@@ -65,7 +65,7 @@ const clearSearch = () => {
   display: flex;
   align-items: center;
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
 }
 
 .search-icon {

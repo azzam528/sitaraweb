@@ -117,7 +117,7 @@ const handleSort = (key) => {
   border: 1px solid var(--color-border-light, #E2E8F0);
   background-color: var(--color-card, #FFFFFF);
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
 }
 
 .table-responsive {

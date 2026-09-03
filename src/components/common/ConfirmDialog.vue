@@ -91,7 +91,7 @@ const handleCancel = () => {
   align-items: center;
   text-align: center;
   padding: 1rem 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
 }
 
 .icon-container {

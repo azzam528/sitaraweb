@@ -83,11 +83,9 @@ const {
           <strong>NIK:</strong> {{ patient.nik || '-' }}
         </span>
         <span class="meta-dot">&bull;</span>
-        <span class="meta-item">{{ calculateAge(patient.birth_date) }} Tahun</span>
-        <span class="meta-dot">&bull;</span>
-        <span class="meta-item">{{ formatGender(patient.gender) }}</span>
-        <span class="meta-dot">&bull;</span>
-        <span class="meta-item">{{ patient.address || '-' }}</span>
+        <span class="meta-item">
+          <strong>No. RM:</strong> {{ patient.medical_record_number || '-' }}
+        </span>
       </template>
 
       <template #actions>

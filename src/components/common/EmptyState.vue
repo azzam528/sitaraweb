@@ -57,7 +57,7 @@ defineEmits(['action'])
   justify-content: center;
   padding: 3rem 1.5rem;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
   height: 100%;
   min-height: 200px;
 }

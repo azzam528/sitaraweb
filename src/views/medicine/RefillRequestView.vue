@@ -65,7 +65,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">MENUNGGU VERIFIKASI</span>
+          <span class="stat-label">MENUNGGU PERSETUJUAN</span>
           <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
@@ -180,9 +180,9 @@
           <label>Status Permintaan</label>
           <select v-model="filterStatus" class="form-control">
             <option value="">Semua Status</option>
-            <option value="pending">Menunggu (Pending)</option>
-            <option value="approved">Disetujui (Approved)</option>
-            <option value="rejected">Ditolak (Rejected)</option>
+            <option value="pending">Menunggu Persetujuan</option>
+            <option value="approved">Disetujui</option>
+            <option value="rejected">Ditolak</option>
           </select>
         </div>
 
@@ -267,57 +267,15 @@
               </td>
               <td>
                 <span class="status-badge" :class="'status-' + refill.status">
+                  <span class="status-dot"></span>
                   {{ formatStatus(refill.status) }}
                 </span>
               </td>
               <td class="text-center">
-                <!-- Action Buttons for Pending Requests -->
-                <div v-if="refill.status === 'pending'" class="quick-actions">
-                  <button
-                    class="btn-icon-approve"
-                    title="Setujui Permintaan"
-                    @click="openVerifyModal(refill, 'approved')"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Setujui
-                  </button>
-
-                  <button
-                    class="btn-icon-reject"
-                    title="Tolak Permintaan"
-                    @click="openVerifyModal(refill, 'rejected')"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    Tolak
-                  </button>
-
+                <div class="action-dropdown-wrapper">
                   <button
                     class="btn-more-actions"
+                    title="Opsi Aksi"
                     @click.stop="toggleDropdown(refill.id)"
                   >
                     <svg
@@ -343,6 +301,7 @@
                     class="dropdown-menu-floating"
                     @click.stop
                   >
+                    <!-- 1. Lihat Rincian (Semua status) -->
                     <button
                       class="dropdown-item"
                       @click="
@@ -350,18 +309,75 @@
                         activeDropdown = null;
                       "
                     >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
                       <span>Lihat Rincian</span>
                     </button>
+
+                    <!-- 2. Setujui (Hanya status pending) -->
                     <button
-                      v-if="refill.treatment?.patient?.phone"
-                      class="dropdown-item"
+                      v-if="refill.status === 'pending'"
+                      class="dropdown-item text-success"
                       @click="
-                        sendWhatsApp(refill);
+                        openVerifyModal(refill, 'approved');
                         activeDropdown = null;
                       "
                     >
-                      <span>Hubungi Pasien (WA)</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Setujui</span>
                     </button>
+
+                    <!-- 3. Tolak (Hanya status pending) -->
+                    <button
+                      v-if="refill.status === 'pending'"
+                      class="dropdown-item text-danger"
+                      @click="
+                        openVerifyModal(refill, 'rejected');
+                        activeDropdown = null;
+                      "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      <span>Tolak</span>
+                    </button>
+
+                    <!-- 4. Hapus Permintaan (Semua status) -->
                     <button
                       class="dropdown-item text-danger"
                       @click="
@@ -369,62 +385,20 @@
                         activeDropdown = null;
                       "
                     >
-                      <span>Hapus Permintaan</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Action Dropdown for Processed Requests -->
-                <div v-else class="action-dropdown-wrapper">
-                  <button
-                    class="btn btn-sm btn-outline"
-                    @click="openDetailModal(refill)"
-                  >
-                    Lihat Rincian
-                  </button>
-                  <button
-                    class="btn-more-actions"
-                    @click.stop="toggleDropdown(refill.id)"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="1"></circle>
-                      <circle cx="19" cy="12" r="1"></circle>
-                      <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                  </button>
-
-                  <div
-                    v-if="activeDropdown === refill.id"
-                    class="dropdown-menu-floating"
-                    @click.stop
-                  >
-                    <button
-                      v-if="refill.treatment?.patient?.phone"
-                      class="dropdown-item"
-                      @click="
-                        sendWhatsApp(refill);
-                        activeDropdown = null;
-                      "
-                    >
-                      <span>Hubungi Pasien (WA)</span>
-                    </button>
-                    <button
-                      class="dropdown-item text-danger"
-                      @click="
-                        confirmDelete(refill);
-                        activeDropdown = null;
-                      "
-                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
                       <span>Hapus Permintaan</span>
                     </button>
                   </div>
@@ -473,7 +447,7 @@
       </div>
     </div>
 
-    <!-- MODAL: Proses Permintaan Obat -->
+    <!-- MODAL: Proses Verifikasi Permintaan Obat (Approve / Reject) -->
     <div
       v-if="showVerifyModal"
       class="modal-backdrop"
@@ -630,7 +604,7 @@
               <div class="verify-section-title">
                 {{
                   verifyTargetStatus === "approved"
-                    ? "CATATAN TENAGA KESEHATAN"
+                    ? "CATATAN TENAGA KESEHATAN (OPSIONAL)"
                     : "ALASAN PENOLAKAN"
                 }}
 
@@ -645,15 +619,19 @@
               <textarea
                 v-model="verifyNurseNote"
                 class="verify-textarea"
-                rows="4"
+                rows="3"
                 :placeholder="
                   verifyTargetStatus === 'approved'
-                    ? 'Tambahkan catatan untuk pasien jika diperlukan...'
+                    ? 'Tambahkan instruksi untuk pasien, misalnya waktu atau lokasi pengambilan obat...'
                     : 'Tuliskan alasan penolakan permintaan obat...'
                 "
               ></textarea>
 
-              <small v-if="verifyTargetStatus === 'rejected'" class="form-hint">
+              <small v-if="verifyTargetStatus === 'approved'" class="form-hint text-muted">
+                Tambahkan instruksi untuk pasien, misalnya waktu atau lokasi pengambilan obat.
+              </small>
+
+              <small v-else class="form-hint text-danger font-medium">
                 Alasan penolakan wajib diisi.
               </small>
             </div>
@@ -760,8 +738,11 @@
                 <div class="patient-meta text-xs text-muted">
                   NIK: {{ selectedRefill?.treatment?.patient?.nik || "-" }} &bull; No. RM: {{ selectedRefill?.treatment?.patient?.medical_record_number || "-" }}
                 </div>
-                <div class="text-xs text-muted" v-if="selectedRefill?.treatment?.patient?.address">
+                <div class="text-xs text-muted mt-1" v-if="selectedRefill?.treatment?.patient?.address">
                   Alamat: {{ selectedRefill?.treatment?.patient?.address }}
+                </div>
+                <div class="text-xs text-muted" v-if="selectedRefill?.treatment?.patient?.phone">
+                  Telepon: {{ selectedRefill?.treatment?.patient?.phone }}
                 </div>
               </div>
             </div>
@@ -823,30 +804,69 @@
                   </span>
                 </span>
               </div>
-              <div class="kv-item" v-if="selectedRefill?.nurse_note">
+              <div class="kv-item" v-if="selectedRefill?.approved_at">
+                <span class="kv-label">Waktu Verifikasi</span>
+                <span class="kv-value">
+                  {{ formatDate(selectedRefill.approved_at) }}, {{ formatTime(selectedRefill.approved_at) }} WIB
+                </span>
+              </div>
+              <div class="kv-item full-width">
                 <span class="kv-label">Catatan Tenaga Kesehatan</span>
-                <span class="kv-value">{{ selectedRefill.nurse_note }}</span>
+                <div v-if="selectedRefill?.nurse_note" class="nurse-note-box">
+                  {{ selectedRefill.nurse_note }}
+                </div>
+                <span v-else class="kv-value text-muted italic">
+                  Belum ada catatan khusus dari tenaga kesehatan.
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-outline"
-            @click="showDetailModal = false"
-          >
-            Tutup
-          </button>
-          <button
-            v-if="selectedRefill?.treatment?.patient?.phone"
-            type="button"
-            class="btn btn-outline-success"
-            @click="sendWhatsApp(selectedRefill)"
-          >
-            Hubungi Pasien (WA)
-          </button>
+          <!-- Action buttons for Pending Status inside Detail Modal -->
+          <template v-if="selectedRefill?.status === 'pending'">
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              @click="openVerifyModal(selectedRefill, 'rejected'); showDetailModal = false"
+            >
+              Tolak
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              @click="openVerifyModal(selectedRefill, 'approved'); showDetailModal = false"
+            >
+              Setujui
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline"
+              @click="showDetailModal = false"
+            >
+              Tutup
+            </button>
+          </template>
+
+          <!-- Action buttons for Processed Status (Approved / Rejected) -->
+          <template v-else>
+            <button
+              type="button"
+              class="btn btn-outline"
+              @click="showDetailModal = false"
+            >
+              Tutup
+            </button>
+            <button
+              v-if="selectedRefill?.treatment?.patient?.phone"
+              type="button"
+              class="btn btn-outline-success"
+              @click="sendWhatsApp(selectedRefill)"
+            >
+              Hubungi Pasien (WA)
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -856,3 +876,4 @@
 <script src="./RefillRequestView.js"></script>
 
 <style scoped src="./RefillRequestView.css"></style>
+

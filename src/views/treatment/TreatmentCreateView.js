@@ -4,6 +4,33 @@ import { useRoute, useRouter } from "vue-router";
 import patientService from "@/services/patient.service";
 import treatmentService from "@/services/treatment.service";
 
+export const calculateTherapyEndDate = (startDateStr) => {
+  if (!startDateStr) return "";
+
+  const [year, month, day] = startDateStr.split("-").map(Number);
+  if (!year || !month || !day) return "";
+
+  const durationMonths = 6;
+
+  const targetDate = new Date(year, month - 1 + durationMonths, day);
+
+  // If date overflowed into next month, clamp to the last day of target month
+  const expectedMonth = (month - 1 + durationMonths) % 12;
+  if (targetDate.getMonth() !== expectedMonth) {
+    const clampedDate = new Date(year, month - 1 + durationMonths + 1, 0);
+    const clampedYear = clampedDate.getFullYear();
+    const clampedMonth = String(clampedDate.getMonth() + 1).padStart(2, "0");
+    const clampedDay = String(clampedDate.getDate()).padStart(2, "0");
+    return `${clampedYear}-${clampedMonth}-${clampedDay}`;
+  }
+
+  const targetYear = targetDate.getFullYear();
+  const targetMonth = String(targetDate.getMonth() + 1).padStart(2, "0");
+  const targetDay = String(targetDate.getDate()).padStart(2, "0");
+
+  return `${targetYear}-${targetMonth}-${targetDay}`;
+};
+
 export function useTreatmentCreateView() {
   const route = useRoute();
   const router = useRouter();
@@ -17,16 +44,17 @@ export function useTreatmentCreateView() {
 
   const patientId = route.params.id;
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const defaultEnd = new Date();
-  defaultEnd.setMonth(defaultEnd.getMonth() + 6);
-  const defaultEndStr = defaultEnd.toISOString().split("T")[0];
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const initialPhase = "intensive";
+  const initialEndDateStr = calculateTherapyEndDate(todayStr);
 
   const form = ref({
     diagnosis_date: todayStr,
     therapy_start_date: todayStr,
-    therapy_end_date: defaultEndStr,
-    phase: "intensive",
+    therapy_end_date: initialEndDateStr,
+    phase: initialPhase,
     regimen: "category_1",
     status: "active",
     doctor_note: "",
@@ -42,15 +70,19 @@ export function useTreatmentCreateView() {
 
   const onStartDateChange = () => {
     if (form.value.therapy_start_date) {
-      const start = new Date(form.value.therapy_start_date);
-      start.setMonth(start.getMonth() + 6);
-      form.value.therapy_end_date = start.toISOString().split("T")[0];
+      form.value.therapy_end_date = calculateTherapyEndDate(
+        form.value.therapy_start_date,
+      );
     }
   };
 
+  const onPhaseChange = () => {
+    // Perubahan phase tidak mengubah therapy_end_date (total durasi terapi 6 bulan)
+  };
+
   const formatPhase = (phase) => {
-    if (phase === "intensive") return "Fase Intensif";
-    if (phase === "continuation") return "Fase Lanjutan";
+    if (phase === "intensive") return "Fase Intensif (2 Bulan)";
+    if (phase === "continuation") return "Fase Lanjutan (4 Bulan)";
     return phase || "-";
   };
 
@@ -117,22 +149,32 @@ export function useTreatmentCreateView() {
       return;
     }
 
+    // Validation: therapy_end_date >= therapy_start_date
+    if (form.value.therapy_start_date && form.value.therapy_end_date) {
+      if (form.value.therapy_end_date < form.value.therapy_start_date) {
+        error.value =
+          "Tanggal selesai terapi tidak boleh lebih awal dari tanggal mulai terapi.";
+        return;
+      }
+    }
+
     submitting.value = true;
     error.value = null;
 
     try {
-      let defaultEndDate = form.value.therapy_end_date;
-      if (!defaultEndDate && form.value.therapy_start_date) {
-        const start = new Date(form.value.therapy_start_date);
-        start.setMonth(start.getMonth() + 6);
-        defaultEndDate = start.toISOString().split("T")[0];
-      }
+      const fallbackEndDate = calculateTherapyEndDate(
+        form.value.therapy_start_date,
+        form.value.phase,
+      );
 
       const payload = {
         patient_id: Number(patientId),
         diagnosis_date: form.value.diagnosis_date,
         therapy_start_date: form.value.therapy_start_date,
-        therapy_end_date: defaultEndDate || form.value.therapy_start_date,
+        therapy_end_date:
+          form.value.therapy_end_date ||
+          fallbackEndDate ||
+          form.value.therapy_start_date,
         phase: form.value.phase || "intensive",
         regimen: form.value.regimen || "category_1",
         status: form.value.status || "active",
@@ -195,6 +237,7 @@ export function useTreatmentCreateView() {
 
     form,
     onStartDateChange,
+    onPhaseChange,
     formatPhase,
     formatDate,
 

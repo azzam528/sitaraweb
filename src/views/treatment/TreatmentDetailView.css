@@ -698,6 +698,83 @@
 }
 
 /* ---------------------------------------------------- */
+/* PHASE ALERT BANNER & ACTIONS */
+/* ---------------------------------------------------- */
+.phase-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background-color: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.phase-alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.phase-alert-content {
+  flex-grow: 1;
+}
+
+.phase-alert-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 4px 0;
+}
+
+.phase-alert-desc {
+  font-size: 13.5px;
+  color: #78350f;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.phase-alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff !important;
+  border-color: #b45309;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25);
+}
+
+.btn-xs {
+  padding: 3px 10px;
+  font-size: 11.5px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.ml-2 {
+  margin-left: 8px;
+}
+
+.text-amber-700 {
+  color: #b45309 !important;
+}
+
+/* ---------------------------------------------------- */
 /* RESPONSIVE DESIGN */
 /* ---------------------------------------------------- */
 @media (max-width: 1024px) {
@@ -733,5 +810,10 @@
 
   .detail-val {
     text-align: left;
+  }
+
+  .phase-alert-banner {
+    flex-direction: column;
+    gap: 12px;
   }
 }

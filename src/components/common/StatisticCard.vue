@@ -56,7 +56,7 @@ defineProps({
   border: 1px solid var(--color-border-light, #E2E8F0);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

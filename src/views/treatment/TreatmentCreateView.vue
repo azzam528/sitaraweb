@@ -160,20 +160,22 @@
             />
           </div>
 
-          <!-- THERAPY END -->
+          <!-- THERAPY END (ESTIMASI SELESAI - READONLY) -->
           <div class="form-group">
             <label for="therapy_end_date">
-              Tanggal Selesai Terapi (Estimasi)
-              <span class="required">*</span>
+              Estimasi Selesai Terapi
             </label>
             <input
               id="therapy_end_date"
-              v-model="form.therapy_end_date"
-              type="date"
-              class="form-control"
-              :disabled="hasActiveTreatment"
-              required
+              type="text"
+              :value="formatDate(form.therapy_end_date)"
+              class="form-control readonly-calculated"
+              readonly
+              tabindex="-1"
             />
+            <small class="form-hint text-muted">
+              Dihitung otomatis 6 bulan dari tanggal mulai terapi.
+            </small>
           </div>
 
           <!-- PHASE -->
@@ -186,6 +188,7 @@
               id="phase"
               v-model="form.phase"
               class="form-control"
+              @change="onPhaseChange"
               :disabled="hasActiveTreatment"
               required
             >
@@ -307,6 +310,7 @@ const {
   error,
   form,
   onStartDateChange,
+  onPhaseChange,
   formatPhase,
   formatDate,
   submitTreatment,

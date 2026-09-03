@@ -39,7 +39,7 @@ defineProps({
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-base, 'Plus Jakarta Sans', 'Inter', sans-serif);
   font-weight: 500;
   white-space: nowrap;
   border-radius: 4px; /* default */
