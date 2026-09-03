@@ -113,7 +113,7 @@ const authStore = useAuthStore()
 const openSubmenu = ref(null)
 
 const currentMenu = computed(() => {
-  return authStore.userRole === 'admin' ? ADMIN_SIDEBAR_MENU : SIDEBAR_MENU;
+  return authStore.userRole?.toLowerCase() === 'admin' ? ADMIN_SIDEBAR_MENU : SIDEBAR_MENU;
 })
 
 const isActive = (item) => {

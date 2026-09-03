@@ -40,6 +40,9 @@ const activeFacilities = computed(() =>
 const goToFacilities = () => router.push('/dashboard/admin/facilities')
 const goToNakes = () => router.push('/dashboard/admin/nakes')
 const goToCreateNakes = () => router.push('/dashboard/admin/nakes/create')
+
+const recentFacilities = computed(() => facilities.value.slice(0, 5))
+const recentNakes = computed(() => nakesList.value.slice(0, 5))
 </script>
 
 <template>
@@ -152,9 +155,109 @@ const goToCreateNakes = () => router.push('/dashboard/admin/nakes/create')
         </div>
       </div>
     </div>
+
+    <!-- Recent Data Panels -->
+    <div class="recent-panels-grid">
+      <!-- Fasilitas Panel -->
+      <div class="card panel-card">
+        <div class="panel-header">
+          <h3 class="panel-title">Fasilitas Kesehatan Terbaru</h3>
+          <button class="btn btn-outline btn-sm" @click="goToFacilities">Lihat Semua</button>
+        </div>
+        <div class="panel-content">
+          <div v-if="recentFacilities.length === 0" class="empty-state text-muted" style="padding: 24px; text-align: center;">Belum ada fasilitas terdaftar.</div>
+          <div v-else class="list-group">
+            <div v-for="facility in recentFacilities" :key="facility.id" class="list-item">
+              <div class="item-info">
+                <div class="item-title" style="font-weight: 600; color: #1E293B;">{{ facility.name }}</div>
+                <div class="item-subtitle text-muted" style="font-size: 0.8125rem; margin-top: 4px;">{{ facility.address || 'Alamat belum tersedia' }}</div>
+              </div>
+              <div class="item-status">
+                <span class="status-badge" :class="facility.is_active ? 'status-low' : 'status-high'" style="font-size: 0.75rem;">
+                  {{ facility.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nakes Panel -->
+      <div class="card panel-card">
+        <div class="panel-header">
+          <h3 class="panel-title">Tenaga Kesehatan Terbaru</h3>
+          <button class="btn btn-outline btn-sm" @click="goToNakes">Lihat Semua</button>
+        </div>
+        <div class="panel-content">
+          <div v-if="recentNakes.length === 0" class="empty-state text-muted" style="padding: 24px; text-align: center;">Belum ada Nakes terdaftar.</div>
+          <div v-else class="list-group">
+            <div v-for="nakes in recentNakes" :key="nakes.id" class="list-item">
+              <div class="item-info">
+                <div class="item-title" style="font-weight: 600; color: #1E293B;">{{ nakes.username }}</div>
+                <div class="item-subtitle text-muted" style="font-size: 0.8125rem; margin-top: 4px;">{{ nakes.email || 'Email belum tersedia' }} &bull; {{ nakes.facility_name || 'Tanpa Faskes' }}</div>
+              </div>
+              <div class="item-status">
+                <span class="status-badge" :class="nakes.is_active ? 'status-low' : 'status-high'" style="font-size: 0.75rem;">
+                  {{ nakes.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 @import '@/views/dashboard/DashboardView.css';
+
+.recent-panels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.panel-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.panel-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+
+.list-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+}
 </style>

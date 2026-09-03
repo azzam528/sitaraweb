@@ -23,6 +23,11 @@ const activeFacilities = computed(() =>
   facilities.value.filter(f => f.is_active)
 )
 
+const selectedFacility = computed(() => {
+  if (!formData.value.facility_id) return null
+  return facilities.value.find(f => f.id === formData.value.facility_id) || null
+})
+
 onMounted(async () => {
   try {
     const res = await adminService.getFacilities()
@@ -140,75 +145,114 @@ const finishAndRedirect = () => {
     </div>
 
     <form class="add-form" @submit.prevent="saveNakes">
-      <div class="grid-layout">
-        <div class="left-col" style="flex: 1; max-width: 800px; margin: 0 auto;">
-          <div class="card form-card">
-            <div class="card-header-flex">
-              <div class="card-title-group">
-                <span class="step-badge">1</span>
-                <h3 class="card-title">Informasi Akun Nakes</h3>
+      <div class="grid-layout" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+        <div class="card form-card">
+          <div class="card-header-flex">
+            <div class="card-title-group">
+              <span class="step-badge">1</span>
+              <h3 class="card-title">Informasi Akun Nakes</h3>
+            </div>
+            <span class="badge-tag">Wajib Diisi</span>
+          </div>
+
+          <div class="form-group">
+            <label>
+              Username
+              <span class="required">*</span>
+            </label>
+            <input
+              v-model="formData.username"
+              type="text"
+              class="form-control"
+              placeholder="Contoh: nakes_cimenyan"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>
+              Email
+              <span class="required">*</span>
+            </label>
+            <input
+              v-model="formData.email"
+              type="email"
+              class="form-control"
+              placeholder="Contoh: nakes@puskesmas.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>
+              Password Awal
+              <span class="required">*</span>
+            </label>
+            <input
+              v-model="formData.password"
+              type="password"
+              class="form-control"
+              placeholder="Minimal 8 karakter"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="card form-card">
+          <div class="card-header-flex">
+            <div class="card-title-group">
+              <span class="step-badge">2</span>
+              <h3 class="card-title">Penempatan Tenaga Kesehatan</h3>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              Fasilitas Kesehatan
+              <span class="required">*</span>
+            </label>
+            <select v-model="formData.facility_id" class="form-select" required :disabled="isLoadingFacilities">
+              <option value="" disabled>Pilih Fasilitas Kesehatan</option>
+              <option v-if="isLoadingFacilities" value="" disabled>Memuat data...</option>
+              <template v-if="!isLoadingFacilities && activeFacilities.length === 0">
+                <option value="" disabled>Tidak ada fasilitas aktif tersedia</option>
+              </template>
+              <option v-for="facility in activeFacilities" :key="facility.id" :value="facility.id">
+                {{ facility.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Facility Details -->
+          <div v-if="selectedFacility" class="facility-details" style="margin-top: 16px; padding: 16px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+            <h4 style="margin: 0 0 12px 0; font-size: 0.9375rem; font-weight: 600; color: #1E293B;">Detail Fasilitas</h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.875rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Nama:</span>
+                <span style="font-weight: 500; color: #0F172A; text-align: right;">{{ selectedFacility.name }}</span>
               </div>
-              <span class="badge-tag">Wajib Diisi</span>
+              
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Alamat:</span>
+                <span style="font-weight: 500; color: #0F172A; text-align: right;">{{ selectedFacility.address || '-' }}</span>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Telepon:</span>
+                <span style="font-weight: 500; color: #0F172A; text-align: right;">{{ selectedFacility.phone || '-' }}</span>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Status:</span>
+                <span class="status-badge" :class="selectedFacility.is_active ? 'status-low' : 'status-high'" style="font-size: 0.75rem; padding: 2px 8px;">
+                  {{ selectedFacility.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
+              </div>
             </div>
-
-            <div class="form-group">
-              <label>
-                Username
-                <span class="required">*</span>
-              </label>
-              <input
-                v-model="formData.username"
-                type="text"
-                class="form-control"
-                placeholder="Contoh: nakes_cimenyan"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label>
-                Email
-                <span class="required">*</span>
-              </label>
-              <input
-                v-model="formData.email"
-                type="email"
-                class="form-control"
-                placeholder="Contoh: nakes@puskesmas.com"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label>
-                Password Awal
-                <span class="required">*</span>
-              </label>
-              <input
-                v-model="formData.password"
-                type="password"
-                class="form-control"
-                placeholder="Minimal 8 karakter"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label>
-                Fasilitas Kesehatan Tempat Bertugas
-                <span class="required">*</span>
-              </label>
-              <select v-model="formData.facility_id" class="form-select" required :disabled="isLoadingFacilities">
-                <option value="" disabled>Pilih Fasilitas Kesehatan</option>
-                <option v-if="isLoadingFacilities" value="" disabled>Memuat data...</option>
-                <template v-if="!isLoadingFacilities && activeFacilities.length === 0">
-                  <option value="" disabled>Tidak ada fasilitas aktif tersedia</option>
-                </template>
-                <option v-for="facility in activeFacilities" :key="facility.id" :value="facility.id">
-                  {{ facility.name }}
-                </option>
-              </select>
-            </div>
+          </div>
+          <div v-else style="margin-top: 16px; padding: 16px; background-color: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; border-style: dashed; text-align: center; color: #94A3B8; font-size: 0.875rem;">
+            Pilih fasilitas kesehatan untuk melihat detailnya.
           </div>
         </div>
       </div>
