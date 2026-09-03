@@ -113,7 +113,27 @@ const authStore = useAuthStore()
 const openSubmenu = ref(null)
 
 const currentMenu = computed(() => {
-  return authStore.userRole?.toLowerCase() === 'admin' ? ADMIN_SIDEBAR_MENU : SIDEBAR_MENU;
+  let rawRole = authStore.userRole || authStore.user?.role;
+  
+  if (!rawRole) {
+    try {
+      const userStr = localStorage.getItem('sitara_user');
+      if (userStr) {
+        const localUser = JSON.parse(userStr);
+        rawRole = localUser?.role;
+      }
+    } catch (e) {
+      console.error('Failed to parse sitara_user in Sidebar', e);
+    }
+  }
+
+  const role = String(rawRole ?? '').toLowerCase();
+  
+  if (role === 'admin') {
+    return ADMIN_SIDEBAR_MENU;
+  }
+  // Default fallback for Nakes
+  return SIDEBAR_MENU;
 })
 
 const isActive = (item) => {
