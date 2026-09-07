@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="video-detail-view">
     <!-- 1. Header Navigation -->
     <div class="header-nav mb-3">
@@ -81,8 +81,8 @@
         <template #extra>
           <div class="score-card-mini">
             <span class="score-label">SKOR KEYAKINAN AI</span>
-            <span class="score-value font-bold" :class="getScoreBadgeClass(videoData.overall_score)">
-              {{ videoData.overall_score }}%
+            <span class="score-value font-bold" :class="videoData.overall_score != null ? getScoreBadgeClass(videoData.overall_score) : 'text-muted'">
+              {{ videoData.overall_score != null ? videoData.overall_score + '%' : '-' }}
             </span>
           </div>
         </template>
@@ -167,8 +167,11 @@
               </svg>
               <h3 class="section-title">Hasil Analisis Model AI</h3>
             </div>
-            <span class="confidence-pill" :class="getScoreBadgeClass(videoData.overall_score)">
+            <span v-if="videoData.overall_score != null" class="confidence-pill" :class="getScoreBadgeClass(videoData.overall_score)">
               {{ videoData.overall_score }}% Confidence
+            </span>
+            <span v-else class="confidence-pill text-muted">
+              Data analisis AI belum tersedia
             </span>
           </div>
 
@@ -176,14 +179,16 @@
           <div class="ai-score-bar-wrapper mb-3">
             <div class="progress-track">
               <div
+                v-if="videoData.overall_score != null"
                 class="progress-fill"
                 :class="getScoreBadgeClass(videoData.overall_score)"
                 :style="{ width: videoData.overall_score + '%' }"
               ></div>
+              <div v-else class="progress-fill" style="width: 0%;"></div>
             </div>
           </div>
 
-          <!-- 5 Verification Points Breakdown -->
+          <!-- Verification Points Breakdown -->
           <div class="analysis-list">
             <!-- 1. Deteksi Wajah -->
             <div class="analysis-item">
@@ -196,14 +201,18 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Deteksi Wajah Pasien</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.face_match?.label || 'Wajah sesuai data pasien' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.face_match?.label || 'Data verifikasi wajah belum tersedia' }}</span>
                 </div>
               </div>
               <span
+                v-if="videoData.ai_details?.face_match?.has_data"
                 class="badge"
                 :class="videoData.ai_details?.face_match?.status === 'MATCH' ? 'badge-success' : 'badge-danger'"
               >
-                {{ videoData.ai_details?.face_match?.status || 'MATCH' }}
+                {{ videoData.ai_details?.face_match?.status }}
+              </span>
+              <span v-else class="badge badge-subtle">
+                Data belum tersedia
               </span>
             </div>
 
@@ -218,14 +227,18 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Identifikasi Tablet Obat</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.pill_detected?.label || 'Obat teridentifikasi' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.pill_detected?.label || 'Data deteksi obat belum tersedia' }}</span>
                 </div>
               </div>
               <span
+                v-if="videoData.ai_details?.pill_detected?.has_data"
                 class="badge"
                 :class="videoData.ai_details?.pill_detected?.status === 'VERIFIED' ? 'badge-success' : 'badge-warning'"
               >
-                {{ videoData.ai_details?.pill_detected?.status || 'VERIFIED' }}
+                {{ videoData.ai_details?.pill_detected?.status }}
+              </span>
+              <span v-else class="badge badge-subtle">
+                Data belum tersedia
               </span>
             </div>
 
@@ -240,53 +253,23 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Gerakan Minum & Menelan</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.swallowing_detected?.label || 'Gerakan minum terkonfirmasi' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.swallowing_detected?.label || 'Data deteksi minum belum tersedia' }}</span>
                 </div>
               </div>
               <span
-                class="badge"
-                :class="videoData.ai_details?.swallowing_detected?.status === 'DETECTED' ? 'badge-success' : 'badge-warning'"
+                v-if="videoData.ai_details?.swallowing_detected?.status === 'DETECTED'"
+                class="badge badge-success"
               >
-                {{ videoData.ai_details?.swallowing_detected?.status || 'DETECTED' }}
+                TERKONFIRMASI
               </span>
-            </div>
-
-            <!-- 4. Kualitas & Pencahayaan -->
-            <div class="analysis-item">
-              <div class="analysis-left">
-                <div class="analysis-icon-box">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-                    <line x1="7" y1="2" x2="7" y2="22"></line>
-                    <line x1="17" y1="2" x2="17" y2="22"></line>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                  </svg>
-                </div>
-                <div class="analysis-text-group">
-                  <span class="analysis-title">Kualitas & Pencahayaan</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.video_quality?.label || 'Pencahayaan jelas' }}</span>
-                </div>
-              </div>
-              <span class="badge badge-info">
-                {{ videoData.ai_details?.video_quality?.status || 'CLEAR' }}
+              <span
+                v-else-if="videoData.ai_details?.swallowing_detected?.has_data"
+                class="badge badge-warning"
+              >
+                PERLU TINJAUAN
               </span>
-            </div>
-
-            <!-- 5. Keamanan & Anti-Tampering -->
-            <div class="analysis-item">
-              <div class="analysis-left">
-                <div class="analysis-icon-box">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                </div>
-                <div class="analysis-text-group">
-                  <span class="analysis-title">Integritas Berkas (Anti-Spoof)</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.tampering_check?.label || 'Video asli' }}</span>
-                </div>
-              </div>
-              <span class="badge badge-success">
-                {{ videoData.ai_details?.tampering_check?.status || 'NO TAMPERING' }}
+              <span v-else class="badge badge-subtle">
+                Data belum tersedia
               </span>
             </div>
           </div>
@@ -373,7 +356,7 @@
 
           <!-- Pending / Needs Review Actions -->
           <div
-            v-if="videoData.status === 'pending' || videoData.status === 'Menunggu Tinjauan' || videoData.status === 'review' || videoData.status === 'needs_review'"
+            v-if="videoData.status === 'pending' || videoData.status === 'needs_review' || videoData.status === 'review' || videoData.status === 'Menunggu Tinjauan'"
             class="action-buttons-wrapper"
           >
             <!-- 1. Primary: Setujui Verifikasi -->
@@ -439,7 +422,42 @@
             </button>
           </div>
 
-          <!-- Final Status State -->
+          <!-- AUTO VERIFIED Status State (No manual buttons) -->
+          <div v-else-if="videoData.status === 'verified' || videoData.status === 'approved' || videoData.status === 'Diverifikasi'" class="verified-status-info">
+            <div class="status-pill-large status-verified">
+              <span class="status-dot"></span>
+              <span>AUTO VERIFIED</span>
+            </div>
+
+            <p class="status-helper-text">
+              Verifikasi video ini telah berhasil diverifikasi otomatis oleh AI.<br />
+              Tidak memerlukan tinjauan manual dari tenaga kesehatan.
+            </p>
+
+            <button
+              v-if="videoData.patient?.phone"
+              class="btn btn-outline-success btn-block mt-3"
+              @click="sendWhatsApp(videoData.patient.phone, videoData.patient.full_name)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="btn-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                ></path>
+              </svg>
+              Hubungi Pasien via WhatsApp
+            </button>
+          </div>
+
+          <!-- Final Status State (Rejected or other) -->
           <div v-else class="verified-status-info">
             <div
               class="status-pill-large"
@@ -448,6 +466,7 @@
               <span class="status-dot"></span>
               <span>{{ formatStatus(videoData.status) }}</span>
             </div>
+
             <p class="status-helper-text">
               Verifikasi video ini telah selesai diproses dengan status <strong>{{ formatStatus(videoData.status) }}</strong>.
             </p>

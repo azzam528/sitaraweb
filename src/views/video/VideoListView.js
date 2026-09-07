@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+﻿import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import videoService from '../../services/video.service'
 
@@ -40,8 +40,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '98%',
+        rawScore: 98,
         progressColor: 'bg-success',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -54,8 +55,9 @@ export default defineComponent({
         aiStatus: 'Kepercayaan Rendah',
         aiStatusColor: 'danger-dot',
         score: '64%',
+        rawScore: 64,
         progressColor: 'bg-warning',
-        reviewStatus: 'Menunggu Tinjauan',
+        reviewStatus: 'NEEDS REVIEW',
         reviewPillClass: 'pill-yellow'
       },
       {
@@ -68,8 +70,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '82%',
+        rawScore: 82,
         progressColor: 'bg-teal-main',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -82,8 +85,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '95%',
+        rawScore: 95,
         progressColor: 'bg-success',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -96,8 +100,9 @@ export default defineComponent({
         aiStatus: 'Gagal',
         aiStatusColor: 'danger-dot',
         score: '32%',
+        rawScore: 32,
         progressColor: 'bg-danger',
-        reviewStatus: 'Ditolak',
+        reviewStatus: 'REJECTED',
         reviewPillClass: 'pill-red'
       },
       {
@@ -110,8 +115,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '94%',
+        rawScore: 94,
         progressColor: 'bg-success',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -124,8 +130,9 @@ export default defineComponent({
         aiStatus: 'Kepercayaan Rendah',
         aiStatusColor: 'danger-dot',
         score: '58%',
+        rawScore: 58,
         progressColor: 'bg-warning',
-        reviewStatus: 'Menunggu Tinjauan',
+        reviewStatus: 'NEEDS REVIEW',
         reviewPillClass: 'pill-yellow'
       },
       {
@@ -138,8 +145,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '88%',
+        rawScore: 88,
         progressColor: 'bg-teal-main',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -152,8 +160,9 @@ export default defineComponent({
         aiStatus: 'Gagal',
         aiStatusColor: 'danger-dot',
         score: '28%',
+        rawScore: 28,
         progressColor: 'bg-danger',
-        reviewStatus: 'Ditolak',
+        reviewStatus: 'REJECTED',
         reviewPillClass: 'pill-red'
       },
       {
@@ -166,8 +175,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '91%',
+        rawScore: 91,
         progressColor: 'bg-success',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -180,8 +190,9 @@ export default defineComponent({
         aiStatus: 'Diverifikasi',
         aiStatusColor: 'success-dot',
         score: '96%',
+        rawScore: 96,
         progressColor: 'bg-success',
-        reviewStatus: 'Otomatis-Konfirmasi',
+        reviewStatus: 'AUTO VERIFIED',
         reviewPillClass: 'pill-gray'
       },
       {
@@ -194,8 +205,9 @@ export default defineComponent({
         aiStatus: 'Kepercayaan Rendah',
         aiStatusColor: 'danger-dot',
         score: '62%',
+        rawScore: 62,
         progressColor: 'bg-warning',
-        reviewStatus: 'Menunggu Tinjauan',
+        reviewStatus: 'NEEDS REVIEW',
         reviewPillClass: 'pill-yellow'
       }
     ])
@@ -210,23 +222,22 @@ export default defineComponent({
           tableData.value = videoRes.data.map((item) => {
             const patientName = item.patient?.full_name || 'Pasien TB'
             const nik = item.patient?.nik || '-'
-            const rawScore = item.ai_confidence != null
+            const hasAiConfidence = item.ai_confidence != null
+            const rawScore = hasAiConfidence
               ? (item.ai_confidence > 1 ? Math.round(item.ai_confidence) : Math.round(item.ai_confidence * 100))
-              : (item.status === 'verified' ? 95 : item.status === 'rejected' ? 35 : 65)
+              : null
 
             let aiStatus = 'Diverifikasi'
-            let reviewStatus = 'Otomatis-Konfirmasi'
-            if (item.status === 'pending' || item.status === 'review' || rawScore < 80) {
-              aiStatus = 'Kepercayaan Rendah'
-              reviewStatus = 'Menunggu Tinjauan'
-            }
-            if (item.status === 'rejected' || item.status === 'failed' || rawScore < 50) {
-              aiStatus = 'Gagal'
-              reviewStatus = 'Ditolak'
-            }
+            let reviewStatus = 'AUTO VERIFIED'
             if (item.status === 'verified' || item.status === 'approved') {
               aiStatus = 'Diverifikasi'
-              reviewStatus = 'Otomatis-Konfirmasi'
+              reviewStatus = 'AUTO VERIFIED'
+            } else if (item.status === 'rejected' || item.status === 'failed') {
+              aiStatus = 'Gagal'
+              reviewStatus = 'REJECTED'
+            } else {
+              aiStatus = 'Kepercayaan Rendah'
+              reviewStatus = 'NEEDS REVIEW'
             }
 
             const dateObj = new Date(item.created_at || item.verification_date || Date.now())
@@ -246,10 +257,11 @@ export default defineComponent({
               time: timeFormatted,
               aiStatus: aiStatus,
               aiStatusColor: aiStatus === 'Diverifikasi' ? 'success-dot' : 'danger-dot',
-              score: rawScore + '%',
-              progressColor: rawScore >= 80 ? 'bg-success' : rawScore >= 50 ? 'bg-warning' : 'bg-danger',
+              score: rawScore != null ? rawScore + '%' : '-',
+              rawScore: rawScore,
+              progressColor: rawScore != null ? (rawScore >= 80 ? 'bg-success' : rawScore >= 50 ? 'bg-warning' : 'bg-danger') : '',
               reviewStatus: reviewStatus,
-              reviewPillClass: reviewStatus === 'Otomatis-Konfirmasi' ? 'pill-gray' : reviewStatus === 'Menunggu Tinjauan' ? 'pill-yellow' : 'pill-red'
+              reviewPillClass: reviewStatus === 'AUTO VERIFIED' ? 'pill-gray' : reviewStatus === 'NEEDS REVIEW' ? 'pill-yellow' : 'pill-red'
             }
           })
         }
@@ -298,15 +310,14 @@ export default defineComponent({
         if (statusVal) {
           const itemAiStatus = (item.aiStatus || '').toLowerCase()
           const itemReviewStatus = (item.reviewStatus || '').toLowerCase()
-
-          if (statusVal === 'Diverifikasi' || statusVal === 'verified') {
-            matchesStatus = itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('konfirmasi') || itemReviewStatus.includes('otomatis')
-          } else if (statusVal === 'Menunggu Tinjauan' || statusVal === 'pending') {
-            matchesStatus = itemAiStatus.includes('rendah') || itemReviewStatus.includes('menunggu') || itemReviewStatus.includes('tinjauan')
-          } else if (statusVal === 'Gagal' || statusVal === 'rejected') {
-            matchesStatus = itemAiStatus.includes('gagal') || itemReviewStatus.includes('ditolak') || itemReviewStatus.includes('gagal')
-          } else {
-            matchesStatus = itemAiStatus === statusVal.toLowerCase() || itemReviewStatus === statusVal.toLowerCase()
+          if (statusVal === 'Diverifikasi' && !(itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('auto verified') || itemReviewStatus.includes('konfirmasi'))) {
+            matchesStatus = false
+          }
+          if (statusVal === 'Menunggu Tinjauan' && !(itemAiStatus.includes('rendah') || itemReviewStatus.includes('needs review') || itemReviewStatus.includes('menunggu'))) {
+            matchesStatus = false
+          }
+          if (statusVal === 'Gagal' && !(itemAiStatus.includes('gagal') || itemReviewStatus.includes('rejected') || itemReviewStatus.includes('ditolak'))) {
+            matchesStatus = false
           }
         }
 
@@ -314,35 +325,21 @@ export default defineComponent({
       })
     })
 
-    // Auto-reset page to 1 on filter or search change
-    watch([searchQuery, filterStatus], () => {
-      currentPage.value = 1
-    })
-
-    // Pagination computations
-    const totalPages = computed(() => {
-      return Math.ceil(filteredData.value.length / pageSize.value) || 1
-    })
+    // Pagination
+    const totalRecords = computed(() => filteredData.value.length)
+    const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value) || 1)
 
     const paginatedData = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value
       return filteredData.value.slice(start, start + pageSize.value)
     })
 
-    // Pagination actions
-    const prevPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value--
-      }
-    }
+    // Watch query changes to reset page to 1
+    watch([searchQuery, filterStatus], () => {
+      currentPage.value = 1
+    })
 
-    const nextPage = () => {
-      if (currentPage.value < totalPages.value) {
-        currentPage.value++
-      }
-    }
-
-    const goToPage = (page) => {
+    const changePage = (page) => {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
       }
@@ -359,28 +356,32 @@ export default defineComponent({
     const verifiedCount = computed(() => {
       return tableData.value.filter(v => 
         (v.aiStatus || '').toLowerCase().includes('diverifikasi') || 
+        (v.reviewStatus || '').toLowerCase().includes('auto verified') ||
         (v.reviewStatus || '').toLowerCase().includes('konfirmasi')
       ).length
     })
     const manualReviewCount = computed(() => {
       return tableData.value.filter(v => 
         (v.aiStatus || '').toLowerCase().includes('rendah') || 
+        (v.reviewStatus || '').toLowerCase().includes('needs review') ||
         (v.reviewStatus || '').toLowerCase().includes('menunggu')
       ).length
     })
     const failedCount = computed(() => {
       return tableData.value.filter(v => 
         (v.aiStatus || '').toLowerCase().includes('gagal') || 
+        (v.reviewStatus || '').toLowerCase().includes('rejected') ||
         (v.reviewStatus || '').toLowerCase().includes('ditolak')
       ).length
     })
     const avgConfidence = computed(() => {
-      if (!tableData.value.length) return '0%'
-      const totalScore = tableData.value.reduce((acc, curr) => {
+      const scoredItems = tableData.value.filter(item => item.score !== '-')
+      if (!scoredItems.length) return '-'
+      const totalScore = scoredItems.reduce((acc, curr) => {
         const val = parseInt(curr.score) || 0
         return acc + val
       }, 0)
-      return (totalScore / tableData.value.length).toFixed(1) + '%'
+      return (totalScore / scoredItems.length).toFixed(1) + '%'
     })
 
     const chartData = [
@@ -402,11 +403,10 @@ export default defineComponent({
       currentPage,
       pageSize,
       totalPages,
+      totalRecords,
       filteredData,
       paginatedData,
-      prevPage,
-      nextPage,
-      goToPage,
+      changePage,
       resetFilter,
       uploadedTodayCount,
       verifiedCount,
