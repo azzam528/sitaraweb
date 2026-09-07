@@ -182,7 +182,18 @@
                       {{ calculateProgress(treatment).percentage }}%
                     </span>
                     <span class="progress-days text-muted">
-                      Hari ke-{{ calculateProgress(treatment).daysPassed }}/{{ calculateProgress(treatment).totalDays }}
+                      <template v-if="treatment.status === 'dropped' || treatment.status === 'defaulted'">
+                        {{ calculateProgress(treatment).daysPassed }} / {{ calculateProgress(treatment).totalDays }} Hari (Dihentikan)
+                      </template>
+                      <template v-else-if="treatment.status === 'completed'">
+                        {{ calculateProgress(treatment).totalDays }} / {{ calculateProgress(treatment).totalDays }} Hari (Selesai)
+                      </template>
+                      <template v-else-if="calculateProgress(treatment).isNotStarted">
+                        Belum dimulai (0 / {{ calculateProgress(treatment).totalDays }} Hari)
+                      </template>
+                      <template v-else>
+                        {{ calculateProgress(treatment).daysPassed }} / {{ calculateProgress(treatment).totalDays }} Hari
+                      </template>
                     </span>
                   </div>
                 </div>

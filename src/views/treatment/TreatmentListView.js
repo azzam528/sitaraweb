@@ -122,21 +122,42 @@ export default defineComponent({
     }
 
     const calculateProgress = (treatment) => {
-      if (!treatment.start_date || !treatment.estimated_end_date) {
-        return { percentage: 0, daysPassed: 0, totalDays: 180 }
+      const startDateStr = treatment.therapy_start_date || treatment.start_date
+      const endDateStr = treatment.therapy_end_date || treatment.estimated_end_date
+
+      if (!startDateStr || !endDateStr) {
+        return { percentage: 0, daysPassed: 0, totalDays: 180, isNotStarted: true }
       }
 
-      const start = new Date(treatment.start_date).getTime()
-      const end = new Date(treatment.estimated_end_date).getTime()
-      const now = new Date().getTime()
+      const start = new Date(startDateStr)
+      const end = new Date(endDateStr)
+      const now = new Date()
 
-      const totalDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)))
-      const daysPassed = Math.max(0, Math.min(totalDays, Math.round((now - start) / (1000 * 60 * 60 * 24))))
-      
+      if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) {
+        return { percentage: 0, daysPassed: 0, totalDays: 180, isNotStarted: true }
+      }
+
+      const MS_PER_DAY = 1000 * 60 * 60 * 24
+      const totalDays = Math.max(1, Math.round((end - start) / MS_PER_DAY))
+      let daysPassed = Math.max(0, Math.min(totalDays, Math.round((now - start) / MS_PER_DAY)))
+
       let percentage = Math.round((daysPassed / totalDays) * 100)
-      if (treatment.status === 'completed') percentage = 100
+      if (treatment.status === 'completed') {
+        percentage = 100
+        daysPassed = totalDays
+      }
 
-      return { percentage: Math.min(100, Math.max(0, percentage)), daysPassed, totalDays }
+      percentage = Math.min(100, Math.max(0, percentage))
+      daysPassed = Math.min(totalDays, Math.max(0, daysPassed))
+
+      return {
+        percentage,
+        daysPassed,
+        totalDays,
+        isCompleted: treatment.status === 'completed',
+        isDropped: treatment.status === 'dropped' || treatment.status === 'defaulted',
+        isNotStarted: now < start
+      }
     }
 
     const getProgressColor = (treatment) => {
