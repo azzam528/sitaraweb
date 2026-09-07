@@ -1,6 +1,8 @@
+import { formatDateTime } from "../../utils/formatter";
 import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import videoService from '../../services/video.service'
+import { useNotificationStore } from '../../stores/notification'
 
 export default defineComponent({
   name: 'VideoListView',
@@ -11,6 +13,8 @@ export default defineComponent({
     const router = useRouter()
     const activeDropdown = ref(null)
     const isLoading = ref(true)
+    const notificationStore = useNotificationStore()
+    const newlyAddedIds = ref(new Set())
 
     // Filter & Search states
     const searchQuery = ref('')
@@ -201,13 +205,15 @@ export default defineComponent({
     ])
 
     // Load data from Database via API
-    const loadVideos = async () => {
-      isLoading.value = true
+    const loadVideos = async (isSilent = false) => {
+      if (!isSilent) {
+        isLoading.value = true
+      }
       try {
         const videoRes = await videoService.getAll()
 
         if (videoRes?.data && Array.isArray(videoRes.data)) {
-          tableData.value = videoRes.data.map((item) => {
+          const mappedData = videoRes.data.map((item) => {
             const patientName = item.patient?.full_name || 'Pasien TB'
             const nik = item.patient?.nik || '-'
             const rawScore = item.ai_confidence != null
@@ -229,13 +235,7 @@ export default defineComponent({
               reviewStatus = 'Otomatis-Konfirmasi'
             }
 
-            const dateObj = new Date(item.created_at || item.verification_date || Date.now())
-            const timeFormatted = dateObj.toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit'
-            })
+            const timeFormatted = formatDateTime(item.created_at || item.verification_date)
 
             return {
               id: item.id,
@@ -252,12 +252,42 @@ export default defineComponent({
               reviewPillClass: reviewStatus === 'Otomatis-Konfirmasi' ? 'pill-gray' : reviewStatus === 'Menunggu Tinjauan' ? 'pill-yellow' : 'pill-red'
             }
           })
+
+          if (isSilent && tableData.value.length > 0) {
+            const oldIds = new Set(tableData.value.map((v) => v.id))
+            const newItems = mappedData.filter((v) => v.id && !oldIds.has(v.id))
+            if (newItems.length > 0) {
+              newItems.forEach((v) => newlyAddedIds.value.add(v.id))
+              setTimeout(() => {
+                newItems.forEach((v) => newlyAddedIds.value.delete(v.id))
+              }, 5000)
+            }
+          }
+
+          tableData.value = mappedData
         }
       } catch (err) {
         console.warn('API video fetch fallback to dataset:', err.message)
       } finally {
-        isLoading.value = false
+        if (!isSilent) {
+          isLoading.value = false
+        }
       }
+    }
+
+    // Auto-refresh when a new video notification arrives
+    watch(
+      () => notificationStore.lastVideoEvent,
+      (newVal, oldVal) => {
+        if (newVal > oldVal) {
+          console.log("[SmartPolling] New video notification detected, refreshing videos silently...")
+          loadVideos(true)
+        }
+      }
+    )
+
+    const isNewlyAdded = (id) => {
+      return newlyAddedIds.value.has(id) || notificationStore.isNewEntity('video', id)
     }
 
     onMounted(() => {
@@ -434,6 +464,7 @@ export default defineComponent({
     ]
 
     return {
+      isNewlyAdded,
       activeDropdown,
       toggleDropdown,
       viewDetail,

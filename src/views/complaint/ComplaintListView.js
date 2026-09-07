@@ -1,4 +1,6 @@
-import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
+import { formatDate, formatTime } from "../../utils/formatter";
+import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useNotificationStore } from '../../stores/notification'
 import { useRouter } from 'vue-router'
 import complaintService from '../../services/complaint.service'
 
@@ -9,6 +11,8 @@ export default defineComponent({
 
     // Data State
     const complaints = ref([])
+    const notificationStore = useNotificationStore()
+    const newlyAddedIds = ref(new Set())
     const isLoading = ref(true)
     const isSubmitting = ref(false)
 
@@ -54,17 +58,51 @@ export default defineComponent({
     })
 
     // Load Complaints from API
-    const loadComplaints = async () => {
-      isLoading.value = true
+    const loadComplaints = async (isSilent = false) => {
+      if (!isSilent) {
+        isLoading.value = true
+      }
       try {
         const res = await complaintService.getAll()
-        complaints.value = res.data || []
+        const data = res.data || []
+
+        if (isSilent && complaints.value.length > 0) {
+          const oldIds = new Set(complaints.value.map((c) => c.id))
+          const newItems = data.filter((c) => c.id && !oldIds.has(c.id))
+          if (newItems.length > 0) {
+            newItems.forEach((c) => newlyAddedIds.value.add(c.id))
+            setTimeout(() => {
+              newItems.forEach((c) => newlyAddedIds.value.delete(c.id))
+            }, 5000)
+          }
+        }
+
+        complaints.value = data
       } catch (error) {
         console.error('Failed to load complaints:', error)
-        showAlert('Gagal memuat daftar keluhan pasien', 'danger')
+        if (!isSilent) {
+          showAlert('Gagal memuat daftar keluhan pasien', 'danger')
+        }
       } finally {
-        isLoading.value = false
+        if (!isSilent) {
+          isLoading.value = false
+        }
       }
+    }
+
+    // Auto-refresh when a new complaint notification arrives
+    watch(
+      () => notificationStore.lastComplaintEvent,
+      (newVal, oldVal) => {
+        if (newVal > oldVal) {
+          console.log("[SmartPolling] New complaint notification detected, refreshing complaints silently...")
+          loadComplaints(true)
+        }
+      }
+    )
+
+    const isNewlyAdded = (id) => {
+      return newlyAddedIds.value.has(id) || notificationStore.isNewEntity('complaint', id)
     }
 
     // Computed Statistics
@@ -168,6 +206,7 @@ export default defineComponent({
     }
 
     return {
+      isNewlyAdded,
       complaints,
       isLoading,
       isSubmitting,

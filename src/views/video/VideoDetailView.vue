@@ -74,7 +74,7 @@
           </span>
           <span class="meta-dot">&bull;</span>
           <span class="meta-item">
-            <strong>Waktu Rekam:</strong> {{ formatDate(videoData.recorded_at) }}, {{ formatTime(videoData.recorded_at) }} WIB
+            <strong>Waktu Upload:</strong> {{ formatDate(videoData.recorded_at) }}, {{ formatTime(videoData.recorded_at) }} WIB
           </span>
         </template>
 

@@ -204,7 +204,7 @@
                 Tidak ada data keluhan yang cocok.
               </td>
             </tr>
-            <tr v-else v-for="comp in paginatedComplaints" :key="comp.id">
+            <tr v-else v-for="comp in paginatedComplaints" :key="comp.id" :class="{ 'row-highlight-new': isNewlyAdded(comp.id) }">
               <td>
                 <div class="patient-info">
                   <div class="avatar">

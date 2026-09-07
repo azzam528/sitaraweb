@@ -224,7 +224,7 @@
                 Tidak ada data permintaan obat yang cocok.
               </td>
             </tr>
-            <tr v-else v-for="refill in paginatedRefills" :key="refill.id">
+            <tr v-else v-for="refill in paginatedRefills" :key="refill.id" :class="{ 'row-highlight-new': isNewlyAdded(refill.id) }">
               <td>
                 <div class="patient-info">
                   <div class="avatar">

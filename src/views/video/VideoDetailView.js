@@ -1,3 +1,4 @@
+import { formatDate, formatTime } from "../../utils/formatter";
 import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import videoService from '../../services/video.service'

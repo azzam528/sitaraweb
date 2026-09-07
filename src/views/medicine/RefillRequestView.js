@@ -1,4 +1,6 @@
-import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
+import { formatDate, formatTime } from "../../utils/formatter";
+import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { useNotificationStore } from "../../stores/notification";
 
 import refillService from "../../services/refill.service";
 
@@ -11,6 +13,8 @@ export default defineComponent({
     // =====================================================
 
     const refills = ref([]);
+    const notificationStore = useNotificationStore();
+    const newlyAddedIds = ref(new Set());
 
     const isLoading = ref(true);
     const isSubmitting = ref(false);
@@ -78,14 +82,13 @@ export default defineComponent({
     // LOAD REFILL REQUESTS
     // =====================================================
 
-    const loadRefills = async () => {
-      isLoading.value = true;
+    const loadRefills = async (isSilent = false) => {
+      if (!isSilent) {
+        isLoading.value = true;
+      }
 
       try {
         const res = await refillService.getAll();
-
-        console.log("REFILL RESPONSE:", res);
-        console.log("REFILL DATA:", res.data);
 
         const data = Array.isArray(res.data)
           ? res.data
@@ -93,9 +96,19 @@ export default defineComponent({
             ? res.data.data
             : [];
 
-        refills.value = data;
+        // Track new items for visual highlight
+        if (isSilent && refills.value.length > 0) {
+          const oldIds = new Set(refills.value.map((r) => r.id));
+          const newItems = data.filter((r) => r.id && !oldIds.has(r.id));
+          if (newItems.length > 0) {
+            newItems.forEach((r) => newlyAddedIds.value.add(r.id));
+            setTimeout(() => {
+              newItems.forEach((r) => newlyAddedIds.value.delete(r.id));
+            }, 5000);
+          }
+        }
 
-        console.log("REFILLS STATE:", refills.value);
+        refills.value = data;
 
         if (currentPage.value > totalPages.value) {
           currentPage.value = 1;
@@ -103,15 +116,33 @@ export default defineComponent({
       } catch (error) {
         console.error("FAILED LOAD REFILLS:", error);
 
-        refills.value = [];
-
-        showAlert(
-          error.response?.data?.detail || "Gagal memuat daftar permintaan obat",
-          "danger",
-        );
+        if (!isSilent) {
+          refills.value = [];
+          showAlert(
+            error.response?.data?.detail || "Gagal memuat daftar permintaan obat",
+            "danger",
+          );
+        }
       } finally {
-        isLoading.value = false;
+        if (!isSilent) {
+          isLoading.value = false;
+        }
       }
+    };
+
+    // Auto-refresh when a new refill notification arrives
+    watch(
+      () => notificationStore.lastRefillEvent,
+      (newVal, oldVal) => {
+        if (newVal > oldVal) {
+          console.log("[SmartPolling] New refill notification detected, refreshing refills silently...");
+          loadRefills(true);
+        }
+      }
+    );
+
+    const isNewlyAdded = (id) => {
+      return newlyAddedIds.value.has(id) || notificationStore.isNewEntity('refill', id);
     };
 
     // =====================================================
@@ -529,6 +560,7 @@ export default defineComponent({
 
       // Delete
       confirmDelete,
+      isNewlyAdded,
     };
   },
 });

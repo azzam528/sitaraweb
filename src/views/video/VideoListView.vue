@@ -135,7 +135,7 @@
                 Tidak ada data verifikasi video yang sesuai.
               </td>
             </tr>
-            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index">
+            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index" :class="{ 'row-highlight-new': isNewlyAdded(item.id) }">
               <td>
                 <div class="patient-info">
                   <div class="avatar">{{ item.initials }}</div>
