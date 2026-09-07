@@ -220,15 +220,17 @@
           >
             Prev
           </button>
-          <button 
-            v-for="page in totalPages" 
-            :key="page" 
-            class="btn-page"
-            :class="{ active: currentPage === page }"
-            @click="goToPage(page)"
-          >
-            {{ page }}
-          </button>
+          <template v-for="(page, idx) in displayedPages" :key="idx">
+            <span v-if="page === '...'" class="page-ellipsis">...</span>
+            <button 
+              v-else 
+              class="btn-page"
+              :class="{ active: currentPage === page }"
+              @click="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          </template>
           <button 
             class="btn-page" 
             :disabled="currentPage === totalPages"

@@ -537,6 +537,19 @@
   font-weight: 600;
 }
 
+.page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 34px;
+  padding: 0 4px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  user-select: none;
+}
+
 /* Bottom Section: Stats Chart Card */
 .stats-chart-section {
   margin-top: 8px;

@@ -329,6 +329,48 @@ export default defineComponent({
       return filteredData.value.slice(start, start + pageSize.value)
     })
 
+    const displayedPages = computed(() => {
+      const total = totalPages.value
+      const current = currentPage.value
+
+      if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1)
+      }
+
+      // Halaman 1
+      if (current === 1) {
+        return [1, 2, 3, '...', total - 1, total]
+      }
+
+      // Halaman 2
+      if (current === 2) {
+        return [1, 2, 3, 4, '...', total - 1, total]
+      }
+
+      // Halaman 3
+      if (current === 3) {
+        return [1, 2, 3, 4, '...', total - 1, total]
+      }
+
+      // Halaman terakhir (misal 30)
+      if (current === total) {
+        return [1, 2, '...', total - 2, total - 1, total]
+      }
+
+      // Halaman sebelum terakhir (misal 29)
+      if (current === total - 1) {
+        return [1, 2, '...', total - 2, total - 1, total]
+      }
+
+      // Halaman 28
+      if (current === total - 2) {
+        return [1, 2, '...', total - 3, total - 2, total - 1, total]
+      }
+
+      // Halaman tengah (misal 15)
+      return [1, '...', current - 1, current, current + 1, '...', total]
+    })
+
     // Pagination actions
     const prevPage = () => {
       if (currentPage.value > 1) {
@@ -402,6 +444,7 @@ export default defineComponent({
       currentPage,
       pageSize,
       totalPages,
+      displayedPages,
       filteredData,
       paginatedData,
       prevPage,
