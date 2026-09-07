@@ -162,7 +162,7 @@
             <div class="info-header">
               <span class="info-label">Progres Durasi Terapi</span>
               <span class="info-value-highlight font-bold">
-                {{ progressData.daysPassed }} / {{ progressData.totalDays }} Hari
+                Hari ke-{{ progressData.daysPassed }}/{{ progressData.totalDays }}
               </span>
             </div>
 
