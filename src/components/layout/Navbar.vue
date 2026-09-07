@@ -870,9 +870,15 @@ onUnmounted(() => {
 }
 
 @media (max-width: 767.98px) {
-  .profile-info { display: none; }
-  .chevron { display: none; }
-  .page-title { display: none; }
+  .profile-info {
+    display: none;
+  }
+  .chevron {
+    display: none;
+  }
+  .page-title {
+    display: none;
+  }
   .notification-dropdown {
     width: 290px;
     right: -50px;

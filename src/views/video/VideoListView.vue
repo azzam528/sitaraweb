@@ -5,6 +5,18 @@
       <p class="page-subtitle">Kelola dan verifikasi video minum obat pasien dengan bantuan AI.</p>
     </header>
 
+    <!-- Toast Alert Message -->
+    <div
+      v-if="alertMessage"
+      class="toast-alert"
+      :class="'toast-' + alertType"
+    >
+      <span>{{ alertMessage }}</span>
+      <button class="btn-close-toast" @click="alertMessage = ''">
+        &times;
+      </button>
+    </div>
+
     <!-- 1. Statistic Cards Row -->
     <section class="stats-grid stats-grid-5">
       <!-- Card 1 -->
@@ -130,9 +142,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="filteredData.length === 0">
+            <tr v-if="isLoading">
               <td colspan="5" class="text-center py-6 text-muted">
-                Tidak ada data verifikasi video yang sesuai.
+                Memuat data verifikasi...
+              </td>
+            </tr>
+            <tr v-else-if="filteredData.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data verifikasi video yang tersedia.
               </td>
             </tr>
             <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index" :class="{ 'row-highlight-new': isNewlyAdded(item.id) }">

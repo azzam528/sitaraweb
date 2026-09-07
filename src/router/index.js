@@ -54,6 +54,9 @@ const routes = [
     component: MainLayout,
     meta: { requiresAuth: true },
     children: [
+      // ============================
+      // Nakes Routes
+      // ============================
       {
         path: "",
         name: "Dashboard",
@@ -200,6 +203,34 @@ const routes = [
         component: () => import("@/views/profile/ProfileView.vue"),
         meta: { title: "Profil - SITARA", breadcrumb: "Profil" },
       },
+
+      // ============================
+      // Admin Routes
+      // ============================
+      {
+        path: "admin",
+        name: "DashboardAdmin",
+        component: () => import("@/views/admin/DashboardAdminView.vue"),
+        meta: { title: "Dashboard Admin - SITARA", breadcrumb: "Dashboard", role: "admin" },
+      },
+      {
+        path: "admin/facilities",
+        name: "AdminFacilities",
+        component: () => import("@/views/admin/FacilityListView.vue"),
+        meta: { title: "Manajemen Fasilitas - SITARA", breadcrumb: "Fasilitas Kesehatan", role: "admin" },
+      },
+      {
+        path: "admin/nakes",
+        name: "AdminNakes",
+        component: () => import("@/views/admin/NakesListView.vue"),
+        meta: { title: "Manajemen Nakes - SITARA", breadcrumb: "Manajemen Nakes", role: "admin" },
+      },
+      {
+        path: "admin/nakes/create",
+        name: "AdminNakesCreate",
+        component: () => import("@/views/admin/NakesCreateView.vue"),
+        meta: { title: "Tambah Nakes - SITARA", breadcrumb: "Tambah Nakes", parent: "AdminNakes", role: "admin" },
+      },
     ],
   },
   {
@@ -225,14 +256,24 @@ router.beforeEach((to, from, next) => {
 
   const isPatient =
     user && (user.role === "patient" || user.role === "PATIENT");
+  const isAdmin = user && user.role === "admin";
+  const requiresAdmin = to.meta.role === "admin";
 
   if (to.meta.requiresAuth) {
     if (!token) {
+      // No token → login
       next("/login");
     } else if (isPatient) {
+      // Patient not allowed on web
       localStorage.removeItem("sitara_token");
       localStorage.removeItem("sitara_user");
       next("/login?error=patient_not_allowed");
+    } else if (requiresAdmin && !isAdmin) {
+      // Non-admin trying to access admin pages
+      next("/dashboard");
+    } else if (isAdmin && !requiresAdmin && to.path !== "/dashboard/profile") {
+      // Admin trying to access nakes pages (except profile)
+      next("/dashboard/admin");
     } else {
       next();
     }
@@ -241,6 +282,8 @@ router.beforeEach((to, from, next) => {
       localStorage.removeItem("sitara_token");
       localStorage.removeItem("sitara_user");
       next();
+    } else if (isAdmin) {
+      next("/dashboard/admin");
     } else {
       next("/dashboard");
     }

@@ -83,8 +83,12 @@
   gap: 14px;
   min-height: 82px;
   box-sizing: border-box;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.04),
+    0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-card:hover {
@@ -214,6 +218,46 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+.filter-reset-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.btn-reset-filter {
+  padding: 9px 16px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-reset-filter:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+.btn-reset-filter:active {
+  background-color: #cbd5e1;
+  transform: scale(0.98);
+}
+
+.btn-reset-filter svg {
+  width: 16px;
+  height: 16px;
+  color: inherit;
 }
 
 .form-group label {
