@@ -64,39 +64,62 @@ export default defineComponent({
           const res = await videoService.getById(id)
           if (res && res.data) {
             const item = res.data
-            const rawScore = item.ai_confidence != null
+
+            // Strict contract: confidence must come directly from real ai_confidence, no fake fallback
+            const hasAiConfidence = item.ai_confidence != null
+            const overallScore = hasAiConfidence
               ? (item.ai_confidence > 1 ? Math.round(item.ai_confidence) : Math.round(item.ai_confidence * 100))
-              : (item.status === 'verified' ? 95 : item.status === 'rejected' ? 35 : 65)
+              : null
 
             const formattedFileSize = item.file_size
               ? `${(item.file_size / (1024 * 1024)).toFixed(1)} MB`
               : '4.8 MB'
 
+            // Real AI details without fake heuristics
+            const faceVerif = item.face_verification || null
+            const hasFaceVerif = faceVerif != null
+            const faceStatus = hasFaceVerif
+              ? (faceVerif.status === 'verified' ? 'MATCH' : 'MISMATCH')
+              : null
+            const faceLabel = hasFaceVerif
+              ? (faceVerif.status === 'verified' ? 'Wajah Terverifikasi Sesuai Data Pasien' : 'Wajah Kurang Sesuai / Terhalang')
+              : 'Data verifikasi wajah belum tersedia'
+
+            const medVerif = item.medicine_detection || item.medication_verification || null
+            const hasMedVerif = medVerif != null
+            const medStatus = hasMedVerif
+              ? (medVerif.medicine_match ? 'VERIFIED' : 'UNCERTAIN')
+              : null
+            const medLabel = hasMedVerif
+              ? (medVerif.medicine_match ? 'Kombinasi Obat Terdeteksi' : 'Bentuk Obat Kurang Terlihat Jelas')
+              : 'Data deteksi obat belum tersedia'
+
+            const isDrinkingVerified = item.status === 'verified' || item.status === 'approved' || item.max_drinking_stage === 'completed'
+            const hasDrinkingData = isDrinkingVerified || item.max_drinking_stage != null
+            const drinkingStatus = isDrinkingVerified
+              ? 'DETECTED'
+              : (item.max_drinking_stage != null ? 'UNCERTAIN' : null)
+            const drinkingLabel = isDrinkingVerified
+              ? 'Gerakan Minum & Menelan Terkonfirmasi'
+              : (hasDrinkingData ? 'Proses Minum Belum Lengkap' : 'Data deteksi minum belum tersedia')
+
             const aiDetails = item.ai_details || {
               face_match: {
-                status: rawScore >= 70 ? 'MATCH' : 'MISMATCH',
-                score: Math.min(99.5, +(rawScore * 1.02).toFixed(1)),
-                label: rawScore >= 70 ? 'Wajah Terverifikasi Sesuai Data Pasien' : 'Wajah Kurang Sesuai / Terhalang',
+                has_data: hasFaceVerif,
+                status: faceStatus,
+                score: faceVerif?.similarity_score != null ? +(faceVerif.similarity_score * 100).toFixed(1) : null,
+                label: faceLabel,
               },
               pill_detected: {
-                status: rawScore >= 60 ? 'VERIFIED' : 'UNCERTAIN',
-                score: Math.min(98.0, +(rawScore * 0.98).toFixed(1)),
-                label: rawScore >= 60 ? 'Kombinasi Obat Terdeteksi' : 'Bentuk Obat Kurang Terlihat Jelas',
+                has_data: hasMedVerif,
+                status: medStatus,
+                score: medVerif?.confidence != null ? +(medVerif.confidence * 100).toFixed(1) : null,
+                label: medLabel,
               },
               swallowing_detected: {
-                status: rawScore >= 60 ? 'DETECTED' : 'NOT_DETECTED',
-                score: Math.min(97.0, +(rawScore * 0.99).toFixed(1)),
-                label: rawScore >= 60 ? 'Gerakan Menelan Terkonfirmasi' : 'Gerakan Menelan Belum Terdeteksi',
-              },
-              video_quality: {
-                status: rawScore >= 60 ? 'CLEAR' : 'FAIR',
-                score: Math.min(95.0, +(rawScore * 0.96).toFixed(1)),
-                label: rawScore >= 60 ? 'Pencahayaan & Ketajaman Jelas' : 'Pencahayaan Redup / Resolusi Rendah',
-              },
-              tampering_check: {
-                status: 'NO TAMPERING',
-                score: 99.0,
-                label: 'Video Asli, Bebas Manipulasi Layar',
+                has_data: hasDrinkingData,
+                status: drinkingStatus,
+                label: drinkingLabel,
               },
             }
 
@@ -123,7 +146,7 @@ export default defineComponent({
               fps: item.fps || 30,
               file_size: formattedFileSize,
               status: item.status || 'pending',
-              overall_score: rawScore,
+              overall_score: overallScore,
               ai_details: aiDetails,
               timeline: item.timeline || [
                 {
@@ -293,20 +316,21 @@ export default defineComponent({
     }
 
     const formatStatus = (status) => {
-      if (status === 'verified' || status === 'Diverifikasi' || status === 'approved') return 'Terverifikasi AI'
-      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review') return 'Menunggu Tinjauan'
-      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak') return 'Verifikasi Ditolak'
+      if (status === 'verified' || status === 'Diverifikasi' || status === 'approved') return 'AUTO VERIFIED'
+      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review') return 'NEEDS REVIEW'
+      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak') return 'REJECTED'
       return status || 'Belum Terverifikasi'
     }
 
     const getStatusBadgeClass = (status) => {
       if (status === 'verified' || status === 'Diverifikasi' || status === 'approved') return 'status-verified'
-      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review') return 'status-pending'
+      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review') return 'status-pending'
       if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak') return 'status-rejected'
       return 'status-pending'
     }
 
     const getScoreBadgeClass = (score) => {
+      if (score == null) return 'score-low'
       const num = typeof score === 'number' ? score : parseInt(score) || 0
       if (num >= 85) return 'score-high'
       if (num >= 60) return 'score-medium'

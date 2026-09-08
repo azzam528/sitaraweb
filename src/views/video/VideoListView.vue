@@ -165,20 +165,34 @@
               <td class="text-secondary">{{ item.time }}</td>
               <td>
                 <div class="compliance-info">
-                  <span class="compliance-text" :style="{ color: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }">
+                  <span
+                    class="compliance-text"
+                    :style="{
+                      color: item.score === '-' ? '#6B7280' : parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626'
+                    }"
+                  >
                     {{ item.score }}
                   </span>
-                  <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" :style="{ width: item.score, backgroundColor: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }"></div>
+                  <div v-if="item.score !== '-'" class="progress-bar-bg">
+                    <div
+                      class="progress-bar-fill"
+                      :style="{
+                        width: item.score,
+                        backgroundColor: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626'
+                      }"
+                    ></div>
                   </div>
                 </div>
               </td>
               <td>
-                <span class="status-badge" :class="{
-                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
-                  'status-dropped': item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
-                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
-                }">
+                <span
+                  class="status-badge"
+                  :class="{
+                    'status-active': item.reviewStatus === 'AUTO VERIFIED' || item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
+                    'status-dropped': item.reviewStatus === 'REJECTED' || item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
+                    'status-intensive': item.reviewStatus === 'NEEDS REVIEW' || item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
+                  }"
+                >
                   {{ item.reviewStatus }}
                 </span>
               </td>

@@ -185,15 +185,14 @@ export default defineComponent({
         if (statusVal) {
           const itemAiStatus = (item.aiStatus || '').toLowerCase()
           const itemReviewStatus = (item.reviewStatus || '').toLowerCase()
-
-          if (statusVal === 'Diverifikasi' || statusVal === 'verified') {
-            matchesStatus = itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('konfirmasi') || itemReviewStatus.includes('otomatis')
-          } else if (statusVal === 'Menunggu Tinjauan' || statusVal === 'pending') {
-            matchesStatus = itemAiStatus.includes('rendah') || itemReviewStatus.includes('menunggu') || itemReviewStatus.includes('tinjauan')
-          } else if (statusVal === 'Gagal' || statusVal === 'rejected') {
-            matchesStatus = itemAiStatus.includes('gagal') || itemReviewStatus.includes('ditolak') || itemReviewStatus.includes('gagal')
-          } else {
-            matchesStatus = itemAiStatus === statusVal.toLowerCase() || itemReviewStatus === statusVal.toLowerCase()
+          if (statusVal === 'Diverifikasi' && !(itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('auto verified') || itemReviewStatus.includes('konfirmasi'))) {
+            matchesStatus = false
+          }
+          if (statusVal === 'Menunggu Tinjauan' && !(itemAiStatus.includes('rendah') || itemReviewStatus.includes('needs review') || itemReviewStatus.includes('menunggu'))) {
+            matchesStatus = false
+          }
+          if (statusVal === 'Gagal' && !(itemAiStatus.includes('gagal') || itemReviewStatus.includes('rejected') || itemReviewStatus.includes('ditolak'))) {
+            matchesStatus = false
           }
         }
 
@@ -201,15 +200,9 @@ export default defineComponent({
       })
     })
 
-    // Auto-reset page to 1 on filter or search change
-    watch([searchQuery, filterStatus], () => {
-      currentPage.value = 1
-    })
-
-    // Pagination computations
-    const totalPages = computed(() => {
-      return Math.ceil(filteredData.value.length / pageSize.value) || 1
-    })
+    // Pagination
+    const totalRecords = computed(() => filteredData.value.length)
+    const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value) || 1)
 
     const paginatedData = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value
@@ -286,30 +279,34 @@ export default defineComponent({
     // Dynamic Statistics
     const uploadedTodayCount = computed(() => tableData.value.length)
     const verifiedCount = computed(() => {
-      return tableData.value.filter(v => 
-        (v.aiStatus || '').toLowerCase().includes('diverifikasi') || 
+      return tableData.value.filter(v =>
+        (v.aiStatus || '').toLowerCase().includes('diverifikasi') ||
+        (v.reviewStatus || '').toLowerCase().includes('auto verified') ||
         (v.reviewStatus || '').toLowerCase().includes('konfirmasi')
       ).length
     })
     const manualReviewCount = computed(() => {
-      return tableData.value.filter(v => 
-        (v.aiStatus || '').toLowerCase().includes('rendah') || 
+      return tableData.value.filter(v =>
+        (v.aiStatus || '').toLowerCase().includes('rendah') ||
+        (v.reviewStatus || '').toLowerCase().includes('needs review') ||
         (v.reviewStatus || '').toLowerCase().includes('menunggu')
       ).length
     })
     const failedCount = computed(() => {
-      return tableData.value.filter(v => 
-        (v.aiStatus || '').toLowerCase().includes('gagal') || 
+      return tableData.value.filter(v =>
+        (v.aiStatus || '').toLowerCase().includes('gagal') ||
+        (v.reviewStatus || '').toLowerCase().includes('rejected') ||
         (v.reviewStatus || '').toLowerCase().includes('ditolak')
       ).length
     })
     const avgConfidence = computed(() => {
-      if (!tableData.value.length) return '0%'
-      const totalScore = tableData.value.reduce((acc, curr) => {
+      const scoredItems = tableData.value.filter(item => item.score !== '-')
+      if (!scoredItems.length) return '-'
+      const totalScore = scoredItems.reduce((acc, curr) => {
         const val = parseInt(curr.score) || 0
         return acc + val
       }, 0)
-      return (totalScore / tableData.value.length).toFixed(1) + '%'
+      return (totalScore / scoredItems.length).toFixed(1) + '%'
     })
 
     const chartData = [
@@ -335,9 +332,7 @@ export default defineComponent({
       displayedPages,
       filteredData,
       paginatedData,
-      prevPage,
-      nextPage,
-      goToPage,
+      changePage,
       resetFilter,
       uploadedTodayCount,
       verifiedCount,
