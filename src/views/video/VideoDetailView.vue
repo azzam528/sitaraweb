@@ -426,7 +426,7 @@
           <div v-else-if="videoData.status === 'verified' || videoData.status === 'approved' || videoData.status === 'Diverifikasi'" class="verified-status-info">
             <div class="status-pill-large status-verified">
               <span class="status-dot"></span>
-              <span>AUTO VERIFIED</span>
+              <span>Terkonfirmasi</span>
             </div>
 
             <p class="status-helper-text">

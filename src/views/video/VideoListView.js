@@ -68,7 +68,7 @@ export default defineComponent({
             : (item.status === 'verified' ? 95 : item.status === 'rejected' ? 35 : 65)
 
           let aiStatus = 'Diverifikasi'
-          let reviewStatus = 'Otomatis-Konfirmasi'
+          let reviewStatus = 'Terkonfirmasi'
           if (item.status === 'pending' || item.status === 'review' || rawScore < 80) {
             aiStatus = 'Kepercayaan Rendah'
             reviewStatus = 'Menunggu Tinjauan'
@@ -77,9 +77,9 @@ export default defineComponent({
             aiStatus = 'Gagal'
             reviewStatus = 'Ditolak'
           }
-          if (item.status === 'verified' || item.status === 'approved') {
+          if (item.status === 'verified' || item.status === 'approved' || item.status === 'automatic_confirmed' || item.status === 'manual_confirmed') {
             aiStatus = 'Diverifikasi'
-            reviewStatus = 'Otomatis-Konfirmasi'
+            reviewStatus = 'Terkonfirmasi'
           }
 
           const timeFormatted = formatDateTime(item.created_at || item.verification_date)
@@ -96,7 +96,7 @@ export default defineComponent({
             score: rawScore + '%',
             progressColor: rawScore >= 80 ? 'bg-success' : rawScore >= 50 ? 'bg-warning' : 'bg-danger',
             reviewStatus: reviewStatus,
-            reviewPillClass: reviewStatus === 'Otomatis-Konfirmasi' ? 'pill-gray' : reviewStatus === 'Menunggu Tinjauan' ? 'pill-yellow' : 'pill-red'
+            reviewPillClass: (reviewStatus === 'Terkonfirmasi' || reviewStatus === 'Otomatis-Konfirmasi' || reviewStatus === 'Manual-Konfirmasi') ? 'pill-gray' : reviewStatus === 'Menunggu Tinjauan' ? 'pill-yellow' : 'pill-red'
           }
         })
 
@@ -185,7 +185,7 @@ export default defineComponent({
         if (statusVal) {
           const itemAiStatus = (item.aiStatus || '').toLowerCase()
           const itemReviewStatus = (item.reviewStatus || '').toLowerCase()
-          if (statusVal === 'Diverifikasi' && !(itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('auto verified') || itemReviewStatus.includes('konfirmasi'))) {
+          if (statusVal === 'Diverifikasi' && !(itemAiStatus.includes('diverifikasi') || itemReviewStatus.includes('terkonfirmasi') || itemReviewStatus.includes('auto verified') || itemReviewStatus.includes('konfirmasi'))) {
             matchesStatus = false
           }
           if (statusVal === 'Menunggu Tinjauan' && !(itemAiStatus.includes('rendah') || itemReviewStatus.includes('needs review') || itemReviewStatus.includes('menunggu'))) {
@@ -281,6 +281,7 @@ export default defineComponent({
     const verifiedCount = computed(() => {
       return tableData.value.filter(v =>
         (v.aiStatus || '').toLowerCase().includes('diverifikasi') ||
+        (v.reviewStatus || '').toLowerCase().includes('terkonfirmasi') ||
         (v.reviewStatus || '').toLowerCase().includes('auto verified') ||
         (v.reviewStatus || '').toLowerCase().includes('konfirmasi')
       ).length
