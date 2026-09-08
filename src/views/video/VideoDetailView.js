@@ -154,7 +154,7 @@ export default defineComponent({
                   date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
                   time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
                   status: item.status,
-                  label: item.status === 'verified' ? 'Terverifikasi' : item.status === 'rejected' ? 'Ditolak' : 'Menunggu Tinjauan'
+                  label: (item.status === 'verified' || item.status === 'approved' || item.status === 'automatic_confirmed' || item.status === 'manual_confirmed') ? 'Terkonfirmasi' : item.status === 'rejected' ? 'Ditolak' : 'Menunggu Tinjauan'
                 }
               ],
               notes: item.review_note || '',
@@ -316,16 +316,36 @@ export default defineComponent({
     }
 
     const formatStatus = (status) => {
-      if (status === 'verified' || status === 'Diverifikasi' || status === 'approved') return 'AUTO VERIFIED'
-      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review') return 'NEEDS REVIEW'
-      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak') return 'REJECTED'
-      return status || 'Belum Terverifikasi'
+      if (
+        status === 'verified' ||
+        status === 'Diverifikasi' ||
+        status === 'approved' ||
+        status === 'automatic_confirmed' ||
+        status === 'manual_confirmed' ||
+        status === 'Otomatis-Konfirmasi' ||
+        status === 'Manual-Konfirmasi' ||
+        status === 'AUTO VERIFIED' ||
+        status === 'Terkonfirmasi'
+      ) return 'Terkonfirmasi'
+      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review' || status === 'NEEDS REVIEW') return 'Menunggu Tinjauan'
+      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak' || status === 'REJECTED') return 'Ditolak'
+      return status || 'Menunggu Tinjauan'
     }
 
     const getStatusBadgeClass = (status) => {
-      if (status === 'verified' || status === 'Diverifikasi' || status === 'approved') return 'status-verified'
-      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review') return 'status-pending'
-      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak') return 'status-rejected'
+      if (
+        status === 'verified' ||
+        status === 'Diverifikasi' ||
+        status === 'approved' ||
+        status === 'automatic_confirmed' ||
+        status === 'manual_confirmed' ||
+        status === 'Otomatis-Konfirmasi' ||
+        status === 'Manual-Konfirmasi' ||
+        status === 'AUTO VERIFIED' ||
+        status === 'Terkonfirmasi'
+      ) return 'status-verified'
+      if (status === 'pending' || status === 'Menunggu Tinjauan' || status === 'review' || status === 'needs_review' || status === 'NEEDS REVIEW') return 'status-pending'
+      if (status === 'rejected' || status === 'Gagal' || status === 'Ditolak' || status === 'REJECTED') return 'status-rejected'
       return 'status-pending'
     }
 

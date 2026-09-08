@@ -188,7 +188,7 @@
                 <span
                   class="status-badge"
                   :class="{
-                    'status-active': item.reviewStatus === 'AUTO VERIFIED' || item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
+                    'status-active': item.reviewStatus === 'Terkonfirmasi' || item.reviewStatus === 'AUTO VERIFIED' || item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
                     'status-dropped': item.reviewStatus === 'REJECTED' || item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
                     'status-intensive': item.reviewStatus === 'NEEDS REVIEW' || item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
                   }"
