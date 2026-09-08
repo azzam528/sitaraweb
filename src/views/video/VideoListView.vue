@@ -5,6 +5,18 @@
       <p class="page-subtitle">Kelola dan verifikasi video minum obat pasien dengan bantuan AI.</p>
     </header>
 
+    <!-- Toast Alert Message -->
+    <div
+      v-if="alertMessage"
+      class="toast-alert"
+      :class="'toast-' + alertType"
+    >
+      <span>{{ alertMessage }}</span>
+      <button class="btn-close-toast" @click="alertMessage = ''">
+        &times;
+      </button>
+    </div>
+
     <!-- 1. Statistic Cards Row -->
     <section class="stats-grid stats-grid-5">
       <!-- Card 1 -->
@@ -130,12 +142,17 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="filteredData.length === 0">
+            <tr v-if="isLoading">
               <td colspan="5" class="text-center py-6 text-muted">
-                Tidak ada data verifikasi video yang sesuai.
+                Memuat data verifikasi...
               </td>
             </tr>
-            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index">
+            <tr v-else-if="filteredData.length === 0">
+              <td colspan="5" class="text-center py-6 text-muted">
+                Tidak ada data verifikasi video yang tersedia.
+              </td>
+            </tr>
+            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || index" :class="{ 'row-highlight-new': isNewlyAdded(item.id) }">
               <td>
                 <div class="patient-info">
                   <div class="avatar">{{ item.initials }}</div>
@@ -148,20 +165,34 @@
               <td class="text-secondary">{{ item.time }}</td>
               <td>
                 <div class="compliance-info">
-                  <span class="compliance-text" :style="{ color: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }">
+                  <span
+                    class="compliance-text"
+                    :style="{
+                      color: item.score === '-' ? '#6B7280' : parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626'
+                    }"
+                  >
                     {{ item.score }}
                   </span>
-                  <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" :style="{ width: item.score, backgroundColor: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626' }"></div>
+                  <div v-if="item.score !== '-'" class="progress-bar-bg">
+                    <div
+                      class="progress-bar-fill"
+                      :style="{
+                        width: item.score,
+                        backgroundColor: parseInt(item.score) >= 80 ? '#16A34A' : parseInt(item.score) >= 50 ? '#D97706' : '#DC2626'
+                      }"
+                    ></div>
                   </div>
                 </div>
               </td>
               <td>
-                <span class="status-badge" :class="{
-                  'status-active': item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
-                  'status-dropped': item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
-                  'status-intensive': item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
-                }">
+                <span
+                  class="status-badge"
+                  :class="{
+                    'status-active': item.reviewStatus === 'AUTO VERIFIED' || item.reviewStatus === 'Otomatis-Konfirmasi' || item.aiStatus === 'Diverifikasi',
+                    'status-dropped': item.reviewStatus === 'REJECTED' || item.reviewStatus === 'Ditolak' || item.aiStatus === 'Gagal',
+                    'status-intensive': item.reviewStatus === 'NEEDS REVIEW' || item.reviewStatus === 'Menunggu Tinjauan' || item.aiStatus === 'Kepercayaan Rendah'
+                  }"
+                >
                   {{ item.reviewStatus }}
                 </span>
               </td>
@@ -220,15 +251,17 @@
           >
             Prev
           </button>
-          <button 
-            v-for="page in totalPages" 
-            :key="page" 
-            class="btn-page"
-            :class="{ active: currentPage === page }"
-            @click="goToPage(page)"
-          >
-            {{ page }}
-          </button>
+          <template v-for="(page, idx) in displayedPages" :key="idx">
+            <span v-if="page === '...'" class="page-ellipsis">...</span>
+            <button 
+              v-else 
+              class="btn-page"
+              :class="{ active: currentPage === page }"
+              @click="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          </template>
           <button 
             class="btn-page" 
             :disabled="currentPage === totalPages"

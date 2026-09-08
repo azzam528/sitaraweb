@@ -414,21 +414,81 @@ export default defineComponent({
     // ==========================================
     // PROGRESS & HELPERS
     // ==========================================
-    const progressData = computed(() => {
-      if (!treatment.value?.therapy_start_date || !treatment.value?.therapy_end_date) {
-        return { daysPassed: 0, totalDays: 180, percentage: 0 }
+    const parseDateOnly = (str) => {
+      if (!str) return null;
+
+      const parts = str.split('T')[0].split('-').map(Number);
+
+      if (parts.length < 3 || parts.some(Number.isNaN)) {
+        return null;
       }
 
-      const start = new Date(treatment.value.therapy_start_date)
-      const end = new Date(treatment.value.therapy_end_date)
-      const now = new Date()
+      return new Date(Date.UTC(
+        parts[0],
+        parts[1] - 1,
+        parts[2]
+      ));
+    };
 
-      const totalDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)))
-      const daysPassed = Math.max(0, Math.min(totalDays, Math.round((now - start) / (1000 * 60 * 60 * 24))))
-      const percentage = Math.min(100, Math.round((daysPassed / totalDays) * 100))
+    const progressData = computed(() => {
+      const startDateStr =
+        treatment.value?.therapy_start_date || treatment.value?.start_date;
 
-      return { daysPassed, totalDays, percentage }
-    })
+      const endDateStr =
+        treatment.value?.therapy_end_date || treatment.value?.estimated_end_date;
+
+      const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+      const start = parseDateOnly(startDateStr);
+      const end = parseDateOnly(endDateStr);
+
+      if (!start || !end) {
+        return {
+          percentage: 0,
+          daysPassed: 0,
+          totalDays: 0
+        };
+      }
+
+      const now = new Date();
+
+      const today = new Date(Date.UTC(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+      ));
+
+      const totalDays =
+        Math.round((end.getTime() - start.getTime()) / MS_PER_DAY) + 1;
+
+      let daysPassed = 0;
+
+      if (today < start) {
+        daysPassed = 0;
+      } else if (today > end) {
+        daysPassed = totalDays;
+      } else {
+        daysPassed =
+          Math.round((today.getTime() - start.getTime()) / MS_PER_DAY) + 1;
+      }
+
+      let percentage =
+        Math.round((daysPassed / totalDays) * 100);
+
+      if (treatment.value?.status === 'completed') {
+        percentage = 100;
+        daysPassed = totalDays;
+      }
+
+      percentage = Math.min(100, Math.max(0, percentage));
+      daysPassed = Math.min(totalDays, Math.max(0, daysPassed));
+
+      return {
+        percentage,
+        daysPassed,
+        totalDays
+      };
+    });
 
     const getProgressColor = (t) => {
       if (t?.status === 'dropped' || t?.status === 'defaulted') return '#DC2626'

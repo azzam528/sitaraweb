@@ -1,45 +1,93 @@
 /**
- * Format a date object or string into Indonesian format
+ * Parses any datetime input into a valid Date object in UTC.
+ * If an ISO string without timezone offset/Z is received (e.g. from legacy backend data),
+ * it safely appends 'Z' so that the browser treats it as UTC rather than local time.
+ * @param {Date|string|number} dateStr
+ * @returns {Date|null}
+ */
+export const parseUtcDate = (dateStr) => {
+  if (!dateStr) return null;
+  if (dateStr instanceof Date) {
+    return isNaN(dateStr.getTime()) ? null : dateStr;
+  }
+  let s = String(dateStr).trim();
+  if (!s) return null;
+
+  // Pure calendar date format YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [year, month, day] = s.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  // ISO timestamp with time: ensure it ends with Z if timezone offset is missing
+  if (s.includes('T') || s.includes(' ')) {
+    const hasTimezone = s.endsWith('Z') || s.endsWith('z') || /[+-]\d{2}(:?\d{2})?$/.test(s);
+    if (!hasTimezone) {
+      s = s.replace(' ', 'T') + 'Z';
+    }
+  }
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+/**
+ * Format a date object or string into Indonesian format (Asia/Jakarta)
  * @param {Date|string} date 
  * @param {string} format 'short', 'long', 'full'
  * @returns {string}
  */
 export const formatDate = (date, format = 'short') => {
-  if (!date) return '-';
-  const d = new Date(date);
+  const d = parseUtcDate(date);
+  if (!d) return '-';
   
+  const options = {
+    timeZone: 'Asia/Jakarta',
+    day: 'numeric',
+  };
+
   if (format === 'short') {
-    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    options.month = 'short';
+    options.year = 'numeric';
   } else if (format === 'long') {
-    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    options.month = 'long';
+    options.year = 'numeric';
   } else if (format === 'full') {
-    return d.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    options.weekday = 'long';
+    options.month = 'long';
+    options.year = 'numeric';
+  } else {
+    options.month = 'short';
+    options.year = 'numeric';
   }
-  return d.toLocaleDateString('id-ID');
+  
+  return d.toLocaleDateString('id-ID', options);
 };
 
 /**
- * Format date and time
+ * Format date and time in Asia/Jakarta timezone
  * @param {Date|string} date 
- * @returns {string} '12 Jan 2024 14:30'
+ * @returns {string} '12 Jan 2024, 14.30 WIB'
  */
 export const formatDateTime = (date) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  const dateStr = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-  return `${dateStr} ${timeStr}`;
+  const d = parseUtcDate(date);
+  if (!d) return '-';
+  return `${formatDate(d, 'short')}, ${formatTime(d)} WIB`;
 };
 
 /**
- * Format time only
+ * Format time only in Asia/Jakarta timezone
  * @param {Date|string} date 
- * @returns {string} 'HH:mm'
+ * @returns {string} 'HH.mm'
  */
 export const formatTime = (date) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const d = parseUtcDate(date);
+  if (!d) return '-';
+  return d.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Jakarta',
+  }).replace(':', '.');
 };
 
 /**
@@ -48,11 +96,11 @@ export const formatTime = (date) => {
  * @returns {string}
  */
 export const formatRelativeTime = (date) => {
-  if (!date) return '-';
+  const d = parseUtcDate(date);
+  if (!d) return '-';
   const rtf = new Intl.RelativeTimeFormat('id', { numeric: 'auto' });
-  const d = new Date(date);
   const now = new Date();
-  const diffInSeconds = Math.round((d - now) / 1000);
+  const diffInSeconds = Math.round((d.getTime() - now.getTime()) / 1000);
   
   if (Math.abs(diffInSeconds) < 60) {
     return rtf.format(diffInSeconds, 'second');

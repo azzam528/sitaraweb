@@ -279,6 +279,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "@/stores/ui";
 import { useNotificationStore } from "@/stores/notification";
+import { formatDateTime } from "@/utils/formatter";
 
 const route = useRoute();
 const router = useRouter();
@@ -381,40 +382,7 @@ const getNotifIconClass = (type) => {
   return "success";
 };
 
-const formatTimeAgo = (dateStr) => {
-  if (!dateStr) return "-";
-
-  // Ensure UTC string is recognized by browser
-  let normalizedStr = dateStr;
-  if (
-    typeof dateStr === "string" &&
-    !dateStr.endsWith("Z") &&
-    !dateStr.includes("+") &&
-    !dateStr.includes("-", 10)
-  ) {
-    normalizedStr = dateStr + "Z";
-  }
-
-  const date = new Date(normalizedStr);
-  if (Number.isNaN(date.getTime())) return dateStr;
-
-  // Tampilkan format tanggal dan waktu dalam WIB: "31 Agu 2026 08:05 WIB"
-  const dateStr_formatted = date.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    timeZone: "Asia/Jakarta",
-  });
-  const timeStr_formatted = date
-    .toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Jakarta",
-    })
-    .replace(".", ":");
-
-  return `${dateStr_formatted} ${timeStr_formatted} WIB`;
-};
+const formatTimeAgo = (dateStr) => formatDateTime(dateStr);
 
 const toggleSidebar = () => {
   if (window.innerWidth < 768) {
@@ -456,19 +424,48 @@ const closeDropdownOnOutsideClick = (e) => {
   }
 };
 
-let notifPollInterval = null;
+// Smart Coordinated Polling intervals
+const FAST_POLL_INTERVAL = 3500; // 3.5s when tab is active
+const SLOW_POLL_INTERVAL = 30000; // 30s fallback when tab is hidden
+
+let notifPollTimer = null;
+
+const startPolling = (intervalMs) => {
+  if (notifPollTimer) clearInterval(notifPollTimer);
+  notifPollTimer = setInterval(() => {
+    notificationStore.fetchNotifications();
+  }, intervalMs);
+};
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === "visible") {
+    // Immediately check notifications when refocusing tab
+    notificationStore.fetchNotifications();
+    startPolling(FAST_POLL_INTERVAL);
+  } else {
+    // Switch to slow polling while hidden
+    startPolling(SLOW_POLL_INTERVAL);
+  }
+};
 
 onMounted(() => {
   loadCurrentUser();
   loadNotifications();
   document.addEventListener("click", closeDropdownOnOutsideClick);
-  // Poll notifications every 30 seconds
-  notifPollInterval = setInterval(loadNotifications, 30000);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  // Initial polling frequency based on tab visibility
+  if (document.visibilityState === "visible") {
+    startPolling(FAST_POLL_INTERVAL);
+  } else {
+    startPolling(SLOW_POLL_INTERVAL);
+  }
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", closeDropdownOnOutsideClick);
-  if (notifPollInterval) clearInterval(notifPollInterval);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  if (notifPollTimer) clearInterval(notifPollTimer);
 });
 </script>
 
