@@ -355,6 +355,13 @@
   min-width: 0;
 }
 
+/* Full Width Reviewer Notes Card */
+.notes-card {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
 /* Responsive: 1 Column on Tablet/Mobile with specified order */
 @media (max-width: 1024px) {
   .detail-grid {
