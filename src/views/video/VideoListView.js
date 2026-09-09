@@ -1,4 +1,4 @@
-import { formatDateTime } from "../../utils/formatter";
+import { formatDateTime, parseUtcDate } from "../../utils/formatter";
 import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import videoService from '../../services/video.service'
@@ -13,6 +13,7 @@ export default defineComponent({
     const router = useRouter()
     const activeDropdown = ref(null)
     const isLoading = ref(true)
+    const hasError = ref(false)
     const notificationStore = useNotificationStore()
     const newlyAddedIds = ref(new Set())
 
@@ -50,6 +51,7 @@ export default defineComponent({
     const loadVideos = async (isSilent = false) => {
       if (!isSilent) {
         isLoading.value = true
+        hasError.value = false
       }
       try {
         const videoRes = await videoService.getAll()
@@ -63,17 +65,19 @@ export default defineComponent({
         const mappedData = rawList.map((item) => {
           const patientName = item.patient?.full_name || 'Pasien TB'
           const nik = item.patient?.nik || '-'
-          const rawScore = item.ai_confidence != null
+          const hasConfidence = item.ai_confidence !== null && item.ai_confidence !== undefined && !isNaN(item.ai_confidence)
+          const rawScoreNum = hasConfidence
             ? (item.ai_confidence > 1 ? Math.round(item.ai_confidence) : Math.round(item.ai_confidence * 100))
-            : (item.status === 'verified' ? 95 : item.status === 'rejected' ? 35 : 65)
+            : null
+          const scoreDisplay = rawScoreNum !== null ? `${rawScoreNum}%` : '-'
 
           let aiStatus = 'Diverifikasi'
           let reviewStatus = 'Terkonfirmasi'
-          if (item.status === 'pending' || item.status === 'review' || rawScore < 80) {
+          if (item.status === 'pending' || item.status === 'review' || (rawScoreNum !== null && rawScoreNum < 80)) {
             aiStatus = 'Kepercayaan Rendah'
             reviewStatus = 'Menunggu Tinjauan'
           }
-          if (item.status === 'rejected' || item.status === 'failed' || rawScore < 50) {
+          if (item.status === 'rejected' || item.status === 'failed' || (rawScoreNum !== null && rawScoreNum < 50)) {
             aiStatus = 'Gagal'
             reviewStatus = 'Ditolak'
           }
@@ -86,6 +90,10 @@ export default defineComponent({
 
           return {
             id: item.id,
+            rawCreatedAt: item.created_at,
+            verificationDate: item.verification_date,
+            rawStatus: item.status,
+            rawConfidence: item.ai_confidence,
             initials: patientName.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'TB',
             avatarColor: 'bg-teal',
             name: patientName,
@@ -93,8 +101,8 @@ export default defineComponent({
             time: timeFormatted,
             aiStatus: aiStatus,
             aiStatusColor: aiStatus === 'Diverifikasi' ? 'success-dot' : 'danger-dot',
-            score: rawScore + '%',
-            progressColor: rawScore >= 80 ? 'bg-success' : rawScore >= 50 ? 'bg-warning' : 'bg-danger',
+            score: scoreDisplay,
+            progressColor: rawScoreNum !== null ? (rawScoreNum >= 80 ? 'bg-success' : rawScoreNum >= 50 ? 'bg-warning' : 'bg-danger') : 'bg-gray',
             reviewStatus: reviewStatus,
             reviewPillClass: (reviewStatus === 'Terkonfirmasi' || reviewStatus === 'Otomatis-Konfirmasi' || reviewStatus === 'Manual-Konfirmasi') ? 'pill-gray' : reviewStatus === 'Menunggu Tinjauan' ? 'pill-yellow' : 'pill-red'
           }
@@ -116,6 +124,7 @@ export default defineComponent({
         console.error('Failed to load video verifications:', err)
         if (!isSilent) {
           tableData.value = []
+          hasError.value = true
           showAlert(err.response?.data?.detail || 'Gagal memuat data verifikasi video dari server', 'danger')
         }
       } finally {
@@ -276,38 +285,72 @@ export default defineComponent({
       currentPage.value = 1
     }
 
-    // Dynamic Statistics
-    const uploadedTodayCount = computed(() => tableData.value.length)
+
+    const isTodayWib = (dateStr, fallbackDate) => {
+      const todayDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date())
+      if (dateStr) {
+        const d = parseUtcDate(dateStr)
+        if (d) {
+          const recordDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d)
+          return recordDate === todayDate
+        }
+      }
+      if (fallbackDate) {
+        return String(fallbackDate).trim() === todayDate
+      }
+      return false
+    }
+    // Dynamic Statistics (Filtered strictly for TODAY in Asia/Jakarta / WIB)
+    // 1. VIDEO HARI INI
+    const uploadedTodayCount = computed(() => {
+      if (isLoading.value || hasError.value) return '-'
+      return tableData.value.filter(v => isTodayWib(v.rawCreatedAt, v.verificationDate)).length
+    })
+
+    // 2. TERVERIFIKASI (status === 'verified')
     const verifiedCount = computed(() => {
+      if (isLoading.value || hasError.value) return '-'
       return tableData.value.filter(v =>
-        (v.aiStatus || '').toLowerCase().includes('diverifikasi') ||
-        (v.reviewStatus || '').toLowerCase().includes('terkonfirmasi') ||
-        (v.reviewStatus || '').toLowerCase().includes('auto verified') ||
-        (v.reviewStatus || '').toLowerCase().includes('konfirmasi')
+        isTodayWib(v.rawCreatedAt, v.verificationDate) &&
+        v.rawStatus === 'verified'
       ).length
     })
-    const manualReviewCount = computed(() => {
+
+    // 3. MENUNGGU VERIFIKASI (status === 'pending')
+    const pendingCount = computed(() => {
+      if (isLoading.value || hasError.value) return '-'
       return tableData.value.filter(v =>
-        (v.aiStatus || '').toLowerCase().includes('rendah') ||
-        (v.reviewStatus || '').toLowerCase().includes('needs review') ||
-        (v.reviewStatus || '').toLowerCase().includes('menunggu')
+        isTodayWib(v.rawCreatedAt, v.verificationDate) &&
+        v.rawStatus === 'pending'
       ).length
     })
-    const failedCount = computed(() => {
+    const manualReviewCount = pendingCount // backwards compatibility alias
+
+    // 4. DITOLAK (status === 'rejected')
+    const rejectedCount = computed(() => {
+      if (isLoading.value || hasError.value) return '-'
       return tableData.value.filter(v =>
-        (v.aiStatus || '').toLowerCase().includes('gagal') ||
-        (v.reviewStatus || '').toLowerCase().includes('rejected') ||
-        (v.reviewStatus || '').toLowerCase().includes('ditolak')
+        isTodayWib(v.rawCreatedAt, v.verificationDate) &&
+        v.rawStatus === 'rejected'
       ).length
     })
+    const failedCount = rejectedCount // backwards compatibility alias
+
+    // 5. RATA-RATA KEPERCAYAAN (AVG ai_confidence IS NOT NULL)
     const avgConfidence = computed(() => {
-      const scoredItems = tableData.value.filter(item => item.score !== '-')
-      if (!scoredItems.length) return '-'
-      const totalScore = scoredItems.reduce((acc, curr) => {
-        const val = parseInt(curr.score) || 0
+      if (isLoading.value || hasError.value) return '-'
+      const todayItemsWithConfidence = tableData.value.filter(v =>
+        isTodayWib(v.rawCreatedAt, v.verificationDate) &&
+        v.rawConfidence !== null &&
+        v.rawConfidence !== undefined &&
+        !isNaN(v.rawConfidence)
+      )
+      if (!todayItemsWithConfidence.length) return '0%'
+      const totalScore = todayItemsWithConfidence.reduce((acc, curr) => {
+        const val = curr.rawConfidence > 1 ? curr.rawConfidence : curr.rawConfidence * 100
         return acc + val
       }, 0)
-      return (totalScore / scoredItems.length).toFixed(1) + '%'
+      return (totalScore / todayItemsWithConfidence.length).toFixed(1) + '%'
     })
 
     const chartData = [
@@ -339,9 +382,12 @@ export default defineComponent({
       resetFilter,
       uploadedTodayCount,
       verifiedCount,
+      pendingCount,
       manualReviewCount,
+      rejectedCount,
       failedCount,
       avgConfidence,
+      hasError,
       chartData,
       isLoading,
       alertMessage,

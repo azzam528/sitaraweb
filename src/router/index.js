@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+﻿import { createRouter, createWebHistory } from "vue-router";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 
@@ -17,12 +17,7 @@ const routes = [
         component: () => import("@/views/auth/LoginView.vue"),
         meta: { title: "Login - SITARA" },
       },
-      {
-        path: "register",
-        name: "Register",
-        component: () => import("@/views/auth/RegisterView.vue"),
-        meta: { title: "Register - SITARA" },
-      },
+      { path: "register", redirect: "/login" },
       {
         path: "forgot-password",
         name: "ForgotPassword",
@@ -261,7 +256,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth) {
     if (!token) {
-      // No token → login
+      // No token â†’ login
       next("/login");
     } else if (isPatient) {
       // Patient not allowed on web
@@ -277,7 +272,7 @@ router.beforeEach((to, from, next) => {
     } else {
       next();
     }
-  } else if ((to.path === "/login" || to.path === "/register") && token) {
+  } else if (to.path === "/login" && token) {
     if (isPatient) {
       localStorage.removeItem("sitara_token");
       localStorage.removeItem("sitara_user");
@@ -297,3 +292,4 @@ router.afterEach((to) => {
 });
 
 export default router;
+

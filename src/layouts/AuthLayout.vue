@@ -1,17 +1,10 @@
-<script setup>
-import { computed } from 'vue'
-import { useRoute, RouterView, RouterLink } from 'vue-router'
+﻿<script setup>
+import { RouterView } from 'vue-router'
 import healthcareImg from '@/assets/images/healthcare-team.png'
 import logoImg from '@/assets/images/logo.png'
 
-const route = useRoute()
-
-const isRegister = computed(() => route.path.includes('register'))
-
-const headerTitle = computed(() => isRegister.value ? 'Daftar akun baru' : 'Masuk ke akun Anda')
-const headerSubtitle = computed(() => isRegister.value 
-  ? 'Buat akun petugas puskesmas untuk mulai mengelola pasien TB.' 
-  : 'Masuk untuk mengakses dashboard monitoring pasien TB Puskesmas Anda.')
+const headerTitle = 'Masuk ke akun Anda'
+const headerSubtitle = 'Masuk untuk mengakses dashboard monitoring pasien TB Puskesmas Anda.'
 </script>
 
 <template>
@@ -49,13 +42,6 @@ const headerSubtitle = computed(() => isRegister.value
         <div class="form-header">
           <h1>{{ headerTitle }}</h1>
           <p>{{ headerSubtitle }}</p>
-        </div>
-
-        <!-- Sliding Tab Switcher (Fixed Position) -->
-        <div class="tab-switcher">
-          <div class="tab-pill" :class="{ 'is-register': isRegister }"></div>
-          <RouterLink to="/login" class="tab-item" :class="{ active: !isRegister }">Login</RouterLink>
-          <RouterLink to="/register" class="tab-item" :class="{ active: isRegister }">Daftar</RouterLink>
         </div>
 
         <!-- ONLY Form Fields Component Slides -->
@@ -107,7 +93,7 @@ const headerSubtitle = computed(() => isRegister.value
   align-items: center;
   gap: 14px;
   margin-bottom: 40px;
-  padding-left: 16px; /* Menjorok sedikit ke dalam */
+  padding-left: 16px;
 }
 
 .logo-icon {
@@ -178,9 +164,9 @@ const headerSubtitle = computed(() => isRegister.value
 .auth-form-panel {
   flex: 1;
   display: flex;
-  align-items: flex-start; /* FIXES VERTICAL SHIFTING! Header stays fixed at top */
+  align-items: center;
   justify-content: center;
-  padding: 60px 48px 48px;
+  padding: 48px;
   background-color: #F8FAFC;
   min-height: 100vh;
   overflow-y: auto;
@@ -188,17 +174,19 @@ const headerSubtitle = computed(() => isRegister.value
 
 .auth-form-card {
   width: 100%;
-  max-width: 560px;
+  max-width: 520px;
   background-color: #FFFFFF;
   border-radius: 20px;
   border: 1px solid #E2E8F0;
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
   padding: 40px;
+  margin: auto 0;
 }
 
 /* Header */
 .form-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  text-align: center;
 }
 
 .form-header h1 {
@@ -207,7 +195,6 @@ const headerSubtitle = computed(() => isRegister.value
   color: #1E293B;
   margin: 0 0 8px;
   letter-spacing: -0.02em;
-  transition: color 0.2s ease;
 }
 
 .form-header p {
@@ -215,58 +202,6 @@ const headerSubtitle = computed(() => isRegister.value
   color: #64748B;
   margin: 0;
   line-height: 1.5;
-  transition: color 0.2s ease;
-}
-
-/* Interactive Sliding Tab Switcher (FIXED WIDTH & POSITION) */
-.tab-switcher {
-  position: relative;
-  display: flex;
-  background-color: #F1F5F9;
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 28px;
-  border: 1px solid #E2E8F0;
-  width: 100%;
-}
-
-.tab-pill {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: calc(50% - 4px);
-  height: calc(100% - 8px);
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
-}
-
-.tab-pill.is-register {
-  transform: translateX(100%);
-}
-
-.tab-item {
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  text-align: center;
-  padding: 10px 16px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #64748B;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.2s ease;
-}
-
-.tab-item:hover {
-  color: #1E293B;
-}
-
-.tab-item.active {
-  color: #006591;
 }
 
 .form-fields-container {

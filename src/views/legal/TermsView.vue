@@ -4,7 +4,7 @@
   <div class="legal-page">
     <div class="legal-container card">
       <header class="legal-header">
-        <RouterLink to="/register" class="back-link">
+        <RouterLink to="/login" class="back-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           Kembali
         </RouterLink>
@@ -35,7 +35,7 @@
       </div>
 
       <div class="legal-footer">
-        <RouterLink to="/register" class="btn btn-primary btn-block">Saya Mengerti</RouterLink>
+        <RouterLink to="/login" class="btn btn-primary btn-block">Kembali ke Login</RouterLink>
       </div>
     </div>
   </div>

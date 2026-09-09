@@ -29,7 +29,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">VIDEO DIUNGGAH HARI INI</span>
+          <span class="stat-label">VIDEO HARI INI</span>
           <span class="stat-value">{{ uploadedTodayCount }}</span>
         </div>
       </div>
@@ -43,7 +43,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">BERHASIL DIVERIFIKASI AI</span>
+          <span class="stat-label">TERVERIFIKASI</span>
           <span class="stat-value">{{ verifiedCount }}</span>
         </div>
       </div>
@@ -58,8 +58,8 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">REVIEW MANUAL</span>
-          <span class="stat-value">{{ manualReviewCount }}</span>
+          <span class="stat-label">MENUNGGU VERIFIKASI</span>
+          <span class="stat-value">{{ pendingCount }}</span>
         </div>
       </div>
 
@@ -73,8 +73,8 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">GAGAL VERIFIKASI</span>
-          <span class="stat-value">{{ failedCount }}</span>
+          <span class="stat-label">DITOLAK</span>
+          <span class="stat-value">{{ rejectedCount }}</span>
         </div>
       </div>
 

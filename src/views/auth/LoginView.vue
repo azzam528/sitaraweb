@@ -1,4 +1,4 @@
-<script src="./LoginView.js"></script>
+﻿<script src="./LoginView.js"></script>
 
 <template>
   <div class="login-fields">
@@ -54,7 +54,7 @@
             id="login-password"
             v-model="password"
             :type="showPassword ? 'text' : 'password'"
-            placeholder="••••••••"
+            placeholder="Masukkan password Anda"
             :class="{ 'is-error': errors.password || errors.general }"
             @input="clearError('password')"
           />
@@ -90,8 +90,7 @@
 
     <!-- Footer -->
     <p class="auth-footer-text">
-      Belum punya akun? 
-      <RouterLink to="/register" class="signup-link">Daftar</RouterLink>
+      Belum memiliki akun? Silakan hubungi Administrator Puskesmas.
     </p>
   </div>
 </template>
