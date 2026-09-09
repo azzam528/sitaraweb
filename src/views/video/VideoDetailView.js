@@ -19,6 +19,66 @@ export default defineComponent({
     const isSubmitting = ref(false)
     const notes = ref('')
 
+    // Auto-save Reviewer Notes state
+    const saveStatus = ref('') // '', 'saving', 'saved', 'error'
+    let saveTimeout = null
+    let lastSavedNote = ''
+    let isInitialized = false
+
+    const persistNote = async (noteText) => {
+      if (!videoData.value?.id) return
+      saveStatus.value = 'saving'
+      try {
+        const textToSave = noteText != null ? String(noteText).trim() : ''
+        const response = await videoService.update(videoData.value.id, {
+          review_note: textToSave || null,
+        })
+        lastSavedNote = noteText || ''
+        if (response?.data) {
+          videoData.value.review_note = response.data.review_note || textToSave
+          videoData.value.notes = response.data.review_note || textToSave
+        }
+        saveStatus.value = 'saved'
+      } catch (error) {
+        console.error('Failed to auto-save review note:', error)
+        saveStatus.value = 'error'
+      }
+    }
+
+    const triggerAutoSave = (immediate = false) => {
+      if (!isInitialized) return
+      if (saveTimeout) {
+        clearTimeout(saveTimeout)
+        saveTimeout = null
+      }
+
+      if (notes.value === lastSavedNote && saveStatus.value === 'saved') {
+        return
+      }
+
+      if (immediate) {
+        persistNote(notes.value)
+      } else {
+        saveStatus.value = 'saving'
+        saveTimeout = setTimeout(() => {
+          persistNote(notes.value)
+        }, 700)
+      }
+    }
+
+    const handleNoteKeydown = (e) => {
+      // Enter alone triggers immediate save, Shift+Enter makes newline
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        triggerAutoSave(true)
+      }
+    }
+
+    const onNoteInput = () => {
+      if (!isInitialized) return
+      triggerAutoSave(false)
+    }
+
     // Video Stream State
     const videoBlobUrl = ref('')
     const isVideoLoading = ref(true)
@@ -257,7 +317,28 @@ export default defineComponent({
               notes: item.review_note || '',
               review_note: item.review_note || '',
             }
-            notes.value = videoData.value.notes || ''
+            // Initialize reviewer notes with auto-save support
+            const hasExistingNote = item.review_note != null && String(item.review_note).trim().length > 0
+            const isAutoVerified = item.status === 'verified' || item.status === 'approved' || item.status === 'Diverifikasi' || item.status === 'automatic_confirmed'
+
+            if (hasExistingNote) {
+              notes.value = item.review_note
+              lastSavedNote = item.review_note
+              saveStatus.value = 'saved'
+            } else if (isAutoVerified) {
+              // Rule 3: Auto note from AI system is immediately set and saved
+              const defaultAiNote = 'Terverifikasi otomatis oleh model AI SITARA'
+              notes.value = defaultAiNote
+              videoData.value.notes = defaultAiNote
+              videoData.value.review_note = defaultAiNote
+              lastSavedNote = defaultAiNote
+              persistNote(defaultAiNote)
+            } else {
+              notes.value = ''
+              lastSavedNote = ''
+              saveStatus.value = ''
+            }
+            isInitialized = true
 
             // Load protected video stream
             await loadVideoStream(item.id)
@@ -280,6 +361,13 @@ export default defineComponent({
     })
 
     onBeforeUnmount(() => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout)
+        saveTimeout = null
+        if (notes.value !== lastSavedNote) {
+          persistNote(notes.value)
+        }
+      }
       if (videoBlobUrl.value) {
         URL.revokeObjectURL(videoBlobUrl.value)
         videoBlobUrl.value = ''
@@ -485,6 +573,10 @@ export default defineComponent({
       isLoading,
       isSubmitting,
       notes,
+      saveStatus,
+      onNoteInput,
+      handleNoteKeydown,
+      triggerAutoSave,
       videoBlobUrl,
       isVideoLoading,
       videoError,

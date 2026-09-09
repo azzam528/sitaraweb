@@ -855,3 +855,49 @@
 .mt-2 { margin-top: 8px; }
 .mt-3 { margin-top: 16px; }
 .mt-4 { margin-top: 24px; }
+
+
+/* Auto-save & Reviewer Notes Header */
+.notes-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.notes-save-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.save-status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.notes-save-indicator.save-saving {
+  color: #006591;
+}
+
+.notes-save-indicator.save-saved {
+  color: #16a34a;
+}
+
+.notes-save-indicator.save-error {
+  color: #dc2626;
+}
+
+.save-spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(0, 101, 145, 0.2);
+  border-top-color: #006591;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
