@@ -149,13 +149,23 @@ export default defineComponent({
       return newlyAddedIds.value.has(id) || notificationStore.isNewEntity('video', id)
     }
 
+    let autoRefreshTimer = null
+
     onMounted(() => {
       document.addEventListener('click', handleDocumentClick)
       loadVideos()
+      // Periodic background refresh every 45s to keep "Video Hari Ini" and stats updated
+      autoRefreshTimer = setInterval(() => {
+        loadVideos(true)
+      }, 45000)
     })
 
     onUnmounted(() => {
       document.removeEventListener('click', handleDocumentClick)
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer)
+        autoRefreshTimer = null
+      }
     })
 
     const viewDetail = (id) => {
@@ -353,13 +363,6 @@ export default defineComponent({
       return (totalScore / todayItemsWithConfidence.length).toFixed(1) + '%'
     })
 
-    const chartData = [
-      { label: 'Min 1', success: 85, fail: 15 },
-      { label: 'Min 2', success: 92, fail: 8 },
-      { label: 'Min 3', success: 78, fail: 22 },
-      { label: 'Min 4', success: 95, fail: 5 },
-      { label: 'Today', success: 60, fail: 10 }
-    ]
 
     return {
       isNewlyAdded,
@@ -388,7 +391,6 @@ export default defineComponent({
       failedCount,
       avgConfidence,
       hasError,
-      chartData,
       isLoading,
       alertMessage,
       alertType,
