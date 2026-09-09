@@ -1,9 +1,8 @@
 <template>
   <div class="video-list-view">
     <header class="page-header">
-      <h1 class="page-title">AI Video Verification List</h1>
-      <p class="page-subtitle">Kelola dan verifikasi video minum obat pasien dengan bantuan AI.</p>
-    </header>
+      <h1 class="page-title">Verifikasi Video AI</h1>
+      </header>
 
     <!-- Toast Alert Message -->
     <div
@@ -43,7 +42,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">BERHASIL DIVERIFIKASI AI</span>
+          <span class="stat-label">Verifikasi Berhasil</span>
           <span class="stat-value">{{ verifiedCount }}</span>
         </div>
       </div>
@@ -73,7 +72,7 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-label">GAGAL VERIFIKASI</span>
+          <span class="stat-label">Ditolak</span>
           <span class="stat-value">{{ failedCount }}</span>
         </div>
       </div>
@@ -269,68 +268,6 @@
           >
             Next
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. Bottom Section: Statistik Verifikasi AI -->
-    <div class="stats-chart-section">
-      <div class="stats-chart-card card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Statistik Verifikasi AI (30 Hari Terakhir)</h2>
-            <p class="card-subtitle">Perbandingan jumlah video verifikasi yang berhasil vs gagal per periode.</p>
-          </div>
-          <div class="stat-header-right">
-            <div class="stat-big-num">18 <span class="stat-unit">Total Verifikasi</span></div>
-            <div class="trend-badge">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="18 15 12 9 6 15"></polyline>
-              </svg>
-              <span>+15.2% bulan ini</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="css-bar-chart">
-          <div class="chart-y-axis">
-            <span>100%</span>
-            <span>75%</span>
-            <span>50%</span>
-            <span>25%</span>
-            <span>0%</span>
-          </div>
-          <div class="chart-area">
-            <div class="grid-lines">
-              <div class="grid-line"></div>
-              <div class="grid-line"></div>
-              <div class="grid-line"></div>
-              <div class="grid-line"></div>
-              <div class="grid-line"></div>
-            </div>
-            <div class="bar-group" v-for="(group, idx) in chartData" :key="idx">
-              <div class="bars">
-                <div class="bar-col bar-success" :style="{ height: group.success + '%' }" :title="'Berhasil: ' + group.success + '%'">
-                  <span class="bar-val">{{ group.success }}%</span>
-                </div>
-                <div class="bar-col bar-fail" :style="{ height: group.fail + '%' }" :title="'Gagal: ' + group.fail + '%'">
-                  <span class="bar-val">{{ group.fail }}%</span>
-                </div>
-              </div>
-              <div class="bar-label">{{ group.label }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chart-legend">
-          <span class="legend-item">
-            <span class="legend-dot dot-success"></span> 
-            Berhasil Verifikasi
-          </span>
-          <span class="legend-item">
-            <span class="legend-dot dot-fail"></span> 
-            Gagal Verifikasi
-          </span>
         </div>
       </div>
     </div>
