@@ -6,6 +6,45 @@
   color: #1e293b;
   padding-bottom: 36px;
 }
+/* Compact Patient Header for Treatment Detail */
+:deep(.detail-header-card) {
+  padding: 16px 20px !important;
+  margin-bottom: 20px !important;
+}
+
+:deep(.detail-avatar) {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  flex: 0 0 52px !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.2rem !important;
+}
+
+:deep(.detail-avatar span) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+:deep(.detail-title) {
+  font-size: 18px !important;
+}
+
+:deep(.detail-identity-group) {
+  gap: 14px !important;
+}
+
 
 /* Nav & Back Link */
 .header-nav {
@@ -80,6 +119,7 @@
 /* TREATMENT TABS BAR */
 /* ---------------------------------------------------- */
 .treatment-tabs-bar {
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -184,12 +224,13 @@
 }
 
 /* ---------------------------------------------------- */
-/* INFO GRID */
+/* ROW 1: INFO GRID (PROGRES + DIAGNOSIS) */
 /* ---------------------------------------------------- */
 .info-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
   margin-bottom: 20px;
 }
 
@@ -198,6 +239,64 @@
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: 0;
+}
+
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.progress-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.diagnosis-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.diagnosis-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.diagnosis-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diagnosis-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #e0f2fe;
+  color: #006591;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.diagnosis-date-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 6px 0 8px;
+}
+
+.diagnosis-footer-subtext {
+  font-size: 12.5px;
+  margin-top: auto;
 }
 
 .info-header {
@@ -271,18 +370,79 @@
 }
 
 /* ---------------------------------------------------- */
-/* GRID LAYOUT (2 cols: 65% / 35%) */
+/* ROW 2: DETAIL TERAPI + TINDAKAN PENGOBATAN (2 COLS) */
 /* ---------------------------------------------------- */
-.grid-layout {
+.treatment-columns-grid {
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
   gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
 }
 
-.left-col {
+.therapy-detail-card,
+.action-card {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------- */
+/* ROW 3: BIODATA & INFORMASI PASIEN (FULL WIDTH) */
+/* ---------------------------------------------------- */
+.patient-biodata-card {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.biodata-two-cols {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  column-gap: 32px;
+  align-items: stretch;
+}
+
+.biodata-col {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  min-width: 0;
+}
+
+.biodata-divider {
+  width: 1px;
+  background-color: #f1f5f9;
+  height: 100%;
+}
+
+.clinical-note-box {
+  background-color: #f8fafc;
+  border-left: 4px solid #006591;
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  margin-top: 16px;
+}
+
+.note-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #006591;
+  margin-bottom: 6px;
+}
+
+.note-box-header h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.clinical-note-box p {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .section-title {
@@ -347,7 +507,18 @@
 .action-buttons-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+}
+
+.action-buttons-list .btn {
+  height: 42px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
 }
 
 /* ---------------------------------------------------- */
@@ -778,8 +949,18 @@
 /* RESPONSIVE DESIGN */
 /* ---------------------------------------------------- */
 @media (max-width: 1024px) {
-  .grid-layout {
+  .info-grid,
+  .treatment-columns-grid {
     grid-template-columns: 1fr;
+  }
+
+  .biodata-two-cols {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+  }
+
+  .biodata-divider {
+    display: none;
   }
 }
 

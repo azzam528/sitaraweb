@@ -527,6 +527,13 @@ export default defineComponent({
       return status || '-'
     }
 
+    const formatGender = (gender) => {
+      if (!gender) return '-'
+      if (gender === 'male' || gender === 'L') return 'Laki-laki'
+      if (gender === 'female' || gender === 'P') return 'Perempuan'
+      return gender
+    }
+
     const formatControlStatus = (status) => {
       if (status === 'pending') return 'Terjadwal'
       if (status === 'completed') return 'Selesai'
@@ -706,6 +713,7 @@ export default defineComponent({
       formatPhase,
       formatRegimen,
       formatStatus,
+      formatGender,
       formatControlStatus,
       getControlBadgeClass,
       formatDate,

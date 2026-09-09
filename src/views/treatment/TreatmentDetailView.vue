@@ -69,6 +69,14 @@
           <span class="meta-item">
             <strong>No. RM:</strong> {{ treatment.patient?.medical_record_number || "-" }}
           </span>
+          <span class="meta-dot" v-if="treatment.patient?.birth_date">&bull;</span>
+          <span class="meta-item" v-if="treatment.patient?.birth_date">
+            <strong>Tgl Lahir:</strong> {{ formatDate(treatment.patient?.birth_date) }}
+          </span>
+          <span class="meta-dot" v-if="treatment.patient?.gender">&bull;</span>
+          <span class="meta-item" v-if="treatment.patient?.gender">
+            <strong>Jenis Kelamin:</strong> {{ formatGender(treatment.patient?.gender) }}
+          </span>
         </template>
       </DetailHeader>
 
@@ -155,7 +163,7 @@
           </div>
         </div>
 
-        <!-- Info Metrics Row -->
+        <!-- Info Metrics Row (Progres Durasi Terapi + Tanggal Diagnosis) -->
         <div class="info-grid">
           <!-- PROGRES PENGOBATAN -->
           <div class="card info-card progress-card">
@@ -178,26 +186,153 @@
               </div>
             </div>
 
-            <p class="info-subtext text-muted">
-              {{ progressData.percentage }}% durasi telah berjalan
-            </p>
-
-            <p class="info-subtext text-muted">
-              Estimasi selesai:
-              <strong>
-                {{ formatDate(treatment.therapy_end_date) }}
-              </strong>
-            </p>
+            <div class="progress-footer-row">
+              <span class="info-subtext text-muted">
+                {{ progressData.percentage }}% durasi telah berjalan
+              </span>
+              <span class="info-subtext text-muted">
+                Estimasi selesai:
+                <strong>
+                  {{ formatDate(treatment.therapy_end_date) }}
+                </strong>
+              </span>
+            </div>
           </div>
 
           <!-- TANGGAL DIAGNOSIS & TERAPI -->
-          <div class="card info-card doctor-card">
-            <div class="doctor-card-content">
-              <div class="doctor-icon">
+          <div class="card info-card diagnosis-card">
+            <div class="diagnosis-card-inner">
+              <div class="diagnosis-header-row">
+                <div class="diagnosis-icon-box">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <span class="info-label">Tanggal Diagnosis</span>
+              </div>
+
+              <div class="diagnosis-date-value font-bold">
+                {{ formatDate(treatment.diagnosis_date) }}
+              </div>
+
+              <div class="diagnosis-footer-subtext text-muted">
+                Mulai Terapi: <strong>{{ formatDate(treatment.therapy_start_date) }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Informasi Detail Terapi + Tindakan Pengobatan (Two Columns) -->
+        <div class="treatment-columns-grid">
+          <!-- Left: Informasi Detail Terapi -->
+          <div class="card therapy-detail-card">
+            <h3 class="section-title">Informasi Detail Terapi</h3>
+
+            <div class="detail-list">
+              <div class="detail-row">
+                <span class="detail-label">Fase Terapi:</span>
+                <span class="detail-val font-semibold">
+                  {{ formatPhase(treatment.phase) }}
+                  <button
+                    v-if="treatment.phase === 'intensive' && treatment.status === 'active'"
+                    type="button"
+                    class="btn btn-outline btn-xs ml-2"
+                    :disabled="isSubmitting"
+                    @click="confirmTransitionToContinuation"
+                  >
+                    Pindah ke Fase Lanjutan
+                  </button>
+                </span>
+              </div>
+
+              <div class="detail-row" v-if="treatment.phase === 'intensive'">
+                <span class="detail-label">Estimasi Akhir Fase Intensif:</span>
+                <span class="detail-val font-medium text-amber-700">
+                  {{ formatDate(intensiveEndDate) }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Paduan Regimen OAT:</span>
+                <span class="detail-val">{{ formatRegimen(treatment.regimen) }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Status Pengobatan:</span>
+                <span class="detail-val">
+                  <span
+                    class="status-badge"
+                    :class="'status-' + treatment.status"
+                  >
+                    {{ formatStatus(treatment.status) }}
+                  </span>
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Tanggal Diagnosis:</span>
+                <span class="detail-val">{{
+                  formatDate(treatment.diagnosis_date)
+                }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Mulai Pengobatan:</span>
+                <span class="detail-val">{{
+                  formatDate(treatment.therapy_start_date)
+                }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Estimasi Selesai Terapi:</span>
+                <span class="detail-val font-semibold">{{
+                  formatDate(treatment.therapy_end_date)
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Catatan Dokter / Keterangan Klinis -->
+            <div class="clinical-note-box" v-if="treatment.doctor_note">
+              <div class="note-box-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <h4>Catatan Dokter / Keterangan Klinis</h4>
+              </div>
+              <p>{{ treatment.doctor_note }}</p>
+            </div>
+          </div>
+
+          <!-- Right: Tindakan Pengobatan -->
+          <div class="card action-card">
+            <h3 class="section-title">Tindakan Pengobatan</h3>
+
+            <div class="action-buttons-list">
+              <button
+                class="btn btn-primary btn-block"
+                @click="openStatusModal"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -205,284 +340,165 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  ></path>
+                  <path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                  ></path>
                 </svg>
-              </div>
+                Ubah Status Terapi
+              </button>
 
-              <div>
-                <span class="info-label">Tanggal Diagnosis</span>
+              <button
+                v-if="treatment.patient?.phone"
+                class="btn btn-outline btn-block"
+                @click="
+                  sendWhatsApp(
+                    treatment.patient.phone,
+                    treatment.patient?.full_name,
+                    'Pasien',
+                  )
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path>
+                </svg>
+                Kirim Pengingat Pasien (WA)
+              </button>
 
-                <p class="doctor-name">
-                  {{ formatDate(treatment.diagnosis_date) }}
-                </p>
+              <button
+                v-if="treatment.patient?.pmo_phone"
+                class="btn btn-outline btn-block"
+                @click="
+                  sendWhatsApp(
+                    treatment.patient.pmo_phone,
+                    treatment.patient?.pmo_name,
+                    'PMO',
+                  )
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path>
+                </svg>
+                Kirim Laporan ke PMO (WA)
+              </button>
 
-                <p class="info-subtext text-muted">
-                  Mulai Terapi: {{ formatDate(treatment.therapy_start_date) }}
-                </p>
-              </div>
+              <button
+                class="btn btn-outline-danger btn-block"
+                @click="confirmDelete"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
+                </svg>
+                Hapus Rekam Pengobatan
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Main Detail Sections (Two Columns) -->
-        <div class="grid-layout">
-          <!-- Left Column: Detail Terapi & Pasien -->
-          <div class="left-col">
-            <!-- Detail Terapi -->
-            <div class="card">
-              <h3 class="section-title">Informasi Detail Terapi</h3>
+        <!-- Row 3: Biodata & Informasi Pasien (Full Width) -->
+        <div class="card patient-biodata-card" v-if="treatment.patient">
+          <h3 class="section-title">Biodata & Informasi Pasien</h3>
 
-              <div class="detail-list">
-                <div class="detail-row">
-                  <span class="detail-label">Fase Terapi (Phase):</span>
-                  <span class="detail-val font-semibold">
-                    {{ formatPhase(treatment.phase) }}
-                    <button
-                      v-if="treatment.phase === 'intensive' && treatment.status === 'active'"
-                      type="button"
-                      class="btn btn-outline btn-xs ml-2"
-                      :disabled="isSubmitting"
-                      @click="confirmTransitionToContinuation"
-                    >
-                      Pindah ke Fase Lanjutan
-                    </button>
-                  </span>
-                </div>
-
-                <div class="detail-row" v-if="treatment.phase === 'intensive'">
-                  <span class="detail-label">Estimasi Akhir Fase Intensif:</span>
-                  <span class="detail-val font-medium text-amber-700">
-                    {{ formatDate(intensiveEndDate) }}
-                  </span>
-                </div>
-
-                <div class="detail-row">
-                  <span class="detail-label">Paduan Regimen OAT:</span>
-                  <span class="detail-val">{{ formatRegimen(treatment.regimen) }}</span>
-                </div>
-
-                <div class="detail-row">
-                  <span class="detail-label">Status Pengobatan:</span>
-                  <span class="detail-val">
-                    <span
-                      class="status-badge"
-                      :class="'status-' + treatment.status"
-                    >
-                      {{ formatStatus(treatment.status) }}
-                    </span>
-                  </span>
-                </div>
-
-                <div class="detail-row">
-                  <span class="detail-label">Tanggal Diagnosis:</span>
-                  <span class="detail-val">{{
-                    formatDate(treatment.diagnosis_date)
-                  }}</span>
-                </div>
-
-                <div class="detail-row">
-                  <span class="detail-label">Mulai Pengobatan:</span>
-                  <span class="detail-val">{{
-                    formatDate(treatment.therapy_start_date)
-                  }}</span>
-                </div>
-
-                <div class="detail-row">
-                  <span class="detail-label">Estimasi Selesai Terapi:</span>
-                  <span class="detail-val font-semibold">{{
-                    formatDate(treatment.therapy_end_date)
-                  }}</span>
-                </div>
+          <div class="biodata-two-cols">
+            <!-- Left Biodata Column -->
+            <div class="biodata-col">
+              <div class="detail-row">
+                <span class="detail-label">Nama Lengkap:</span>
+                <span class="detail-val font-semibold">{{
+                  treatment.patient.full_name
+                }}</span>
               </div>
-
-              <div class="note-box mt-3" v-if="treatment.doctor_note">
-                <h4>Catatan Dokter / Keterangan Klinis:</h4>
-                <p>{{ treatment.doctor_note }}</p>
+              <div class="detail-row">
+                <span class="detail-label">NIK:</span>
+                <span class="detail-val">{{ treatment.patient.nik }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">No. Rekam Medis:</span>
+                <span class="detail-val">{{
+                  treatment.patient.medical_record_number
+                }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Tanggal Lahir:</span>
+                <span class="detail-val">{{
+                  formatDate(treatment.patient.birth_date)
+                }}</span>
               </div>
             </div>
 
-            <!-- Data Pasien Lengkap -->
-            <div class="card" v-if="treatment.patient">
-              <h3 class="section-title">Biodata & Informasi Pasien</h3>
+            <!-- Subtle Vertical Divider -->
+            <div class="biodata-divider"></div>
 
-              <div class="detail-list">
-                <div class="detail-row">
-                  <span class="detail-label">Nama Lengkap:</span>
-                  <span class="detail-val font-semibold">{{
-                    treatment.patient.full_name
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">NIK:</span>
-                  <span class="detail-val">{{ treatment.patient.nik }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">No. Rekam Medis:</span>
-                  <span class="detail-val">{{
-                    treatment.patient.medical_record_number
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Tanggal Lahir:</span>
-                  <span class="detail-val">{{
-                    formatDate(treatment.patient.birth_date)
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Jenis Kelamin:</span>
-                  <span class="detail-val">{{
-                    treatment.patient.gender === "male" ||
-                    treatment.patient.gender === "L"
-                      ? "Laki-laki"
-                      : treatment.patient.gender === "female" ||
-                        treatment.patient.gender === "P"
-                      ? "Perempuan"
-                      : treatment.patient.gender || "-"
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Nomor Telepon:</span>
-                  <span class="detail-val">{{
-                    treatment.patient.phone || "-"
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Pekerjaan:</span>
-                  <span class="detail-val">{{
-                    treatment.patient.occupation || "-"
-                  }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Alamat Domisili:</span>
-                  <span class="detail-val">{{
-                    treatment.patient.address || "-"
-                  }}</span>
-                </div>
+            <!-- Right Biodata Column -->
+            <div class="biodata-col">
+              <div class="detail-row">
+                <span class="detail-label">Jenis Kelamin:</span>
+                <span class="detail-val">{{
+                  formatGender(treatment.patient.gender)
+                }}</span>
               </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Tindakan & Aksi Cepat -->
-          <div class="right-col">
-            <div class="card action-card">
-              <h3 class="section-title">Tindakan Pengobatan</h3>
-
-              <div class="action-buttons-list">
-                <button
-                  class="btn btn-primary btn-block"
-                  @click="openStatusModal"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                    ></path>
-                    <path
-                      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                    ></path>
-                  </svg>
-                  Ubah Status Terapi
-                </button>
-
-                <button
-                  v-if="treatment.patient?.phone"
-                  class="btn btn-outline btn-block"
-                  @click="
-                    sendWhatsApp(
-                      treatment.patient.phone,
-                      treatment.patient?.full_name,
-                      'Pasien',
-                    )
-                  "
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                    ></path>
-                  </svg>
-                  Kirim Pengingat Pasien (WA)
-                </button>
-
-                <button
-                  v-if="treatment.patient?.pmo_phone"
-                  class="btn btn-outline btn-block"
-                  @click="
-                    sendWhatsApp(
-                      treatment.patient.pmo_phone,
-                      treatment.patient?.pmo_name,
-                      'PMO',
-                    )
-                  "
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                    ></path>
-                  </svg>
-                  Kirim Laporan ke PMO (WA)
-                </button>
-
-                <button
-                  class="btn btn-outline-danger btn-block"
-                  @click="confirmDelete"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path
-                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                    ></path>
-                  </svg>
-                  Hapus Rekam Pengobatan
-                </button>
+              <div class="detail-row">
+                <span class="detail-label">Nomor Telepon:</span>
+                <span class="detail-val">{{
+                  treatment.patient.phone || "-"
+                }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Pekerjaan:</span>
+                <span class="detail-val">{{
+                  treatment.patient.occupation || "-"
+                }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Alamat Domisili:</span>
+                <span class="detail-val">{{
+                  treatment.patient.address || "-"
+                }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ======================================================== -->
       <!-- TAB 2: JADWAL OBAT (MEDICINE SCHEDULES) -->
       <!-- ======================================================== -->
       <div v-else-if="activeTab === 'medicines'" class="tab-pane">
