@@ -75,49 +75,145 @@ export default defineComponent({
               ? `${(item.file_size / (1024 * 1024)).toFixed(1)} MB`
               : '4.8 MB'
 
-            // Real AI details without fake heuristics
+            // 1. Deteksi Wajah Pasien
             const faceVerif = item.face_verification || null
-            const hasFaceVerif = faceVerif != null
-            const faceStatus = hasFaceVerif
-              ? (faceVerif.status === 'verified' ? 'MATCH' : 'MISMATCH')
-              : null
-            const faceLabel = hasFaceVerif
-              ? (faceVerif.status === 'verified' ? 'Wajah Terverifikasi Sesuai Data Pasien' : 'Wajah Kurang Sesuai / Terhalang')
-              : 'Data verifikasi wajah belum tersedia'
+            let faceStatus = 'DATA BELUM TERSEDIA'
+            let faceLabel = 'Data belum tersedia'
+            let faceScore = null
 
+            if (item.ai_details?.face_match?.status) {
+              const raw = String(item.ai_details.face_match.status).toUpperCase()
+              if (raw === 'TERKONFIRMASI' || raw === 'MATCH' || raw === 'VERIFIED') {
+                faceStatus = 'TERKONFIRMASI'
+              } else if (raw === 'TIDAK TERKONFIRMASI' || raw === 'MISMATCH' || raw === 'FAILED') {
+                faceStatus = 'TIDAK TERKONFIRMASI'
+              }
+              faceLabel = item.ai_details.face_match.label || (faceStatus === 'TERKONFIRMASI' ? 'Wajah Terverifikasi Sesuai Data Pasien' : 'Wajah Tidak Sesuai / Terhalang')
+              faceScore = item.ai_details.face_match.score
+            } else if (faceVerif) {
+              if (faceVerif.status === 'verified') {
+                faceStatus = 'TERKONFIRMASI'
+                faceLabel = 'Wajah Terverifikasi Sesuai Data Pasien'
+              } else if (faceVerif.status === 'failed') {
+                faceStatus = 'TIDAK TERKONFIRMASI'
+                faceLabel = 'Wajah Tidak Sesuai / Terhalang'
+              }
+              if (faceVerif.similarity_score != null) {
+                faceScore = +(faceVerif.similarity_score * 100).toFixed(1)
+              }
+            } else if (item.face_verification_id != null) {
+              if (item.status === 'verified' || item.status === 'approved') {
+                faceStatus = 'TERKONFIRMASI'
+                faceLabel = 'Wajah Terverifikasi Sesuai Data Pasien'
+              } else if (item.status === 'rejected') {
+                faceStatus = 'TIDAK TERKONFIRMASI'
+                faceLabel = 'Verifikasi Wajah Ditolak'
+              } else {
+                faceStatus = 'TERKONFIRMASI'
+                faceLabel = 'Wajah Terverifikasi Sesuai Data Pasien'
+              }
+            }
+
+            // 2. Identifikasi Tablet Obat
             const medVerif = item.medicine_detection || item.medication_verification || null
-            const hasMedVerif = medVerif != null
-            const medStatus = hasMedVerif
-              ? (medVerif.medicine_match ? 'VERIFIED' : 'UNCERTAIN')
-              : null
-            const medLabel = hasMedVerif
-              ? (medVerif.medicine_match ? 'Kombinasi Obat Terdeteksi' : 'Bentuk Obat Kurang Terlihat Jelas')
-              : 'Data deteksi obat belum tersedia'
+            let medStatus = 'DATA BELUM TERSEDIA'
+            let medLabel = 'Data belum tersedia'
+            let medScore = null
 
-            const isDrinkingVerified = item.status === 'verified' || item.status === 'approved' || item.max_drinking_stage === 'completed'
-            const hasDrinkingData = isDrinkingVerified || item.max_drinking_stage != null
-            const drinkingStatus = isDrinkingVerified
-              ? 'DETECTED'
-              : (item.max_drinking_stage != null ? 'UNCERTAIN' : null)
-            const drinkingLabel = isDrinkingVerified
-              ? 'Gerakan Minum & Menelan Terkonfirmasi'
-              : (hasDrinkingData ? 'Proses Minum Belum Lengkap' : 'Data deteksi minum belum tersedia')
+            if (item.ai_details?.pill_detected?.status) {
+              const raw = String(item.ai_details.pill_detected.status).toUpperCase()
+              if (raw === 'TERKONFIRMASI' || raw === 'VERIFIED' || raw === 'DETECTED' || raw === 'MATCH') {
+                medStatus = 'TERKONFIRMASI'
+              } else if (raw === 'TIDAK TERKONFIRMASI' || raw === 'UNCERTAIN' || raw === 'FAILED' || raw === 'MISMATCH') {
+                medStatus = 'TIDAK TERKONFIRMASI'
+              }
+              medLabel = item.ai_details.pill_detected.label || (medStatus === 'TERKONFIRMASI' ? 'Kombinasi Tablet Obat Teridentifikasi' : 'Bentuk Obat Kurang Terlihat Jelas')
+              medScore = item.ai_details.pill_detected.score
+            } else if (medVerif) {
+              if (medVerif.medicine_match === true || medVerif.status === 'verified') {
+                medStatus = 'TERKONFIRMASI'
+                medLabel = 'Kombinasi Tablet Obat Teridentifikasi'
+              } else if (medVerif.medicine_match === false || medVerif.status === 'failed') {
+                medStatus = 'TIDAK TERKONFIRMASI'
+                medLabel = 'Bentuk Obat Kurang Terlihat Jelas'
+              }
+              if (medVerif.confidence != null) {
+                medScore = +(medVerif.confidence * 100).toFixed(1)
+              }
+            } else if (item.medicine_schedule_id != null && (item.status === 'verified' || item.status === 'approved')) {
+              medStatus = 'TERKONFIRMASI'
+              medLabel = 'Kombinasi Tablet Obat Teridentifikasi'
+            } else if (item.medicine_schedule_id != null && item.status === 'rejected') {
+              medStatus = 'TIDAK TERKONFIRMASI'
+              medLabel = 'Identifikasi Tablet Obat Tidak Sesuai'
+            }
 
-            const aiDetails = item.ai_details || {
+            // 3. Gerakan Minum & Menelan
+            let drinkingStatus = 'DATA BELUM TERSEDIA'
+            let drinkingLabel = 'Data belum tersedia'
+
+            if (item.ai_details?.swallowing_detected?.status) {
+              const raw = String(item.ai_details.swallowing_detected.status).toUpperCase()
+              if (raw === 'TERKONFIRMASI' || raw === 'DETECTED' || raw === 'VERIFIED') {
+                drinkingStatus = 'TERKONFIRMASI'
+              } else if (raw === 'TIDAK TERKONFIRMASI' || raw === 'UNCERTAIN' || raw === 'FAILED' || raw === 'PERLU TINJAUAN') {
+                drinkingStatus = 'TIDAK TERKONFIRMASI'
+              }
+              drinkingLabel = item.ai_details.swallowing_detected.label || (drinkingStatus === 'TERKONFIRMASI' ? 'Gerakan Minum & Menelan Terkonfirmasi' : 'Gerakan Menelan Kurang Terlihat')
+            } else if (item.status === 'verified' || item.status === 'approved' || item.max_drinking_stage === 'completed') {
+              drinkingStatus = 'TERKONFIRMASI'
+              drinkingLabel = 'Gerakan Minum & Menelan Terkonfirmasi'
+            } else if (item.status === 'rejected') {
+              drinkingStatus = 'TIDAK TERKONFIRMASI'
+              drinkingLabel = 'Gerakan Menelan Tidak Terpenuhi'
+            } else if (item.max_drinking_stage != null) {
+              drinkingStatus = 'TIDAK TERKONFIRMASI'
+              drinkingLabel = 'Proses Minum Belum Lengkap'
+            }
+
+            // Ringkasan Hasil Analisis AI (Hasil Keseluruhan)
+            const allAiStatuses = [faceStatus, medStatus, drinkingStatus]
+            let aiSummary = {
+              text: 'DATA VERIFIKASI BELUM LENGKAP',
+              badgeClass: 'badge-subtle',
+              type: 'incomplete',
+            }
+
+            if (allAiStatuses.every((s) => s === 'TERKONFIRMASI')) {
+              aiSummary = {
+                text: 'VERIFIKASI BERHASIL',
+                badgeClass: 'badge-success',
+                type: 'success',
+              }
+            } else if (allAiStatuses.some((s) => s === 'TIDAK TERKONFIRMASI')) {
+              aiSummary = {
+                text: 'PERLU PEMERIKSAAN ADMIN',
+                badgeClass: 'badge-warning',
+                type: 'warning',
+              }
+            } else {
+              aiSummary = {
+                text: 'DATA VERIFIKASI BELUM LENGKAP',
+                badgeClass: 'badge-subtle',
+                type: 'incomplete',
+              }
+            }
+
+            const aiDetails = {
               face_match: {
-                has_data: hasFaceVerif,
+                has_data: faceStatus !== 'DATA BELUM TERSEDIA',
                 status: faceStatus,
-                score: faceVerif?.similarity_score != null ? +(faceVerif.similarity_score * 100).toFixed(1) : null,
+                score: faceScore,
                 label: faceLabel,
               },
               pill_detected: {
-                has_data: hasMedVerif,
+                has_data: medStatus !== 'DATA BELUM TERSEDIA',
                 status: medStatus,
-                score: medVerif?.confidence != null ? +(medVerif.confidence * 100).toFixed(1) : null,
+                score: medScore,
                 label: medLabel,
               },
               swallowing_detected: {
-                has_data: hasDrinkingData,
+                has_data: drinkingStatus !== 'DATA BELUM TERSEDIA',
                 status: drinkingStatus,
                 label: drinkingLabel,
               },
@@ -148,6 +244,7 @@ export default defineComponent({
               status: item.status || 'pending',
               overall_score: overallScore,
               ai_details: aiDetails,
+              ai_summary: aiSummary,
               timeline: item.timeline || [
                 {
                   day: 'Hari Ini',
@@ -349,6 +446,12 @@ export default defineComponent({
       return 'status-pending'
     }
 
+    const getAiStatusBadgeClass = (status) => {
+      if (status === 'TERKONFIRMASI') return 'badge-success'
+      if (status === 'TIDAK TERKONFIRMASI') return 'badge-danger'
+      return 'badge-subtle'
+    }
+
     const getScoreBadgeClass = (score) => {
       if (score == null) return 'score-low'
       const num = typeof score === 'number' ? score : parseInt(score) || 0
@@ -399,6 +502,7 @@ export default defineComponent({
       formatStatus,
       getStatusBadgeClass,
       getScoreBadgeClass,
+      getAiStatusBadgeClass,
       formatDate,
       formatTime
     }

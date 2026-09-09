@@ -78,18 +78,13 @@
           </span>
         </template>
 
-        <template #extra>
-          <div class="score-card-mini">
-            <span class="score-label">SKOR KEYAKINAN AI</span>
-            <span class="score-value font-bold" :class="videoData.overall_score != null ? getScoreBadgeClass(videoData.overall_score) : 'text-muted'">
-              {{ videoData.overall_score != null ? videoData.overall_score + '%' : '-' }}
-            </span>
-          </div>
-        </template>
       </DetailHeader>
 
       <!-- 3. Upper Grid: Video Player + AI Analysis -->
-      <div class="row-grid mb-4">
+      <!-- 3. Two-Column Layout (Left: Video + Reviewer, Right: AI Analysis + Verification) -->
+      <div class="detail-grid">
+        <!-- Left Column: Video Evidence + Reviewer Notes -->
+        <div class="detail-column detail-column-left">
         <!-- Left: Video Player Card -->
         <div class="card video-card">
           <div class="card-header-row mb-3">
@@ -100,9 +95,6 @@
               </svg>
               <h3 class="section-title">Bukti Rekaman Video (AI VOT)</h3>
             </div>
-            <span class="badge badge-subtle">
-              {{ videoData.resolution || "720p HD" }}
-            </span>
           </div>
 
           <!-- Video Player Box (Adaptive Portrait Frame) -->
@@ -138,11 +130,6 @@
 
           <!-- Video Footer with Metadata & Download Action -->
           <div class="video-footer mt-3">
-            <div class="video-meta-info">
-              <span class="meta-tag">{{ videoData.resolution || "720p HD (1280x720)" }}</span>
-              <span class="meta-tag">{{ videoData.file_size || "4.8 MB" }}</span>
-              <span class="meta-tag">{{ videoData.duration_seconds || 45 }} Detik</span>
-            </div>
             <button
               class="btn btn-sm btn-outline-primary download-btn"
               @click="downloadVideoBlob"
@@ -158,6 +145,26 @@
           </div>
         </div>
 
+        <!-- Notes Card -->
+        <div class="card notes-card">
+          <div class="card-title-with-icon mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="title-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <h3 class="section-title">Catatan Tenaga Kesehatan / Reviewer</h3>
+          </div>
+          <textarea
+            v-model="notes"
+            class="notes-textarea"
+            placeholder="Tambahkan catatan hasil verifikasi manual klinis..."
+            rows="4"
+          ></textarea>
+        </div>
+        </div>
+
+        <!-- Right Column: AI Analysis + Verification Actions -->
+        <div class="detail-column detail-column-right">
         <!-- Right: AI Analysis Card -->
         <div class="card analysis-card">
           <div class="card-header-row mb-3">
@@ -175,22 +182,20 @@
             </span>
           </div>
 
-          <!-- Score Progress Bar -->
-          <div class="ai-score-bar-wrapper mb-3">
-            <div class="progress-track">
-              <div
-                v-if="videoData.overall_score != null"
-                class="progress-fill"
-                :class="getScoreBadgeClass(videoData.overall_score)"
-                :style="{ width: videoData.overall_score + '%' }"
-              ></div>
-              <div v-else class="progress-fill" style="width: 0%;"></div>
-            </div>
+          <!-- Ringkasan Hasil Analisis AI Keseluruhan -->
+          <div class="ai-summary-box mb-3">
+            <span class="summary-caption">Hasil Keseluruhan:</span>
+            <span
+              class="badge"
+              :class="videoData.ai_summary?.badgeClass || 'badge-subtle'"
+            >
+              {{ videoData.ai_summary?.text || 'DATA VERIFIKASI BELUM LENGKAP' }}
+            </span>
           </div>
 
           <!-- Verification Points Breakdown -->
           <div class="analysis-list">
-            <!-- 1. Deteksi Wajah -->
+            <!-- 1. Deteksi Wajah Pasien -->
             <div class="analysis-item">
               <div class="analysis-left">
                 <div class="analysis-icon-box">
@@ -201,22 +206,18 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Deteksi Wajah Pasien</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.face_match?.label || 'Data verifikasi wajah belum tersedia' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.face_match?.label || 'Data belum tersedia' }}</span>
                 </div>
               </div>
               <span
-                v-if="videoData.ai_details?.face_match?.has_data"
                 class="badge"
-                :class="videoData.ai_details?.face_match?.status === 'MATCH' ? 'badge-success' : 'badge-danger'"
+                :class="getAiStatusBadgeClass(videoData.ai_details?.face_match?.status)"
               >
-                {{ videoData.ai_details?.face_match?.status }}
-              </span>
-              <span v-else class="badge badge-subtle">
-                Data belum tersedia
+                {{ videoData.ai_details?.face_match?.status || 'DATA BELUM TERSEDIA' }}
               </span>
             </div>
 
-            <!-- 2. Identifikasi Obat -->
+            <!-- 2. Identifikasi Tablet Obat -->
             <div class="analysis-item">
               <div class="analysis-left">
                 <div class="analysis-icon-box">
@@ -227,22 +228,18 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Identifikasi Tablet Obat</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.pill_detected?.label || 'Data deteksi obat belum tersedia' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.pill_detected?.label || 'Data belum tersedia' }}</span>
                 </div>
               </div>
               <span
-                v-if="videoData.ai_details?.pill_detected?.has_data"
                 class="badge"
-                :class="videoData.ai_details?.pill_detected?.status === 'VERIFIED' ? 'badge-success' : 'badge-warning'"
+                :class="getAiStatusBadgeClass(videoData.ai_details?.pill_detected?.status)"
               >
-                {{ videoData.ai_details?.pill_detected?.status }}
-              </span>
-              <span v-else class="badge badge-subtle">
-                Data belum tersedia
+                {{ videoData.ai_details?.pill_detected?.status || 'DATA BELUM TERSEDIA' }}
               </span>
             </div>
 
-            <!-- 3. Gerakan Menelan -->
+            <!-- 3. Gerakan Minum & Menelan -->
             <div class="analysis-item">
               <div class="analysis-left">
                 <div class="analysis-icon-box">
@@ -253,95 +250,17 @@
                 </div>
                 <div class="analysis-text-group">
                   <span class="analysis-title">Gerakan Minum & Menelan</span>
-                  <span class="analysis-desc">{{ videoData.ai_details?.swallowing_detected?.label || 'Data deteksi minum belum tersedia' }}</span>
+                  <span class="analysis-desc">{{ videoData.ai_details?.swallowing_detected?.label || 'Data belum tersedia' }}</span>
                 </div>
               </div>
               <span
-                v-if="videoData.ai_details?.swallowing_detected?.status === 'DETECTED'"
-                class="badge badge-success"
+                class="badge"
+                :class="getAiStatusBadgeClass(videoData.ai_details?.swallowing_detected?.status)"
               >
-                TERKONFIRMASI
-              </span>
-              <span
-                v-else-if="videoData.ai_details?.swallowing_detected?.has_data"
-                class="badge badge-warning"
-              >
-                PERLU TINJAUAN
-              </span>
-              <span v-else class="badge badge-subtle">
-                Data belum tersedia
+                {{ videoData.ai_details?.swallowing_detected?.status || 'DATA BELUM TERSEDIA' }}
               </span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- 4. Timeline Kepatuhan (Full Width) -->
-      <div class="card timeline-card mb-4">
-        <div class="card-header-row mb-3">
-          <div class="card-title-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="title-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <h3 class="section-title">Timeline Kepatuhan Minum Obat (7 Hari Terakhir)</h3>
-          </div>
-          <span class="badge badge-subtle">Riwayat Pasien</span>
-        </div>
-
-        <div class="timeline-container">
-          <div class="timeline-line"></div>
-          <div class="timeline-nodes">
-            <div
-              v-for="(item, idx) in (videoData.timeline || [])"
-              :key="idx"
-              class="timeline-node"
-            >
-              <div
-                class="node-icon"
-                :class="item.status === 'verified' ? 'success' : item.status === 'warning' ? 'warning' : item.status === 'pending' ? 'pending' : 'danger'"
-              >
-                <!-- Verified Check -->
-                <svg v-if="item.status === 'verified'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <!-- Pending / Warning Clock -->
-                <svg v-else-if="item.status === 'warning' || item.status === 'pending'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <!-- Danger / Missed Cross -->
-                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </div>
-              <div class="node-date font-semibold">{{ item.day }}</div>
-              <div class="node-time">{{ item.time || item.date }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. Bottom Grid: Notes + Verification Actions -->
-      <div class="row-grid-bottom">
-        <!-- Notes Card -->
-        <div class="card notes-card">
-          <div class="card-title-with-icon mb-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="title-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-            <h3 class="section-title">Catatan Tenaga Kesehatan / Reviewer</h3>
-          </div>
-          <textarea
-            v-model="notes"
-            class="notes-textarea"
-            placeholder="Tambahkan catatan hasil verifikasi manual klinis..."
-            rows="4"
-          ></textarea>
         </div>
 
         <!-- Verification Actions Card -->
@@ -493,6 +412,7 @@
               Hubungi Pasien via WhatsApp
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
